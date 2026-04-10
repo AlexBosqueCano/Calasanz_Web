@@ -1,0 +1,309 @@
+/* Esto es un comentario en CSS. No afecta al código. */
+
+/* Selector 'body' */
+body {
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- Estilos del Encabezado (Header) --- */
+header {
+    background-color: #006400;
+    color: white; 
+    padding: 20px; 
+    display: flex;
+    align-items: center;
+}
+
+/* --- Estilos de la Navegación (Nav) --- */
+nav {
+    background-color: #333; 
+    padding: 10px;
+    text-align: center; 
+}
+nav ul {
+    list-style-type: none; 
+    margin: 0;
+    padding: 0;
+}
+nav li {
+    display: inline-block; 
+    margin-right: 20px; 
+}
+nav a {
+    color: white; 
+    text-decoration: none; 
+    font-weight: bold; 
+}
+nav a:hover {
+    color: #90ee90;
+}
+
+/* --- Estilos del Contenido Principal (Main) --- */
+main {
+    padding: 20px; 
+}
+section {
+    background-color: #ffffff; 
+    margin-bottom: 20px; 
+    padding: 15px;
+    border-radius: 5px; 
+}
+
+/* --- Estilos del Pie de Página (Footer) --- */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    margin-top: 30px; 
+}
+
+/* Estilos para la imagen dentro del header */
+header img {
+    width: 100px;
+    height: auto;
+    margin-right: 20px;
+}
+/* Estilos para el H1 dentro del header */
+header h1 {
+    flex-grow: 1;
+    text-align: center;
+    margin: 0;
+}
+
+/* --- Estilos para la Página de Equipos (.lista-equipos) --- */
+.lista-equipos h3 {
+    color: #006400;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+.lista-equipos ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+.lista-equipos li {
+    background-color: #f9f9f9;
+    margin-bottom: 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+.lista-equipos a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+.lista-equipos a:hover {
+     color: #006400;
+}
+
+/* --- Estilos para la Tabla de Plantilla (Jugadores) --- */
+.plantilla-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.plantilla-tabla th,
+.plantilla-tabla td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+.plantilla-tabla th {
+    background-color: #006400;
+    color: white;
+}
+.plantilla-tabla tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* --- Estilos para Selector de Temporada --- */
+.selector-temporada {
+    margin-top: 15px;
+    margin-bottom: 25px;
+}
+.selector-temporada label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+.selector-temporada select {
+    padding: 5px;
+    font-size: 1em;
+    border-radius: 5px;
+}
+
+/* --- Estilo para las líneas horizontales (separadores) --- */
+hr {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 30px 0;
+}
+
+/* --- Estilos para la Tabla de Clasificación --- */
+.clasificacion-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+.clasificacion-tabla th,
+.clasificacion-tabla td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+.clasificacion-tabla th {
+    background-color: #333;
+    color: white;
+}
+.clasificacion-tabla strong {
+    color: #006400;
+    font-weight: 900;
+}
+
+/* ¡¡NUEVO!! --- Estilos para el Sub-Menú (Plantilla, Stats...) --- */
+.sub-menu {
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 20px;
+}
+.sub-menu li {
+    display: inline-block; /* Los pone en horizontal */
+    margin-right: 10px;
+}
+.sub-menu a {
+    display: block;
+    padding: 12px 20px;
+    background-color: #006400; /* Fondo verde */
+    color: white; /* Letra blanca */
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 5px;
+}
+.sub-menu a:hover {
+    background-color: #004a99; /* Un azul para el hover, o el verde más oscuro */
+}
+
+/* --- Estilos para el Sistema de Pestañas de Estadísticas --- */
+
+/* 1. Estilos para los "botones" (los <li>) */
+.stat-tabs {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 0; 
+    border-bottom: 2px solid #006400; /* Línea verde bajo las pestañas */
+    display: flex; /* Pone los botones en horizontal */
+}
+
+.stat-link {
+    padding: 10px 20px;
+    cursor: pointer; /* El ratón se convierte en una "mano" */
+    background-color: #f4f4f4; /* Fondo gris claro */
+    border: 1px solid #ddd;
+    border-bottom: 0; 
+    border-radius: 5px 5px 0 0; /* Esquinas redondeadas solo arriba */
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+/* 2. Estilo para el botón ACTIVO */
+.stat-link.active {
+    background-color: #006400; /* Fondo verde (tu color) */
+    color: white; /* Letra blanca */
+}
+
+/* 3. Estilo para el contenedor del contenido */
+.stat-content-wrapper {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-top: 0; 
+    background-color: #fff;
+}
+
+
+/* 4. ¡¡LA MAGIA!! Ocultamos los paneles por defecto */
+.stat-content {
+    display: none;
+}
+
+/* 5. ...Pero mostramos el que tenga la clase "active" */
+.stat-content.active {
+    display: block;
+}
+
+/* --- Estilo para enlaces en Tablas --- */
+/* (Para que el nombre del jugador se vea bien en la lista) */
+.plantilla-tabla a {
+    color: #006400; /* Verde de tu equipo */
+    font-weight: bold;
+    text-decoration: none; /* Sin subrayado */
+}
+.plantilla-tabla a:hover {
+    text-decoration: underline; /* Subrayado solo al pasar el ratón */
+}
+
+
+/* --- Estilos para la Ficha de Perfil de Jugador --- */
+.perfil-jugador {
+    display: flex; /* ¡Magia! Pone los divs hijos en horizontal */
+    align-items: flex-start; /* Alinea arriba */
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.perfil-foto img {
+    width: 200px; /* Ancho fijo para la foto */
+    height: auto;
+    border-radius: 5px;
+    border: 3px solid #ddd;
+}
+
+.perfil-info {
+    margin-left: 30px; /* Espacio entre la foto y la info */
+}
+
+.perfil-info ul {
+    list-style-type: none; /* Quita los puntos de la lista */
+    padding-left: 0;
+}
+
+.perfil-info li {
+    font-size: 1.1em; /* Letra un poco más grande */
+    margin-bottom: 10px;
+}
+
+/* =========================================
+   DISEÑO RESPONSIVE (MÓVILES Y TABLETS)
+   ========================================= */
+
+@media (max-width: 768px) {
+
+    /* --- 1. El Menú de Navegación --- */
+    /* Hacemos que los enlaces se apilen uno debajo del otro */
+    nav li {
+        display: block; /* Cambia de horizontal a bloque (vertical) */
+        margin-right: 0; /* Quitamos el margen derecho que tenían */
+        margin-bottom: 15px; /* Añadimos espacio entre los botones */
+    }
+
+    /* Opcional: Centramos y damos un poco más de tamaño en móvil para que sea fácil tocar con el dedo */
+    nav a {
+        font-size: 1.2em;
+        padding: 10px;
+        display: block;
+    }
+
+    /* --- 3. Tablas Deslizables (Scroll horizontal) --- */
+    /* Convertimos las tablas en bloques con barra de desplazamiento lateral */
+    .plantilla-tabla,
+    .clasificacion-tabla {
+        display: block;
+        overflow-x: auto; /* Activa el scroll horizontal si no cabe */
+        white-space: nowrap; /* Evita que el texto de las celdas se parta en varias líneas y ensucie la tabla */
+    }
+
+}
