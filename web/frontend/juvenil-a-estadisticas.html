@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas (Juvenil A) - CD. CALASANZ</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+    <header>
+        <img src="escudo.jpg" alt="Escudo del Club F.C.">
+        <h1>CD. CALASANZ</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="equipos.html">Equipos</a></li>
+            <li><a href="noticias.html">Noticias</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section>
+            <h2>Estadísticas - Juvenil A</h2>
+            
+            <div class="selector-temporada">
+                <label for="temporada">Temporada:</label>
+                <select name="temporada" id="temporada">
+                    <option value="2025-2026">Temporada 2025-2026</option>
+                    <option value="2024-2025">Temporada 2024-2025</option>
+                    <option value="2023-2024">Temporada 2023-2024</option>
+                </select>
+            </div>
+            
+            <hr>
+            
+            <ul class="stat-tabs">
+                <li class="stat-link active" data-tab="goles">Goles</li>
+                <li class="stat-link" data-tab="asistencias">Asistencias</li>
+                <li class="stat-link" data-tab="minutos">Minutos</li>
+                <li class="stat-link" data-tab="tarjetas">Tarjetas</li>
+            </ul>
+
+            <div class="stat-content-wrapper">
+                
+                <div id="goles" class="stat-content active">
+                    <h3>Clasificación de Goleadores</h3>
+                    <table class="plantilla-tabla"> <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Nombre</th>
+                                <th>Goles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>David López</td>
+                                <td>5</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Miguel Fernández</td>
+                                <td>2</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="asistencias" class="stat-content">
+                    <h3>Clasificación de Asistencias</h3>
+                    <table class="plantilla-tabla">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Nombre</th>
+                                <th>Asistencias</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Miguel Fernández</td>
+                                <td>3</td>
+                            </tr>
+                             <tr>
+                                <td>2</td>
+                                <td>Carlos García</td>
+                                <td>1</td>
+                            </tr>
+                             <tr>
+                                <td>2</td>
+                                <td>David López</td>
+                                <td>1</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="minutos" class="stat-content">
+                    <h3>Clasificación de Minutos y Partidos</h3>
+                    <table class="plantilla-tabla">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Nombre</th>
+                                <th>Minutos</th>
+                                <th>PJ</th>
+                                <th>Titular</th>
+                                <th>Suplente</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Juan Pérez</td>
+                                <td>360'</td>
+                                <td>4</td>
+                                <td>4</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Carlos García</td>
+                                <td>360'</td>
+                                <td>4</td>
+                                <td>4</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>David López</td>
+                                <td>340'</td>
+                                <td>4</td>
+                                <td>4</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="tarjetas" class="stat-content">
+                    <h3>Registro de Tarjetas</h3>
+                    <table class="plantilla-tabla">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Amarillas (TA)</th>
+                                <th>Rojas (TR)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Carlos García</td>
+                                <td>1</td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <td>David López</td>
+                                <td>1</td>
+                                <td>0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <br>
+            <a href="equipo-juvenil-a.html">Volver a la Clasificación</a>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CD. CALASANZ. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="main.js"></script>
+
+</body>
+</html>

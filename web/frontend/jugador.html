@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil Jugador - CD. CALASANZ</title>
+    <link rel="stylesheet" href="estilos.css">
+    <style>
+        .perfil-info { border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;}
+        .perfil-foto img { max-width: 150px; border-radius: 8px; display: block; margin: 0 auto; }
+        .ficha-tecnica strong { font-size: 1.1em; }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="escudo.jpg" alt="Escudo del CD. CALASANZ">
+        <h1>CD. CALASANZ</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="index.html">Inicio</a></li>
+            <li><a href="equipos.html">Equipos</a></li>
+            <li><a href="noticias.html">Noticias</a></li>
+            <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section>
+            <h2 id="nombre-perfil-principal">Cargando jugador...</h2>
+
+            <div class="selector-temporada" style="margin-top: 10px;">
+                Temporada: <strong style="font-size: 1.1em; color: #006400;">2025-2026</strong> 
+            </div>
+            
+            <div class="perfil-jugador">
+                <div class="perfil-foto" style="text-align: center; margin-top: 20px;">
+                    <img src="jugador-placeholder.jpg" alt="Foto">
+                </div>
+                <div class="perfil-info ficha-tecnica" style="border: 1px solid #ccc; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                    <h3>Ficha Técnica</h3>
+                    <ul id="lista-ficha-tecnica">
+                        <li>Cargando datos...</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <hr>
+            <h3>Estadísticas Temporada 2025-2026</h3>
+            <table class="plantilla-tabla"> 
+                 <thead>
+                    <tr>
+                        <th>PJ</th>
+                        <th>Titular</th>
+                        <th>Suplente</th>
+                        <th>Minutos</th>
+                        <th>Goles</th>
+                        <th>Asist.</th>
+                        <th>TA</th>
+                        <th>TR</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-estadisticas-jugador">
+                    <tr><td colspan="8" style="text-align: center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+            <br>
+            <a href="juvenil-a-plantilla.html">Volver a la Plantilla</a>
+        </section>
+    </main>
+    <footer><p>&copy; 2026 CD. CALASANZ</p></footer>
+    <script src="main.js"></script>
+</body>
+</html>
