@@ -1,0 +1,17 @@
+ La aplicación consiste en un gestor de un club deportivo (Club Deportivo Calasanz). 
+Nos centraremos en poder ver las estádisticas de las distintas categorías del club (Clasificación, resultados, calendario...).
+De cada equipo podremos ver la plantilla y consultar las estadísticas de los jugadores (Goleadores, minutos jugados, tarjetas, apartado de lesionados...).
+Estructuralmente vamos a tener distinas interfaces:
+    - Antes de entrar en la página principal vamos a tener una página de Registro / Inicio de sesión para acceder.
+    - Una página inicial en la que podremos ver las últimas noticias, resultados de la semana, próximos partidos. Desde esta podremos ir a las siguientes.
+    - Podremos ir directamente a la página de los equipos, donde podremos consultar todo lo anteriormente mencionado. 
+    - Habrá además una página de Noticias donde podremos ver los próximos eventos del club o eventos finalizados.
+    - Por último una página de contacto donde aparece información del club. 
+En todo momento podremos movernos entre páginas y volver hacia atrás. 
+En cuanto a los roles tendremos los siguientes: 
+    Usuario estándar: podrá interactuar con la aplicación web pero no tendrá un perfil personalizado. 
+    Jugador: podrá ver su perfil personal e interactuar de manera normal con la aplicación web.
+    Entrenador: podrá ver su equipo, modificar actas, hacer apuntes de sobre sus partidos para futuros enfrentamientos. (Más adelante podríamos meter IA que genere ejercicios, o planes)
+    Coordinador: podrá añadir nuevos jugadores al club y podrá, añadir noticias. 
+    Desarrollador: tendrá control absoluto sobre la aplicación. 
+Tanto el jugador como el entrenador tendrán que solicitar el acceso a la cuenta en el club, que le genera un usuario con este rol. 
