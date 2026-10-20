@@ -52,7 +52,7 @@ Prioridades: **P0** bloquea a otros o es imprescindible; **P1** requisito obliga
 - [ ] **M3** (P0, F1, 4) Estructura de la app Flask: blueprints, capa de acceso a datos, gestor global de errores que devuelva el formato JSON del contrato.
 - [ ] **M4** (P0, F2, 6) CRUD de jugadores y estadísticas agregadas por jugador.
 - [ ] **M5** (P0, F2, 3) Equipos, plantilla, temporadas y categorías.
-- [ ] **M6** (P0–P1, F2, 8) Partidos y acta (`PUT /api/partidos/{id}/acta`, atómica, con reglas de negocio).
+- [ ] **M6** (P0–P1, F2, 8) Partidos (crear, editar y borrar: entrenador de su equipo, coordinador y desarrollador) y acta (`PUT /api/partidos/{id}/acta`, atómica, con reglas de negocio).
 - [ ] **M7** (P1, F2–3, 7) Clasificación, goleadores, estadísticas del equipo y `GET /api/inicio`.
 - [ ] **M8** (P1, F3, 3) Apuntes del entrenador (con comprobación de propiedad; usar los decoradores de Enriquez).
 - [ ] **M9** (P0, F1–2, 3) Validaciones y reglas de negocio centralizadas; que los errores de BD (CHECK, trigger de porteros) lleguen como 422, no como 500.
@@ -62,7 +62,7 @@ Prioridades: **P0** bloquea a otros o es imprescindible; **P1** requisito obliga
 
 - [ ] **E1** (P0, F1, 4) Registro de usuarios con hash de contraseña (argon2id o bcrypt) y validación.
 - [ ] **E2** (P0, F1, 6) Login/logout/`yo` con sesión segura (cookie `HttpOnly`, `SameSite`, secreto desde entorno) y protección CSRF.
-- [ ] **E3** (P0, F1, 6) Decoradores: `login_required`, `rol_requerido(...)` y comprobación de propiedad (entrenador del equipo, jugador propio). **Bloquea a Mateo y Guillermo: priorizar.**
+- [ ] **E3** (P0, F1, 6) Decoradores: `login_required`, `rol_requerido(...)` y comprobación de propiedad (entrenador del equipo, también para partidos; jugador propio). **Bloquea a Mateo y Guillermo: priorizar.**
 - [ ] **E4** (P1, F3, 6) Solicitudes de acceso: alta, listado, aprobación atómica (cambia rol y vincula usuario).
 - [ ] **E5** (P1, F3, 4) Gestión de usuarios: listar, cambiar rol, desactivar, con la jerarquía de quién asigna qué.
 - [ ] **E6** (P1, F3, 4) Limitación de intentos (login y registro), cabeceras de seguridad, `.env.example`, ningún secreto en el repo.
@@ -80,7 +80,7 @@ Prioridades: **P0** bloquea a otros o es imprescindible; **P1** requisito obliga
 - [ ] **B5** (P1, F2, 6) Equipos, plantilla y perfil de jugador.
 - [ ] **B6** (P1, F2–3, 8) Página de equipo: clasificación, resultados, calendario, goleadores, tarjetas y lesionados.
 - [ ] **B7** (P1, F2–3, 3) Página de noticias y eventos.
-- [ ] **B8** (P1–P2, F3, 12) Paneles por rol: coordinador (alta de jugadores, noticias, solicitudes), entrenador (actas, apuntes, lesiones) y perfil del jugador.
+- [ ] **B8** (P1–P2, F3, 12) Paneles por rol: coordinador (alta de jugadores, noticias, solicitudes), entrenador (calendario y partidos de su equipo, actas, apuntes, lesiones) y perfil del jugador.
 - [ ] **B9** (P1, F1–4, 8) Responsive real, accesibilidad (etiquetas con `for`, foco visible, teclado, `aria-live`, contraste, `alt`), diálogos de confirmación en acciones destructivas, revisión con teclado y herramientas automáticas.
 
 ### Guillermo — Infraestructura, pruebas y documentación (44)

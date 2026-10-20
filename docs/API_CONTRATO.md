@@ -50,7 +50,7 @@ Un entrenador está vinculado a su equipo (`equipo.id_entrenador`) y un jugador 
 | Solicitar acceso como jugador o entrenador | sí | no | no | no | no |
 | Gestionar solicitudes | no | no | no | JUGADOR y ENTRENADOR | todas |
 | Crear, editar y dar de baja jugadores | no | no | no | sí | sí |
-| Crear, editar y borrar partidos | no | no | no | sí | sí |
+| Crear, editar y borrar partidos | no | no | solo los de su equipo | sí | sí |
 | Rellenar o modificar el acta de un partido | no | no | solo su equipo | no | sí |
 | Apuntes de rival/partido | no | no | solo su equipo | no | sí |
 | Registrar y editar lesiones | no | no | solo su equipo | sí | sí |
@@ -203,9 +203,9 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 |---|---|---|---|
 | GET | `/api/partidos?temporada=&equipo=&desde=&hasta=&estado=` | autenticado | 200 paginado |
 | GET | `/api/partidos/{id}` | autenticado | 200 (incluye acta si existe) · 404 |
-| POST | `/api/partidos` `{ temporada_id, jornada, fecha, local_id, visitante_id, evento? }` | COORD, DEV | 201 · 403 · 422 |
-| PATCH | `/api/partidos/{id}` | COORD, DEV | 200 · 403 · 404 · 409 (ya tiene acta y se cambia algo que la invalida) · 422 |
-| DELETE | `/api/partidos/{id}` | COORD, DEV | 204 (borra también su acta; la interfaz pide confirmación) · 403 · 404 |
+| POST | `/api/partidos` `{ temporada_id, jornada, fecha, local_id, visitante_id, evento? }` | ENTRENADOR (solo si su equipo es `local_id` o `visitante_id`), COORD, DEV | 201 · 403 · 422 |
+| PATCH | `/api/partidos/{id}` | ENTRENADOR de uno de los equipos del partido, COORD, DEV | 200 · 403 · 404 · 409 (ya tiene acta y se cambia algo que la invalida) · 422 |
+| DELETE | `/api/partidos/{id}` | ENTRENADOR de uno de los equipos del partido, COORD, DEV | 204 (borra también su acta; la interfaz pide confirmación) · 403 · 404 |
 | PUT | `/api/partidos/{id}/acta` | ENTRENADOR del equipo, DEV | 200 (reemplaza el acta completa en una transacción) · 403 · 404 · 409 (partido en el futuro) · 422 |
 
 ### Apuntes, lesiones y noticias
@@ -245,6 +245,7 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 **Partido**
 - `local_id` ≠ `visitante_id`; al menos uno es equipo propio; ambos de la misma categoría.
 - `jornada` ≥ 1; `fecha` obligatoria y válida; la temporada debe existir.
+- Un `ENTRENADOR` solo puede crear, editar o borrar partidos en los que juegue **su** equipo (`403` en caso contrario). Al editar, el partido debe seguir incluyendo a su equipo: no puede reasignarlo a otro equipo (`403`).
 
 **Acta**
 - Solo se puede enviar si la fecha del partido ya ha llegado (`409` si es futura).
@@ -284,7 +285,7 @@ Para implementar este contrato hay que modificar el esquema actual (`PostGres/we
 
 - **D1. Equipos.** Hoy hay dos tablas (`equipo` rivales y `equipo_calasanz`), y `partido.local/visitante` no puede apuntar a ambas. *Recomendación:* una sola tabla `equipo` con `es_propio`. Así los partidos entre rivales también se guardan y la clasificación puede ser de toda la liga y no solo de nuestro equipo.
 - **D2. Sesión o JWT.** *Recomendación:* sesión con cookie (más sencillo y seguro para esta app, y encaja con el CSRF descrito).
-- **D3. Quién crea partidos y calendario.** El enunciado de requisitos no lo dice. *Recomendación:* coordinador; el entrenador solo rellena el acta.
+- **D3. Quién crea partidos y calendario.** **Decidido:** los entrenadores pueden crear, editar y borrar los partidos de su equipo (además del acta), para que el coordinador no tenga que gestionarlo todo cada semana. El coordinador y el desarrollador pueden hacerlo con cualquier equipo. Queda por decidir cómo da de alta un entrenador un rival que aún no existe: hoy los rivales solo los gestionan COORD y DEV.
 - **D4. Visibilidad.** Se asume que todo requiere sesión (el requisito dice que antes de la página principal hay login). ¿Se quiere algo público (por ejemplo, la página de contacto)?
 - **D5. Datos de lesiones.** Son datos de salud de menores: se propone mostrar solo estado y fecha estimada, sin diagnóstico.
 - **D6. Frameworks.** El frontend actual es JavaScript puro. Cualquier librería (React, framework CSS) hay que consensuarla con el profesor.
