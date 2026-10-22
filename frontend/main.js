@@ -1,146 +1,207 @@
-const API_URL = 'http://localhost:8080/api/jugadores';
+/*
+ * main.js — Lógica de las páginas de jugadores (plantilla, perfil, alta).
+ * Usa el cliente central (api.js). Regla: los datos del servidor se pintan con
+ * textContent / Api.el(), nunca con innerHTML.
+ * Se ejecuta cuando la plantilla común (layout.js) ha terminado y la sesión está comprobada.
+ */
+(function () {
+    'use strict';
 
-// ==========================================
-// 1. CARGAR PLANTILLA GENERAL
-// ==========================================
-async function cargarJugadores() {
-    const contenedor = document.getElementById('contenedor-jugadores');
-    if (!contenedor) return; 
+    const { el } = Api;
 
-    try {
-        const respuesta = await fetch(API_URL);
-        const jugadores = await respuesta.json();
-        
-        contenedor.innerHTML = '';
-
-        jugadores.forEach(jugador => {
-            const apellido2 = jugador.ap2 ? jugador.ap2 : '';
-            const fila = document.createElement('tr');
-            
-            // Eliminamos la columna dorsal y ponemos strong en posición. 
-            // El link ya es negrita en estilos.css o HTML.
-            fila.innerHTML = `
-                <td>
-                    <a href="jugador.html?id=${jugador.idJugador}" style="font-weight: bold; color: inherit; text-decoration: none;">
-                        ${jugador.nombre} ${jugador.ap1} ${apellido2}
-                    </a>
-                </td>
-                <td><strong>${jugador.posicion}</strong></td>
-            `;
-            
-            contenedor.appendChild(fila);
-        });
-    } catch (error) {
-        console.error('Error al cargar la plantilla:', error);
+    function nombreCompleto(j) {
+        return [j.nombre, j.ap1, j.ap2].filter(Boolean).join(' ');
     }
-}
 
-// ==========================================
-// 2. CARGAR PERFIL INDIVIDUAL Y ESTADÍSTICAS
-// ==========================================
-async function cargarPerfilJugador() {
-    const parametros = new URLSearchParams(window.location.search);
-    const idJugador = parametros.get('id');
-
-    if (!idJugador) return;
-
-    try {
-        // --- PETICIÓN 1: Datos Personales ---
-        const respuesta = await fetch(`${API_URL}/${idJugador}`);
-        const jugador = await respuesta.json();
-
-        const tituloNombre = document.getElementById('nombre-perfil-principal');
-        if (tituloNombre) {
-            const apellido2 = jugador.ap2 ? jugador.ap2 : '';
-            tituloNombre.textContent = `${jugador.nombre} ${jugador.ap1} ${apellido2}`;
-        }
-
-        const listaFicha = document.getElementById('lista-ficha-tecnica');
-        if (listaFicha) {
-            // Ficha técnica limpia de peso, estatura y dorsal.
-            listaFicha.innerHTML = `
-                <li><strong>Posición:</strong> ${jugador.posicion}</li>
-                <li><strong>Equipo:</strong> Juvenil A</li>
-            `;
-        }
-
-        // --- PETICIÓN 2: Estadísticas del jugador ---
-        const respuestaStats = await fetch(`${API_URL}/${idJugador}/estadisticas`);
-        
-        if (!respuestaStats.ok) throw new Error('Error al cargar estadísticas');
-        
-        const stats = await respuestaStats.json();
-        
-        const tablaStats = document.getElementById('cuerpo-estadisticas-jugador');
-        if (tablaStats) {
-            // Mantenemos font-weight: bold al <tr> para resaltar todos los números
-            tablaStats.innerHTML = `
-                <tr style="font-weight: bold; font-size: 1.05em;">
-                    <td>${stats.partidos_jugados || 0}</td>
-                    <td>${stats.titular || 0}</td>
-                    <td>${stats.suplente || 0}</td>
-                    <td>${stats.minutos_totales || 0}'</td>
-                    <td>${stats.goles_totales || 0}</td>
-                    <td>${stats.asistencias_totales || 0}</td>
-                    <td>${stats.amarillas_totales || 0}</td>
-                    <td>${stats.rojas_totales || 0}</td>
-                </tr>
-            `;
-        }
-
-    } catch (error) {
-        console.error('Error:', error);
-        const tablaStats = document.getElementById('cuerpo-estadisticas-jugador');
-        if (tablaStats) {
-            tablaStats.innerHTML = '<tr><td colspan="8" style="text-align: center;">No hay datos de estadísticas para este jugador aún.</td></tr>';
-        }
+    function filaMensaje(columnas, texto) {
+        const td = el('td', { texto, clase: 'celda-centrada', atributos: { colspan: String(columnas) } });
+        return el('tr', { hijos: [td] });
     }
-}
 
-// ==========================================
-// 3. REGISTRAR NUEVO JUGADOR (ADMIN)
-// ==========================================
-function inicializarFormularioAdmin() {
-    const formulario = document.getElementById('form-nuevo-jugador');
-    if (!formulario) return;
-
-    formulario.addEventListener('submit', async (e) => {
-        e.preventDefault(); 
-
-        const nuevoJugador = {
-            nombre: document.getElementById('nombre').value,
-            ap1: document.getElementById('ap1').value,
-            ap2: document.getElementById('ap2').value,
-            posicion: document.getElementById('posicion').value,
-            equipo: parseInt(document.getElementById('equipo').value) // Obtenemos el ID del desplegable
-        };
+    // ==========================================
+    // 1. PLANTILLA DE UN EQUIPO
+    // ==========================================
+    async function cargarPlantilla() {
+        const cuerpo = document.getElementById('contenedor-jugadores');
+        if (!cuerpo) return;
+        const equipoId = cuerpo.dataset.equipo;
 
         try {
-            const respuesta = await fetch(`${API_URL}/nuevo`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(nuevoJugador)
-            });
-
-            if (respuesta.ok) {
-                alert('¡Jugador registrado con éxito en el CD. CALASANZ!');
-                formulario.reset();
-                window.location.href = 'juvenil-a-plantilla.html'; 
-            } else {
-                alert('Hubo un problema al guardar al jugador en el servidor.');
+            const jugadores = await Api.get(`/equipos/${encodeURIComponent(equipoId)}/plantilla`);
+            cuerpo.textContent = '';
+            if (!jugadores.length) {
+                cuerpo.appendChild(filaMensaje(2, 'Este equipo aún no tiene jugadores.'));
+                return;
             }
+            jugadores.forEach(j => {
+                const enlace = el('a', {
+                    texto: nombreCompleto(j),
+                    atributos: { href: `jugador.html?id=${encodeURIComponent(j.id)}` }
+                });
+                cuerpo.appendChild(el('tr', { hijos: [
+                    el('td', { hijos: [enlace] }),
+                    el('td', { texto: j.posicion })
+                ]}));
+            });
+            Api.anunciar(`Plantilla cargada: ${jugadores.length} jugadores.`);
         } catch (error) {
-            console.error('Error al guardar:', error);
-            alert('No se pudo conectar con el servidor.');
+            cuerpo.textContent = '';
+            const td = el('td', { atributos: { colspan: '2' } });
+            Api.mostrarError(td, error);
+            cuerpo.appendChild(el('tr', { hijos: [td] }));
         }
-    });
-}
+    }
 
-// ==========================================
-// 4. EVENTOS AL CARGAR LA PÁGINA
-// ==========================================
-document.addEventListener('DOMContentLoaded', function() {
-    cargarJugadores();
-    cargarPerfilJugador();
-    inicializarFormularioAdmin();
-});
+    // ==========================================
+    // 2. PERFIL INDIVIDUAL Y ESTADÍSTICAS
+    // ==========================================
+    async function cargarPerfilJugador() {
+        const titulo = document.getElementById('nombre-perfil-principal');
+        if (!titulo) return;
+
+        const idJugador = new URLSearchParams(window.location.search).get('id');
+        const lista = document.getElementById('lista-ficha-tecnica');
+        const tablaStats = document.getElementById('cuerpo-estadisticas-jugador');
+
+        if (!idJugador || !/^\d+$/.test(idJugador)) {
+            titulo.textContent = 'Jugador no encontrado';
+            Api.mostrarError(lista, new Api.ApiError(404, 'no_encontrado', 'No se ha indicado un jugador válido.'));
+            tablaStats.textContent = '';
+            return;
+        }
+
+        // --- Datos personales ---
+        try {
+            const j = await Api.get(`/jugadores/${idJugador}`);
+            titulo.textContent = nombreCompleto(j);
+            document.title = `${nombreCompleto(j)} - CD. Calasanz`;
+
+            lista.textContent = '';
+            const datos = [
+                ['Posición', j.posicion],
+                ['Dorsal', j.dorsal],
+                ['Equipo', j.equipo ? j.equipo.nombre : null],
+                // Estatura y peso solo llegan si el servidor concede permiso
+                ['Estatura', j.estatura !== undefined ? `${j.estatura} m` : null],
+                ['Peso', j.peso !== undefined ? `${j.peso} kg` : null]
+            ];
+            datos.forEach(([etiqueta, valor]) => {
+                if (valor === null || valor === undefined) return;
+                lista.appendChild(el('li', { hijos: [
+                    el('strong', { texto: etiqueta + ': ' }),
+                    document.createTextNode(String(valor))
+                ]}));
+            });
+        } catch (error) {
+            titulo.textContent = 'No se pudo cargar el jugador';
+            Api.mostrarError(lista, error);
+            tablaStats.textContent = '';
+            return;
+        }
+
+        // --- Estadísticas ---
+        try {
+            const s = await Api.get(`/jugadores/${idJugador}/estadisticas`);
+            const valores = [
+                s.partidos_jugados, s.titular, s.suplente,
+                `${s.minutos_totales || 0}'`,
+                s.goles_totales, s.asistencias_totales, s.amarillas_totales, s.rojas_totales
+            ].map(v => v === undefined || v === null ? 0 : v);
+
+            tablaStats.textContent = '';
+            tablaStats.appendChild(el('tr', {
+                clase: 'fila-destacada',
+                hijos: valores.map(v => el('td', { texto: String(v) }))
+            }));
+        } catch (error) {
+            tablaStats.textContent = '';
+            if (error.status === 404) {
+                tablaStats.appendChild(filaMensaje(8, 'No hay datos de estadísticas para este jugador aún.'));
+            } else {
+                const td = el('td', { atributos: { colspan: '8' } });
+                Api.mostrarError(td, error);
+                tablaStats.appendChild(el('tr', { hijos: [td] }));
+            }
+        }
+    }
+
+    // ==========================================
+    // 3. ALTA DE JUGADOR (COORDINADOR / DESARROLLADOR)
+    // ==========================================
+    function inicializarFormularioAlta() {
+        const form = document.getElementById('form-nuevo-jugador');
+        if (!form) return;
+
+        const zonaMensajes = document.getElementById('mensajes-formulario');
+        const boton = form.querySelector('button[type="submit"]');
+
+        // Limpia errores previos de campo
+        function limpiarErrores() {
+            zonaMensajes.textContent = '';
+            form.querySelectorAll('[aria-invalid]').forEach(c => c.removeAttribute('aria-invalid'));
+            form.querySelectorAll('.error-campo').forEach(n => n.remove());
+        }
+
+        // Marca los campos que el servidor rechazó (detalles[].campo)
+        function marcarErrores(detalles) {
+            let primero = null;
+            detalles.forEach(d => {
+                const campo = form.elements[d.campo === 'equipo_id' ? 'equipo' : d.campo];
+                if (!campo) return;
+                campo.setAttribute('aria-invalid', 'true');
+                const idError = `error-${campo.id}`;
+                campo.setAttribute('aria-describedby', idError);
+                campo.insertAdjacentElement('afterend',
+                    el('span', { texto: d.mensaje, clase: 'error-campo', atributos: { id: idError } }));
+                if (!primero) primero = campo;
+            });
+            if (primero) primero.focus();
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            limpiarErrores();
+
+            // Validación en cliente (el servidor vuelve a validar siempre)
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const cuerpo = {
+                nombre: form.elements.nombre.value.trim(),
+                ap1: form.elements.ap1.value.trim(),
+                posicion: form.elements.posicion.value,
+                equipo_id: parseInt(form.elements.equipo.value, 10)
+            };
+            const ap2 = form.elements.ap2.value.trim();
+            if (ap2) cuerpo.ap2 = ap2;
+            const dorsal = form.elements.dorsal && form.elements.dorsal.value;
+            if (dorsal) cuerpo.dorsal = parseInt(dorsal, 10);
+
+            boton.disabled = true;
+            boton.textContent = 'Guardando…';
+            try {
+                const creado = await Api.post('/jugadores', cuerpo);
+                form.reset();
+                const aviso = el('p', {
+                    texto: `Jugador registrado: ${nombreCompleto(creado)}.`,
+                    clase: 'mensaje mensaje-ok', atributos: { role: 'status' }
+                });
+                zonaMensajes.appendChild(aviso);
+                Api.anunciar('Jugador registrado correctamente.');
+                form.elements.nombre.focus();
+            } catch (error) {
+                Api.mostrarError(zonaMensajes, error);
+                if (error.status === 422 || error.status === 409) marcarErrores(error.detalles);
+            } finally {
+                boton.disabled = false;
+                boton.textContent = 'Guardar jugador';
+            }
+        });
+    }
+
+    // Esperamos a que layout.js haya comprobado la sesión y permisos de la página
+    document.addEventListener('layout:listo', () => {
+        cargarPlantilla();
+        cargarPerfilJugador();
+        inicializarFormularioAlta();
+    });
+})();

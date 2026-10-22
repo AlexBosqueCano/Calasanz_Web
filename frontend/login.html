@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<!-- lang="es": indica el idioma para que los lectores de pantalla pronuncien bien -->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión - CD. Calasanz</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<!--
+    data-pagina="login": layout.js lo usa para marcar el enlace actual de la navegación.
+    Esta página NO lleva data-requiere-sesion porque es justo donde se inicia sesión.
+-->
+<body data-pagina="login">
+
+    <!-- Si el navegador no tiene JavaScript, avisamos (la app lo necesita) -->
+    <noscript>
+        <p class="mensaje mensaje-aviso">Esta aplicación necesita JavaScript activado para funcionar.</p>
+    </noscript>
+
+    <!-- id="contenido" es el destino del enlace "Saltar al contenido" (lo crea layout.js) -->
+    <main id="contenido" tabindex="-1">
+        <section aria-labelledby="titulo-login">
+            <h1 id="titulo-login">Iniciar sesión</h1>
+
+            <!--
+                Aquí auth.js escribe avisos y errores generales.
+                No ponemos aria-live aquí: los mensajes ya llevan role="alert" / role="status".
+            -->
+            <div id="mensajes-formulario"></div>
+
+            <!--
+                novalidate: desactiva los mensajes por defecto del navegador para mostrar
+                los nuestros, que son accesibles y están en castellano.
+            -->
+            <form id="form-login" class="formulario" novalidate>
+                <div class="campo">
+                    <!-- for="username" enlaza la etiqueta con su input: pulsar el texto enfoca el campo -->
+                    <label for="username">Nombre de usuario</label>
+                    <!-- autocomplete ayuda a gestores de contraseñas y a quien usa teclado -->
+                    <input type="text" id="username" name="username" autocomplete="username" required>
+                </div>
+                <div class="campo">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="boton">Iniciar sesión</button>
+            </form>
+
+            <p>¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+        </section>
+    </main>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>      <!-- peticiones al servidor -->
+    <script src="session.js"></script>  <!-- estado de sesión -->
+    <script src="layout.js"></script>   <!-- cabecera, menú y pie -->
+    <script src="auth.js"></script>     <!-- lógica de esta página -->
+</body>
+</html>

@@ -1,309 +1,286 @@
-/* Esto es un comentario en CSS. No afecta al código. */
+/* =========================================================
+   CD. CALASANZ — Guía de estilo (B2)
+   - Tokens de color en :root; tema oscuro con [data-tema="dark"].
+   - Contraste mínimo AA (4,5:1 texto normal, 3:1 texto grande y componentes).
+   - Mobile-first: los ajustes para pantallas grandes van en @media (min-width).
+   - Sin estilos en línea en el HTML: usar las clases de este fichero.
+   ========================================================= */
 
-/* Selector 'body' */
+:root {
+    --verde: #006400;          /* marca; 8,6:1 sobre blanco */
+    --verde-oscuro: #004a00;
+    --fondo: #f4f4f4;
+    --superficie: #ffffff;
+    --superficie-alt: #f9f9f9;
+    --texto: #1a1a1a;
+    --texto-suave: #4a4a4a;
+    --borde: #c8c8c8;
+    --cabecera-fondo: #006400;
+    --cabecera-texto: #ffffff;
+    --nav-fondo: #333333;
+    --nav-texto: #ffffff;
+    --enlace: #00508f;
+    --foco: #ffbf47;           /* anillo de foco visible */
+    --foco-contorno: #1a1a1a;
+    --error-fondo: #fdecea;
+    --error-texto: #8a1c1c;
+    --ok-fondo: #e6f4ea;
+    --ok-texto: #14532d;
+    --aviso-fondo: #fff4d6;
+    --aviso-texto: #5c3d00;
+    --radio: 6px;
+    --espacio: 1rem;
+    color-scheme: light;
+}
+
+:root[data-tema="dark"] {
+    --verde: #6fd16f;          /* sobre fondo oscuro */
+    --verde-oscuro: #8fe08f;
+    --fondo: #121212;
+    --superficie: #1e1e1e;
+    --superficie-alt: #262626;
+    --texto: #ececec;
+    --texto-suave: #b8b8b8;
+    --borde: #4a4a4a;
+    --cabecera-fondo: #0b3d0b;
+    --cabecera-texto: #ffffff;
+    --nav-fondo: #000000;
+    --nav-texto: #f2f2f2;
+    --enlace: #8ec9ff;
+    --foco: #ffd24d;
+    --foco-contorno: #ffffff;
+    --error-fondo: #3b1717;
+    --error-texto: #ffb4ab;
+    --ok-fondo: #12301c;
+    --ok-texto: #a8e6b8;
+    --aviso-fondo: #3a2e0a;
+    --aviso-texto: #ffe08a;
+    color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 100%; -webkit-text-size-adjust: 100%; }
+
 body {
-    background-color: #f4f4f4;
-    font-family: Arial, sans-serif;
+    background-color: var(--fondo);
+    color: var(--texto);
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
     margin: 0;
     padding: 0;
 }
 
-/* --- Estilos del Encabezado (Header) --- */
-header {
-    background-color: #006400;
-    color: white; 
-    padding: 20px; 
-    display: flex;
-    align-items: center;
+img { max-width: 100%; height: auto; }
+
+a { color: var(--enlace); }
+
+/* --- Foco visible en TODO control interactivo --- */
+:focus-visible {
+    outline: 3px solid var(--foco);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 5px var(--foco-contorno);
+}
+main:focus { outline: none; box-shadow: none; }
+
+/* --- Utilidades --- */
+.solo-lectores {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.saltar {
+    position: absolute; left: 0.5rem; top: -4rem; z-index: 100;
+    background: var(--superficie); color: var(--texto);
+    padding: 0.75rem 1rem; border: 2px solid var(--texto); border-radius: var(--radio);
+    font-weight: bold;
+}
+.saltar:focus { top: 0.5rem; }
+[hidden] { display: none !important; }
+.texto-centrado { text-align: center; }
+.texto-suave { color: var(--texto-suave); }
+.comprobando-sesion main { visibility: hidden; }
+
+/* --- Cabecera --- */
+.cabecera {
+    background-color: var(--cabecera-fondo);
+    color: var(--cabecera-texto);
+    padding: 0.75rem 1rem;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem;
+}
+.marca-enlace {
+    display: flex; align-items: center; gap: 0.75rem;
+    color: inherit; text-decoration: none;
+}
+.marca-enlace img { width: 56px; height: auto; flex: none; }
+.marca { margin: 0; font-size: 1.5rem; font-weight: bold; }
+
+/* --- Navegación (móvil: menú desplegable con botón) --- */
+.nav-principal {
+    background-color: var(--nav-fondo);
+    color: var(--nav-texto);
+    padding: 0.5rem 1rem;
+}
+.nav-principal ul {
+    list-style: none; margin: 0; padding: 0;
+    display: none; flex-direction: column; gap: 0.25rem;
+}
+.nav-principal ul.abierto { display: flex; }
+.nav-principal a,
+.nav-principal .boton-enlace {
+    display: block; min-height: 44px; padding: 0.6rem 0.75rem;
+    color: var(--nav-texto); font-weight: bold; text-decoration: none;
+    background: none; border: 0; font: inherit; font-weight: bold; cursor: pointer; text-align: left;
+    width: 100%;
+}
+.nav-principal a:hover,
+.nav-principal .boton-enlace:hover { text-decoration: underline; }
+/* No depender solo del color: la página actual lleva subrayado grueso */
+.nav-principal a[aria-current="page"] {
+    text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 6px;
+}
+.nav-toggle {
+    min-height: 44px; min-width: 44px; padding: 0.5rem 1rem;
+    background: transparent; color: var(--nav-texto);
+    border: 2px solid var(--nav-texto); border-radius: var(--radio);
+    font: inherit; font-weight: bold; cursor: pointer;
+}
+.nav-usuario { margin: 0.5rem 0.75rem 0; font-size: 0.9rem; color: var(--nav-texto); opacity: 0.9; }
+
+@media (min-width: 769px) {
+    .nav-toggle { display: none; }
+    .nav-principal ul { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 1rem; }
+    .nav-principal a, .nav-principal .boton-enlace { display: inline-block; width: auto; }
+    .nav-usuario { text-align: center; }
 }
 
-/* --- Estilos de la Navegación (Nav) --- */
-nav {
-    background-color: #333; 
-    padding: 10px;
-    text-align: center; 
-}
-nav ul {
-    list-style-type: none; 
-    margin: 0;
-    padding: 0;
-}
-nav li {
-    display: inline-block; 
-    margin-right: 20px; 
-}
-nav a {
-    color: white; 
-    text-decoration: none; 
-    font-weight: bold; 
-}
-nav a:hover {
-    color: #90ee90;
-}
-
-/* --- Estilos del Contenido Principal (Main) --- */
-main {
-    padding: 20px; 
-}
+/* --- Contenido --- */
+main { padding: 1rem; max-width: 70rem; margin: 0 auto; }
 section {
-    background-color: #ffffff; 
-    margin-bottom: 20px; 
-    padding: 15px;
-    border-radius: 5px; 
+    background-color: var(--superficie);
+    border: 1px solid var(--borde);
+    margin-bottom: 1.25rem; padding: 1rem; border-radius: var(--radio);
 }
+h1, h2, h3 { line-height: 1.25; }
+hr { border: 0; border-top: 1px solid var(--borde); margin: 1.5rem 0; }
 
-/* --- Estilos del Pie de Página (Footer) --- */
-footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    margin-top: 30px; 
+/* --- Pie --- */
+.pie {
+    background-color: var(--nav-fondo); color: var(--nav-texto);
+    text-align: center; padding: 1rem; margin-top: 2rem;
 }
+.pie p { margin: 0; }
 
-/* Estilos para la imagen dentro del header */
-header img {
-    width: 100px;
-    height: auto;
-    margin-right: 20px;
+/* --- Indicador de carga y mensajes --- */
+.indicador-carga {
+    position: fixed; right: 1rem; bottom: 1rem; z-index: 50;
+    background: var(--superficie); color: var(--texto);
+    border: 2px solid var(--verde); border-radius: var(--radio);
+    padding: 0.5rem 1rem; font-weight: bold;
 }
-/* Estilos para el H1 dentro del header */
-header h1 {
-    flex-grow: 1;
-    text-align: center;
-    margin: 0;
-}
+body.cargando { cursor: progress; }
 
-/* --- Estilos para la Página de Equipos (.lista-equipos) --- */
-.lista-equipos h3 {
-    color: #006400;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
+.mensaje { padding: 0.75rem 1rem; border-radius: var(--radio); border: 1px solid currentColor; margin: 0 0 1rem; }
+.mensaje-error { background: var(--error-fondo); color: var(--error-texto); }
+.mensaje-ok { background: var(--ok-fondo); color: var(--ok-texto); }
+.mensaje-aviso { background: var(--aviso-fondo); color: var(--aviso-texto); }
+.mensaje-detalles { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+
+/* --- Botones --- */
+.boton {
+    display: inline-block; min-height: 44px; min-width: 44px; padding: 0.6rem 1.1rem;
+    background: var(--verde); color: #ffffff; border: 2px solid var(--verde);
+    border-radius: var(--radio); font: inherit; font-weight: bold; cursor: pointer; text-decoration: none;
 }
-.lista-equipos ul {
-    list-style-type: none;
-    padding-left: 0;
+:root[data-tema="dark"] .boton { color: #0b0b0b; }
+.boton:hover { filter: brightness(1.1); }
+.boton[disabled] { opacity: 0.6; cursor: not-allowed; }
+.boton-secundario { background: transparent; color: inherit; border-color: currentColor; }
+:root[data-tema="dark"] .boton-secundario { color: inherit; }
+.boton-peligro { background: var(--error-texto); border-color: var(--error-texto); color: var(--superficie); }
+
+/* --- Formularios --- */
+.formulario { display: grid; gap: 1rem; max-width: 36rem; }
+.campo { display: grid; gap: 0.25rem; }
+.campo label { font-weight: bold; }
+.campo .ayuda { font-size: 0.9rem; color: var(--texto-suave); }
+.campo input, .campo select, .campo textarea {
+    width: 100%; min-height: 44px; padding: 0.5rem 0.65rem; font: inherit;
+    color: var(--texto); background: var(--superficie); border: 2px solid var(--borde); border-radius: var(--radio);
 }
+.campo [aria-invalid="true"] { border-color: var(--error-texto); }
+.campo .error-campo { color: var(--error-texto); font-weight: bold; }
+.obligatorio { color: var(--error-texto); }
+
+/* --- Equipos (lista) --- */
+.lista-equipos h3 { color: var(--verde); border-bottom: 2px solid var(--borde); padding-bottom: 5px; }
+.lista-equipos ul { list-style: none; padding-left: 0; }
 .lista-equipos li {
-    background-color: #f9f9f9;
-    margin-bottom: 10px;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    background-color: var(--superficie-alt); margin-bottom: 10px; padding: 0;
+    border: 1px solid var(--borde); border-radius: var(--radio);
 }
 .lista-equipos a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    font-size: 1.1em;
+    display: block; padding: 15px; min-height: 44px;
+    text-decoration: none; color: var(--texto); font-weight: bold; font-size: 1.1em;
 }
-.lista-equipos a:hover {
-     color: #006400;
-}
+.lista-equipos a:hover { color: var(--verde); text-decoration: underline; }
 
-/* --- Estilos para la Tabla de Plantilla (Jugadores) --- */
-.plantilla-tabla {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-.plantilla-tabla th,
-.plantilla-tabla td {
-    border: 1px solid #ddd;
-    padding: 12px;
-    text-align: left;
-}
-.plantilla-tabla th {
-    background-color: #006400;
-    color: white;
-}
-.plantilla-tabla tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
+/* --- Tablas --- */
+.tabla-contenedor { overflow-x: auto; }
+.plantilla-tabla, .clasificacion-tabla { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.plantilla-tabla th, .plantilla-tabla td { border: 1px solid var(--borde); padding: 12px; text-align: left; }
+.plantilla-tabla th { background-color: var(--verde); color: #ffffff; }
+:root[data-tema="dark"] .plantilla-tabla th { color: #0b0b0b; }
+.plantilla-tabla tbody tr:nth-child(even) { background-color: var(--superficie-alt); }
+.plantilla-tabla a { color: var(--enlace); font-weight: bold; text-decoration: underline; }
+.clasificacion-tabla th, .clasificacion-tabla td { border: 1px solid var(--borde); padding: 10px; text-align: center; }
+.clasificacion-tabla th { background-color: var(--nav-fondo); color: var(--nav-texto); }
+.clasificacion-tabla strong { color: var(--verde); font-weight: 900; }
+.celda-centrada { text-align: center !important; }
+.fila-destacada { font-weight: bold; font-size: 1.05em; }
 
-/* --- Estilos para Selector de Temporada --- */
-.selector-temporada {
-    margin-top: 15px;
-    margin-bottom: 25px;
-}
-.selector-temporada label {
-    font-weight: bold;
-    margin-right: 10px;
-}
-.selector-temporada select {
-    padding: 5px;
-    font-size: 1em;
-    border-radius: 5px;
-}
+/* --- Selector de temporada --- */
+.selector-temporada { margin-top: 15px; margin-bottom: 25px; }
+.selector-temporada label { font-weight: bold; margin-right: 10px; }
+.selector-temporada select { padding: 5px; font-size: 1em; border-radius: var(--radio); min-height: 44px; }
+.temporada-actual { font-size: 1.1em; color: var(--verde); }
 
-/* --- Estilo para las líneas horizontales (separadores) --- */
-hr {
-    border: 0;
-    border-top: 1px solid #ddd;
-    margin: 30px 0;
-}
-
-/* --- Estilos para la Tabla de Clasificación --- */
-.clasificacion-tabla {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-.clasificacion-tabla th,
-.clasificacion-tabla td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-}
-.clasificacion-tabla th {
-    background-color: #333;
-    color: white;
-}
-.clasificacion-tabla strong {
-    color: #006400;
-    font-weight: 900;
-}
-
-/* ¡¡NUEVO!! --- Estilos para el Sub-Menú (Plantilla, Stats...) --- */
-.sub-menu {
-    list-style-type: none;
-    padding-left: 0;
-    margin-top: 20px;
-}
-.sub-menu li {
-    display: inline-block; /* Los pone en horizontal */
-    margin-right: 10px;
-}
+/* --- Submenú (Plantilla, Resultados, Estadísticas...) --- */
+.sub-menu { list-style: none; padding-left: 0; margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
 .sub-menu a {
-    display: block;
-    padding: 12px 20px;
-    background-color: #006400; /* Fondo verde */
-    color: white; /* Letra blanca */
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 5px;
+    display: block; padding: 12px 20px; min-height: 44px;
+    background-color: var(--verde); color: #ffffff; text-decoration: none; font-weight: bold; border-radius: var(--radio);
 }
-.sub-menu a:hover {
-    background-color: #004a99; /* Un azul para el hover, o el verde más oscuro */
-}
+:root[data-tema="dark"] .sub-menu a { color: #0b0b0b; }
+.sub-menu a:hover { background-color: var(--verde-oscuro); }
+.sub-menu a[aria-current="page"] { text-decoration: underline; text-decoration-thickness: 3px; }
 
-/* --- Estilos para el Sistema de Pestañas de Estadísticas --- */
-
-/* 1. Estilos para los "botones" (los <li>) */
-.stat-tabs {
-    list-style-type: none;
-    padding-left: 0;
-    margin-bottom: 0; 
-    border-bottom: 2px solid #006400; /* Línea verde bajo las pestañas */
-    display: flex; /* Pone los botones en horizontal */
-}
-
+/* --- Pestañas de estadísticas (los botones reales se afinan en B6) --- */
+.stat-tabs { list-style: none; padding-left: 0; margin-bottom: 0; border-bottom: 2px solid var(--verde); display: flex; flex-wrap: wrap; }
 .stat-link {
-    padding: 10px 20px;
-    cursor: pointer; /* El ratón se convierte en una "mano" */
-    background-color: #f4f4f4; /* Fondo gris claro */
-    border: 1px solid #ddd;
-    border-bottom: 0; 
-    border-radius: 5px 5px 0 0; /* Esquinas redondeadas solo arriba */
-    margin-right: 5px;
-    font-weight: bold;
+    padding: 10px 20px; min-height: 44px; cursor: pointer;
+    background-color: var(--fondo); color: var(--texto);
+    border: 1px solid var(--borde); border-bottom: 0; border-radius: 5px 5px 0 0;
+    margin-right: 5px; font-weight: bold; font: inherit; font-weight: bold;
+}
+.stat-link.active { background-color: var(--verde); color: #ffffff; }
+:root[data-tema="dark"] .stat-link.active { color: #0b0b0b; }
+.stat-content-wrapper { border: 1px solid var(--borde); padding: 20px; border-top: 0; background-color: var(--superficie); }
+.stat-content { display: none; }
+.stat-content.active { display: block; }
+
+/* --- Perfil de jugador --- */
+.perfil-jugador { display: flex; flex-direction: column; gap: 1rem; background-color: var(--superficie-alt); padding: 20px; border-radius: var(--radio); }
+.perfil-foto { text-align: center; }
+.perfil-foto img { width: 150px; max-width: 100%; border-radius: var(--radio); border: 3px solid var(--borde); }
+.perfil-info { border: 1px solid var(--borde); padding: 20px; border-radius: 8px; }
+.perfil-info ul { list-style: none; padding-left: 0; }
+.perfil-info li { font-size: 1.1em; margin-bottom: 10px; }
+@media (min-width: 769px) {
+    .perfil-jugador { flex-direction: row; align-items: flex-start; }
+    .perfil-foto img { width: 200px; }
 }
 
-/* 2. Estilo para el botón ACTIVO */
-.stat-link.active {
-    background-color: #006400; /* Fondo verde (tu color) */
-    color: white; /* Letra blanca */
-}
-
-/* 3. Estilo para el contenedor del contenido */
-.stat-content-wrapper {
-    border: 1px solid #ddd;
-    padding: 20px;
-    border-top: 0; 
-    background-color: #fff;
-}
-
-
-/* 4. ¡¡LA MAGIA!! Ocultamos los paneles por defecto */
-.stat-content {
-    display: none;
-}
-
-/* 5. ...Pero mostramos el que tenga la clase "active" */
-.stat-content.active {
-    display: block;
-}
-
-/* --- Estilo para enlaces en Tablas --- */
-/* (Para que el nombre del jugador se vea bien en la lista) */
-.plantilla-tabla a {
-    color: #006400; /* Verde de tu equipo */
-    font-weight: bold;
-    text-decoration: none; /* Sin subrayado */
-}
-.plantilla-tabla a:hover {
-    text-decoration: underline; /* Subrayado solo al pasar el ratón */
-}
-
-
-/* --- Estilos para la Ficha de Perfil de Jugador --- */
-.perfil-jugador {
-    display: flex; /* ¡Magia! Pone los divs hijos en horizontal */
-    align-items: flex-start; /* Alinea arriba */
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 5px;
-}
-
-.perfil-foto img {
-    width: 200px; /* Ancho fijo para la foto */
-    height: auto;
-    border-radius: 5px;
-    border: 3px solid #ddd;
-}
-
-.perfil-info {
-    margin-left: 30px; /* Espacio entre la foto y la info */
-}
-
-.perfil-info ul {
-    list-style-type: none; /* Quita los puntos de la lista */
-    padding-left: 0;
-}
-
-.perfil-info li {
-    font-size: 1.1em; /* Letra un poco más grande */
-    margin-bottom: 10px;
-}
-
-/* =========================================
-   DISEÑO RESPONSIVE (MÓVILES Y TABLETS)
-   ========================================= */
-
-@media (max-width: 768px) {
-
-    /* --- 1. El Menú de Navegación --- */
-    /* Hacemos que los enlaces se apilen uno debajo del otro */
-    nav li {
-        display: block; /* Cambia de horizontal a bloque (vertical) */
-        margin-right: 0; /* Quitamos el margen derecho que tenían */
-        margin-bottom: 15px; /* Añadimos espacio entre los botones */
-    }
-
-    /* Opcional: Centramos y damos un poco más de tamaño en móvil para que sea fácil tocar con el dedo */
-    nav a {
-        font-size: 1.2em;
-        padding: 10px;
-        display: block;
-    }
-
-    /* --- 3. Tablas Deslizables (Scroll horizontal) --- */
-    /* Convertimos las tablas en bloques con barra de desplazamiento lateral */
-    .plantilla-tabla,
-    .clasificacion-tabla {
-        display: block;
-        overflow-x: auto; /* Activa el scroll horizontal si no cabe */
-        white-space: nowrap; /* Evita que el texto de las celdas se parta en varias líneas y ensucie la tabla */
-    }
-
+/* --- Respeto a preferencias del usuario --- */
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

@@ -3,46 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Club Deportivo Calasanz</title>
-
+    <title>Inicio - CD. Calasanz</title>
     <link rel="stylesheet" href="estilos.css">
-
 </head>
-<body>
+<body data-pagina="inicio">
 
-    <header>
-        <img src="escudo.jpg" alt="Escudo del CD.CALASANZ">
-        <h1>CD.CALASANZ</h1>
-    </header>
+    <noscript>
+        <p class="mensaje mensaje-aviso">Esta aplicación necesita JavaScript activado para funcionar.</p>
+    </noscript>
 
-    <nav>
-        <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="equipos.html">Equipos</a></li>
-            <li><a href="noticias.html">Noticias</a></li>
-            <li><a href="contacto.html">Contacto</a></li>
-        </ul>
-    </nav>
+    <main id="contenido" tabindex="-1">
+        <h1>Club Deportivo Calasanz</h1>
 
-    <main>
-        
-        <section>
-            <h2>Próximo Partido</h2>
+        <!-- Contenido provisional: B4 lo sustituirá por datos de GET /api/inicio -->
+        <section aria-labelledby="titulo-proximo">
+            <h2 id="titulo-proximo">Próximo partido</h2>
             <p>Juvenil A vs. Peña Revilla</p>
-            <p>Domingo, 11:00 AM - Complejo Ruth Beitia</p>
+            <p>Domingo, 11:00 - Complejo Ruth Beitia</p>
         </section>
 
-        <section>
-            <h2>Últimas Noticias</h2>
+        <section aria-labelledby="titulo-noticias">
+            <h2 id="titulo-noticias">Últimas noticias</h2>
             <p>¡Gran victoria del Cadete B! Lee la crónica del partido aquí.</p>
             <p>Abierto el plazo de inscripción para la próxima temporada.</p>
         </section>
-
     </main>
 
-    <footer>
-        <p>&copy; 2025 CD.Calasanz. Todos los derechos reservados.</p>
-    </footer>
-
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
 </body>
 </html>
