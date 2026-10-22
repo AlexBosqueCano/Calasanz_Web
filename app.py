@@ -1,8 +1,21 @@
+from datetime import timedelta
 from flask import Flask, jsonify, request, render_template
 import psycopg2
 import os
 
 app = Flask(__name__, static_folder='frontend', template_folder='frontend')
+
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("Falta la variable de entorno SECRET_KEY")
+
+app.config.update(
+    SECRET_KEY=SECRET_KEY,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.getenv("COOKIE_SECURE", "0") == "1",
+    PERMANENT_SESSION_LIFETIME=timedelta(hours=8),
+)
 
 from auth import bp as auth_bp
 app.register_blueprint(auth_bp)
