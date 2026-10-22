@@ -2,69 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Añadir Jugador - CD. CALASANZ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Añadir jugador - CD. Calasanz</title>
     <link rel="stylesheet" href="estilos.css">
-    <style>
-        .form-admin { max-width: 500px; margin: 20px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px; background: #f9f9f9; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background-color: #006400; color: white; padding: 10px 20px; border: none; cursor: pointer; width: 100%; font-weight: bold; }
-        optgroup { font-style: normal; font-weight: bold; color: #006400; }
-    </style>
 </head>
-<body>
-    <header>
-        <img src="escudo.jpg" alt="Escudo" style="width: 50px;">
-        <h1>Administración CD. CALASANZ</h1>
-    </header>
+<body data-pagina="panel" data-roles="COORDINADOR,DESARROLLADOR">
 
-    <div class="form-admin">
-        <h2>Registrar Nuevo Fichaje</h2>
-        <form id="form-nuevo-jugador">
-            <div class="form-group">
-                <label>Nombre:</label>
-                <input type="text" id="nombre" required>
-            </div>
-            <div class="form-group">
-                <label>Primer Apellido:</label>
-                <input type="text" id="ap1" required>
-            </div>
-            <div class="form-group">
-                <label>Segundo Apellido:</label>
-                <input type="text" id="ap2">
-            </div>
-            <div class="form-group">
-                <label>Posición:</label>
-                <select id="posicion">
-                    <option value="Portero">Portero</option>
-                    <option value="Defensa">Defensa</option>
-                    <option value="Centrocampista">Centrocampista</option>
-                    <option value="Delantero">Delantero</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Asignar a Equipo:</label>
-                <select id="equipo" required>
-                    <option value="">Selecciona un equipo...</option>
-                    <optgroup label="Juvenil">
-                        <option value="1">Juvenil A</option>
-                        <option value="2">Juvenil B</option>
-                        <option value="3">Juvenil C</option>
-                    </optgroup>
-                    <optgroup label="Cadete">
-                        <option value="4">Cadete A</option>
-                        <option value="5">Cadete B</option>
-                    </optgroup>
-                    <optgroup label="Infantil">
-                        <option value="6">Infantil A</option>
-                    </optgroup>
-                </select>
-            </div>
-            <button type="submit">Guardar Jugador</button>
-        </form>
-    </div>
+    <main id="contenido" tabindex="-1">
+        <section aria-labelledby="titulo-alta">
+            <h1 id="titulo-alta">Registrar nuevo jugador</h1>
+            <p class="texto-suave">Los campos marcados con <span class="obligatorio" aria-hidden="true">*</span><span class="solo-lectores">asterisco</span> son obligatorios.</p>
 
+            <div id="mensajes-formulario"></div>
+
+            <form id="form-nuevo-jugador" class="formulario" novalidate>
+                <div class="campo">
+                    <label for="nombre">Nombre <span class="obligatorio" aria-hidden="true">*</span></label>
+                    <input type="text" id="nombre" name="nombre" required maxlength="50" autocomplete="off">
+                </div>
+                <div class="campo">
+                    <label for="ap1">Primer apellido <span class="obligatorio" aria-hidden="true">*</span></label>
+                    <input type="text" id="ap1" name="ap1" required maxlength="100" autocomplete="off">
+                </div>
+                <div class="campo">
+                    <label for="ap2">Segundo apellido</label>
+                    <input type="text" id="ap2" name="ap2" maxlength="100" autocomplete="off">
+                </div>
+                <div class="campo">
+                    <label for="posicion">Posición <span class="obligatorio" aria-hidden="true">*</span></label>
+                    <select id="posicion" name="posicion" required>
+                        <option value="Portero">Portero</option>
+                        <option value="Defensa">Defensa</option>
+                        <option value="Centrocampista">Centrocampista</option>
+                        <option value="Delantero">Delantero</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label for="dorsal">Dorsal</label>
+                    <input type="number" id="dorsal" name="dorsal" min="1" max="99" inputmode="numeric" aria-describedby="ayuda-dorsal">
+                    <span id="ayuda-dorsal" class="ayuda">Entre 1 y 99. No puede repetirse dentro del equipo.</span>
+                </div>
+                <div class="campo">
+                    <label for="equipo">Equipo <span class="obligatorio" aria-hidden="true">*</span></label>
+                    <!-- Provisional: B8 lo cargará desde GET /api/equipos?propios=true -->
+                    <select id="equipo" name="equipo" required>
+                        <option value="">Selecciona un equipo…</option>
+                        <optgroup label="Juvenil">
+                            <option value="1">Juvenil A</option>
+                            <option value="2">Juvenil B</option>
+                            <option value="3">Juvenil C</option>
+                        </optgroup>
+                        <optgroup label="Cadete">
+                            <option value="4">Cadete A</option>
+                            <option value="5">Cadete B</option>
+                        </optgroup>
+                        <optgroup label="Infantil">
+                            <option value="6">Infantil A</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <button type="submit" class="boton">Guardar jugador</button>
+            </form>
+        </section>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
