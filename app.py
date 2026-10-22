@@ -4,6 +4,9 @@ import os
 
 app = Flask(__name__, static_folder='frontend', template_folder='frontend')
 
+from auth import bp as auth_bp
+app.register_blueprint(auth_bp)
+
 # Configuración de la base de datos (puedes usar variables de entorno para Docker)
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "calasanz_db")
