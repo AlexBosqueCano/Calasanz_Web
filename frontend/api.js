@@ -24,8 +24,19 @@
         409: 'La operación entra en conflicto con el estado actual de los datos.',
         422: 'Hay datos que no son válidos.',
         429: 'Demasiados intentos. Espera un momento antes de volver a probar.',
-        500: 'Ha ocurrido un error en el servidor. Inténtalo más tarde.'
+        500: 'Ha ocurrido un error en el servidor. Inténtalo más tarde.',
+        502: 'El servidor no está disponible ahora mismo. Inténtalo más tarde.',
+        503: 'El servidor no está disponible ahora mismo. Inténtalo más tarde.',
+        504: 'El servidor ha tardado demasiado en responder. Inténtalo más tarde.'
     };
+
+    /*
+     * Tiempo máximo (en milisegundos) que esperamos a que el servidor conteste.
+     * Sin esto, si el servidor no responde (típico en el móvil: wifi distinta, firewall,
+     * túnel caído...) la página se quedaba en "Cargando…" o en blanco para siempre.
+     * Al agotarse el tiempo se trata igual que "sin conexión" (ApiError con status 0).
+     */
+    const TIEMPO_MAXIMO_MS = 8000;
 
     class ApiError extends Error {
         constructor(status, codigo, mensaje, detalles) {
@@ -63,11 +74,21 @@
         return url.pathname + url.search;
     }
 
-    async function peticion(metodo, ruta, { params, cuerpo, silencioso } = {}) {
+    /*
+     * Opciones (todas opcionales):
+     *   params        → parámetros de la URL (?clave=valor)
+     *   cuerpo        → objeto que se envía como JSON
+     *   silencioso    → true = no enseñar el cartel "Cargando…"
+     *   tiempoMaximo  → milisegundos de espera máxima (por defecto TIEMPO_MAXIMO_MS)
+     */
+    async function peticion(metodo, ruta, { params, cuerpo, silencioso, tiempoMaximo } = {}) {
+        // AbortController permite cancelar el fetch si el servidor tarda demasiado
+        const cancelador = new AbortController();
         const opciones = {
             method: metodo,
             credentials: 'same-origin',
-            headers: { 'Accept': 'application/json' }
+            headers: { 'Accept': 'application/json' },
+            signal: cancelador.signal
         };
         if (cuerpo !== undefined) {
             opciones.headers['Content-Type'] = 'application/json';
@@ -78,12 +99,17 @@
         }
 
         if (!silencioso) { pendientes++; actualizarIndicador(); }
+        // Si pasa el tiempo máximo sin respuesta, cancelamos la petición (fetch lanza un error)
+        const temporizador = setTimeout(() => cancelador.abort(), tiempoMaximo || TIEMPO_MAXIMO_MS);
+
         let respuesta;
         try {
             respuesta = await fetch(construirUrl(ruta, params), opciones);
         } catch (e) {
+            // Sin red, servidor caído o tiempo agotado: para la interfaz es lo mismo
             throw new ApiError(0, 'sin_conexion', MENSAJES_POR_STATUS[0]);
         } finally {
+            clearTimeout(temporizador);   // ya hay respuesta (o error): el reloj ya no hace falta
             if (!silencioso) { pendientes--; actualizarIndicador(); }
         }
 
@@ -91,6 +117,13 @@
 
         let datos = null;
         try { datos = await respuesta.json(); } catch (e) { /* cuerpo vacío o no JSON */ }
+
+        // Un "200 OK" que trae una página HTML no es nuestra API: es un servidor estático,
+        // un túnel o un proxy que contesta con su propia página. Lo tratamos como "sin servidor"
+        // en lugar de dejar que el código falle más adelante con datos == null.
+        if (respuesta.ok && datos === null && (respuesta.headers.get('content-type') || '').includes('text/html')) {
+            throw new ApiError(0, 'respuesta_invalida', MENSAJES_POR_STATUS[0]);
+        }
 
         if (!respuesta.ok) {
             const err = datos && datos.error ? datos.error : {};
