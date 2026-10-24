@@ -168,6 +168,11 @@
      *   - Cualquier otro error (403, 500...) se propaga para mostrarlo al usuario.
      */
     async function obtener(ruta, params, demo) {
+        // Si ya sabemos que el servidor no contesta (la comprobación de sesión falló por red,
+        // tiempo agotado o 502/503/504), no gastamos otros 8 segundos por cada petición:
+        // vamos directos a los datos de ejemplo.
+        if (Sesion.servidorNoResponde()) return demo();
+
         try {
             return await Api.get(ruta, params);
         } catch (error) {

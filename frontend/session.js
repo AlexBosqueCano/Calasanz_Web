@@ -47,6 +47,16 @@
     let usuario = null;      // objeto usuario del servidor, o null si no hay sesión
     let modoDemo = false;    // true si el servidor no está disponible
     let promesa = null;      // para no preguntar al servidor varias veces a la vez
+    let servidorInalcanzable = false;   // true si ni siquiera hemos podido hablar con el servidor
+
+    /*
+     * Códigos con los que damos por hecho que NO hay backend funcionando y pasamos a modo demo:
+     *   0   → sin conexión, tiempo agotado o respuesta que no es de nuestra API (api.js)
+     *   404 → la ruta /api/auth/yo todavía no existe (servidor solo de ficheros estáticos)
+     *   502, 503, 504 → el proxy/túnel que hay delante del servidor no consigue llegar a él
+     * Un 500 NO está aquí a propósito: es un fallo real del backend y debe verse como error.
+     */
+    const SERVIDOR_NO_DISPONIBLE = [0, 404, 502, 503, 504];
 
     /*
      * Pregunta al servidor quién es el usuario actual (GET /api/auth/yo).
@@ -58,7 +68,9 @@
         promesa = (async () => {
             try {
                 // silencioso: no enseñamos el indicador "Cargando…" por esta petición
-                const datos = await Api.get('/auth/yo', null, { silencioso: true });
+                // tiempoMaximo corto: las páginas esperan esta respuesta para arrancar, así que
+                // no podemos tener al usuario mirando una pantalla vacía más de unos segundos
+                const datos = await Api.get('/auth/yo', null, { silencioso: true, tiempoMaximo: 5000 });
                 usuario = datos.usuario;
                 modoDemo = false;
                 Api.setCsrfToken(datos.csrf_token);
@@ -66,9 +78,12 @@
                 usuario = null;
                 Api.setCsrfToken(null);
 
-                if (e instanceof Api.ApiError && (e.status === 0 || e.status === 404)) {
-                    // Sin conexión (0) o la ruta aún no existe (404): backend no disponible
+                if (e instanceof Api.ApiError && SERVIDOR_NO_DISPONIBLE.includes(e.status)) {
+                    // El backend no está disponible (ver SERVIDOR_NO_DISPONIBLE): modo demostración
                     modoDemo = true;
+                    // Con 404 hay servidor y puede que otras rutas sí existan (backend a medias).
+                    // Con el resto no hemos podido hablar con él: no tiene sentido insistir.
+                    servidorInalcanzable = e.status !== 404;
                 } else if (!(e instanceof Api.ApiError) || e.status !== 401) {
                     // 401 = "no hay sesión", es normal. Cualquier otro fallo sí es un problema.
                     throw e;
@@ -83,6 +98,8 @@
     function actual() { return usuario; }
     function estaIdentificado() { return usuario !== null; }
     function enModoDemo() { return modoDemo; }
+    /* true si el servidor no ha contestado (sin red, tiempo agotado, 502/503/504, HTML en vez de JSON). */
+    function servidorNoResponde() { return modoDemo && servidorInalcanzable; }
     function tieneRol(...roles) { return usuario !== null && roles.includes(usuario.rol); }
     function etiquetaRol(rol) { return ETIQUETA_ROL[rol] || rol; }
     /* Devuelve la URL del panel del usuario actual, o null si no tiene. */
@@ -143,7 +160,7 @@
     });
 
     global.Sesion = {
-        ROLES, cargar, actual, estaIdentificado, enModoDemo, tieneRol,
+        ROLES, cargar, actual, estaIdentificado, enModoDemo, servidorNoResponde, tieneRol,
         requerir, logout, panelUrl, etiquetaRol, destinoTrasLogin
     };
 })(window);
