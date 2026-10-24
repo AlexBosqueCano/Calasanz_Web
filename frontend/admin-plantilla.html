@@ -3,72 +3,184 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir jugador - CD. Calasanz</title>
+    <title>CD. Calasanz Santander / Panel de gestión</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body data-pagina="panel" data-roles="COORDINADOR,DESARROLLADOR">
+<body data-roles="COORDINADOR,ENTRENADOR,DESARROLLADOR">
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
 
-    <main id="contenido" tabindex="-1">
-        <section aria-labelledby="titulo-alta">
-            <h1 id="titulo-alta">Registrar nuevo jugador</h1>
-            <p class="texto-suave">Los campos marcados con <span class="obligatorio" aria-hidden="true">*</span><span class="solo-lectores">asterisco</span> son obligatorios.</p>
+    <main class="main-flex">
+        <section class="page-hero-equipos hero-compacto">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>ÁREA TÉCNICA Y COORDINACIÓN</span>
+                    </div>
+                    <h1 class="display-title titulo-hero titulo-hero-pequeno">Panel de gestión deportiva</h1>
+                    <p class="lead-text lead-sin-margen">Administración de plantillas, resultados semanales y cierre de actas oficiales.</p>
+                </div>
 
-            <div id="mensajes-formulario"></div>
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
 
-            <form id="form-nuevo-jugador" class="formulario" novalidate>
-                <div class="campo">
-                    <label for="nombre">Nombre <span class="obligatorio" aria-hidden="true">*</span></label>
-                    <input type="text" id="nombre" name="nombre" required maxlength="50" autocomplete="off">
+        <section class="equipos-band">
+            <div class="container">
+                <div class="tabs-nav" role="tablist" aria-label="Secciones del panel">
+                    <button type="button" class="filter-pill admin-tab active" role="tab" id="admin-tab-1" data-target="tab-crud-plantilla" aria-controls="tab-crud-plantilla" aria-selected="true">Gestión de plantilla</button>
+                    <button type="button" class="filter-pill admin-tab" role="tab" id="admin-tab-2" data-target="tab-crear-acta" aria-controls="tab-crear-acta" aria-selected="false" tabindex="-1">Registrar acta de partido</button>
                 </div>
-                <div class="campo">
-                    <label for="ap1">Primer apellido <span class="obligatorio" aria-hidden="true">*</span></label>
-                    <input type="text" id="ap1" name="ap1" required maxlength="100" autocomplete="off">
+
+                <!-- PESTAÑA 1: ALTA, EDICIÓN Y BAJA DE JUGADORES -->
+                <div id="tab-crud-plantilla" class="tab-pane active" role="tabpanel" aria-labelledby="admin-tab-1">
+                    <div class="admin-grid-2">
+                        <!-- Formulario de alta / edición -->
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta">
+                                    <span>JUGADOR</span>
+                                    <span id="modo-form-label">Alta nueva</span>
+                                </div>
+                                <h2 class="titulo-tarjeta">Añadir o editar jugador</h2>
+
+                                <form id="form-jugador" novalidate>
+                                    <div class="field-group">
+                                        <label for="j-equipo">Equipo</label>
+                                        <!-- admin.js rellena las opciones desde la API -->
+                                        <select id="j-equipo" required><option>Cargando…</option></select>
+                                    </div>
+
+                                    <div class="field-group">
+                                        <label for="j-nombre">Nombre</label>
+                                        <input type="text" id="j-nombre" class="clean-input" maxlength="50" autocomplete="off" required>
+                                    </div>
+
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="j-ap1">Primer apellido</label>
+                                            <input type="text" id="j-ap1" class="clean-input" maxlength="100" autocomplete="off" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="j-ap2">Segundo apellido (opcional)</label>
+                                            <input type="text" id="j-ap2" class="clean-input" maxlength="100" autocomplete="off">
+                                        </div>
+                                    </div>
+
+                                    <div class="grid-dorsal">
+                                        <div class="field-group">
+                                            <label for="j-dorsal">Dorsal (1-99)</label>
+                                            <input type="number" id="j-dorsal" class="clean-input" min="1" max="99" inputmode="numeric" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="j-posicion">Posición</label>
+                                            <select id="j-posicion" required>
+                                                <option value="Portero">Portero</option>
+                                                <option value="Defensa">Defensa</option>
+                                                <option value="Centrocampista" selected>Centrocampista</option>
+                                                <option value="Delantero">Delantero</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Mensajes de resultado (role="status": se leen en voz alta al aparecer) -->
+                                    <p id="crud-feedback" class="feedback" role="status" hidden></p>
+
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar jugador</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="btn-cancelar-edicion" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de jugadores con acciones -->
+                        <div>
+                            <table class="modern-table">
+                                <caption class="solo-lectores">Jugadores del equipo seleccionado</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Dorsal</th>
+                                        <th scope="col">Jugador</th>
+                                        <th scope="col">Posición</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabla-admin-jugadores"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="campo">
-                    <label for="ap2">Segundo apellido</label>
-                    <input type="text" id="ap2" name="ap2" maxlength="100" autocomplete="off">
+
+                <!-- PESTAÑA 2: REGISTRAR ACTA -->
+                <div id="tab-crear-acta" class="tab-pane" role="tabpanel" aria-labelledby="admin-tab-2" hidden>
+                    <div class="news-card tarjeta-ancha">
+                        <div class="news-card-meta">
+                            <span>CIERRE DE JORNADA</span>
+                            <span>Solo entrenador del equipo</span>
+                        </div>
+                        <h2 class="titulo-tarjeta">Registrar resultado y acta oficial</h2>
+
+                        <form id="form-acta" novalidate>
+                            <div class="grid-acta-1">
+                                <div class="field-group">
+                                    <label for="acta-rival">Equipo rival</label>
+                                    <input type="text" id="acta-rival" class="clean-input" required>
+                                </div>
+                                <div class="field-group">
+                                    <label for="acta-goles-local">Goles C.D. Calasanz</label>
+                                    <input type="number" id="acta-goles-local" class="clean-input" min="0" max="99" required>
+                                </div>
+                                <div class="field-group">
+                                    <label for="acta-goles-rival">Goles del rival</label>
+                                    <input type="number" id="acta-goles-rival" class="clean-input" min="0" max="99" required>
+                                </div>
+                            </div>
+
+                            <div class="grid-2-cols">
+                                <div class="field-group">
+                                    <label for="acta-arbitro">Árbitro principal</label>
+                                    <input type="text" id="acta-arbitro" class="clean-input" required>
+                                </div>
+                                <div class="field-group">
+                                    <label for="acta-campo">Campo</label>
+                                    <input type="text" id="acta-campo" class="clean-input" required>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="acta-goleadores">Goleadores del C.D. Calasanz (minuto y jugador)</label>
+                                <textarea id="acta-goleadores" rows="3" placeholder="Ejemplo: (8') Apellido, Nombre | (22') Apellido, Nombre"></textarea>
+                            </div>
+
+                            <p id="acta-feedback" class="feedback" role="status" hidden></p>
+
+                            <div class="fila-botones">
+                                <button type="submit" class="btn-green"><span class="btn-texto">Guardar y publicar acta</span> <span aria-hidden="true">→</span></button>
+                                <a href="acta.html?id=1" class="btn-outline">Ver un acta de ejemplo <span aria-hidden="true">→</span></a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="campo">
-                    <label for="posicion">Posición <span class="obligatorio" aria-hidden="true">*</span></label>
-                    <select id="posicion" name="posicion" required>
-                        <option value="Portero">Portero</option>
-                        <option value="Defensa">Defensa</option>
-                        <option value="Centrocampista">Centrocampista</option>
-                        <option value="Delantero">Delantero</option>
-                    </select>
-                </div>
-                <div class="campo">
-                    <label for="dorsal">Dorsal</label>
-                    <input type="number" id="dorsal" name="dorsal" min="1" max="99" inputmode="numeric" aria-describedby="ayuda-dorsal">
-                    <span id="ayuda-dorsal" class="ayuda">Entre 1 y 99. No puede repetirse dentro del equipo.</span>
-                </div>
-                <div class="campo">
-                    <label for="equipo">Equipo <span class="obligatorio" aria-hidden="true">*</span></label>
-                    <!-- Provisional: B8 lo cargará desde GET /api/equipos?propios=true -->
-                    <select id="equipo" name="equipo" required>
-                        <option value="">Selecciona un equipo…</option>
-                        <optgroup label="Juvenil">
-                            <option value="1">Juvenil A</option>
-                            <option value="2">Juvenil B</option>
-                            <option value="3">Juvenil C</option>
-                        </optgroup>
-                        <optgroup label="Cadete">
-                            <option value="4">Cadete A</option>
-                            <option value="5">Cadete B</option>
-                        </optgroup>
-                        <optgroup label="Infantil">
-                            <option value="6">Infantil A</option>
-                        </optgroup>
-                    </select>
-                </div>
-                <button type="submit" class="boton">Guardar jugador</button>
-            </form>
+            </div>
         </section>
     </main>
 
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
     <script src="api.js"></script>
     <script src="session.js"></script>
     <script src="layout.js"></script>
-    <script src="main.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="admin.js"></script>
 </body>
 </html>

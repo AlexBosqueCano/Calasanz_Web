@@ -3,62 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil de jugador - CD. Calasanz</title>
+    <title>CD. Calasanz Santander / Perfil de jugador</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body data-pagina="equipos" data-requiere-sesion>
+<body data-requiere-sesion>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
 
-    <main id="contenido" tabindex="-1">
-        <section aria-labelledby="nombre-perfil-principal">
-            <h1 id="nombre-perfil-principal">Cargando jugador…</h1>
-
-            <p class="selector-temporada">
-                Temporada: <strong class="temporada-actual">2025-2026</strong>
-            </p>
-
-            <div class="perfil-jugador">
-                <div class="perfil-foto">
-                    <!-- Imagen decorativa: alt vacío para que no la lean los lectores de pantalla -->
-                    <img src="escudo.jpg" alt="">
+    <main class="main-flex">
+        <section class="page-hero-equipos">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <a href="equipos.html" id="enlace-volver" class="link-arrow enlace-volver"><span aria-hidden="true">←</span> Volver a la plantilla</a>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span id="jugador-posicion-kicker"></span>
+                    </div>
+                    <h1 class="display-title titulo-hero" id="jugador-nombre">Cargando jugador…</h1>
+                    <p class="lead-text lead-sin-margen" id="jugador-equipo"></p>
                 </div>
-                <div class="perfil-info">
-                    <h2>Ficha técnica</h2>
-                    <ul id="lista-ficha-tecnica">
-                        <li>Cargando datos…</li>
-                    </ul>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
                 </div>
             </div>
+        </section>
 
-            <hr>
-            <h2>Estadísticas de la temporada 2025-2026</h2>
-            <div class="tabla-contenedor">
-                <table class="plantilla-tabla">
-                    <caption class="solo-lectores">Estadísticas del jugador en la temporada</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col"><abbr title="Partidos jugados">PJ</abbr></th>
-                            <th scope="col">Titular</th>
-                            <th scope="col">Suplente</th>
-                            <th scope="col">Minutos</th>
-                            <th scope="col">Goles</th>
-                            <th scope="col">Asist.</th>
-                            <th scope="col"><abbr title="Tarjetas amarillas">TA</abbr></th>
-                            <th scope="col"><abbr title="Tarjetas rojas">TR</abbr></th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpo-estadisticas-jugador">
-                        <tr><td colspan="8" class="celda-centrada">Cargando…</td></tr>
-                    </tbody>
-                </table>
+        <section class="equipos-band">
+            <div class="container">
+                <div id="mensajes-jugador"></div>
+
+                <!-- Tarjetas de estadísticas (jugador.js escribe los números) -->
+                <div class="stat-kpi-grid">
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Partidos jugados</div>
+                        <div class="stat-kpi-value"><span id="kpi-pj">0</span> <span class="kpi-sub" id="kpi-pj-sub"></span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Minutos disputados</div>
+                        <div class="stat-kpi-value"><span id="kpi-min">0'</span><span class="kpi-sub" id="kpi-min-sub"></span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Goles anotados</div>
+                        <div class="stat-kpi-value"><span id="kpi-goles">0</span><span class="kpi-sub" id="kpi-goles-sub"></span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Asistencias y tarjetas</div>
+                        <div class="stat-kpi-value"><span id="kpi-asist">0</span> <span class="kpi-sub kpi-sub-medio" id="kpi-asist-sub"></span></div>
+                    </div>
+                </div>
+
+                <!-- Historial por jornada: se oculta solo si el servidor no lo envía -->
+                <div id="seccion-participaciones" hidden>
+                    <div class="section-header-row seccion-titulo">
+                        <h2 class="section-title titulo-seccion">Participación por jornada</h2>
+                    </div>
+
+                    <table class="modern-table">
+                        <caption class="solo-lectores">Participación del jugador en cada jornada</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Jornada</th>
+                                <th scope="col">Encuentro</th>
+                                <th scope="col">Condición</th>
+                                <th scope="col">Minutos</th>
+                                <th scope="col">Goles</th>
+                                <th scope="col">Tarjetas</th>
+                                <th scope="col">Acta oficial</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-participaciones"></tbody>
+                    </table>
+                </div>
             </div>
-
-            <p><a href="juvenil-a-plantilla.html">Volver a la plantilla</a></p>
         </section>
     </main>
 
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
     <script src="api.js"></script>
     <script src="session.js"></script>
     <script src="layout.js"></script>
-    <script src="main.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="jugador.js"></script>
 </body>
 </html>

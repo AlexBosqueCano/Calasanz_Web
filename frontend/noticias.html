@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Noticias</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>ACTUALIDAD VERDIBLANCA</span>
+                    </div>
+                    <h1 class="display-title titulo-hero">Noticias del club</h1>
+                    <p class="lead-text lead-sin-margen">Crónicas de la jornada, comunicados oficiales y eventos de todas las categorías.</p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <div class="filter-bar">
+                    <!-- Los tipos son los del contrato de API: noticia y evento -->
+                    <div class="filter-pills" role="group" aria-label="Filtrar por tipo">
+                        <button type="button" class="filter-pill active" data-news-filter="todas" aria-pressed="true">Todas</button>
+                        <button type="button" class="filter-pill" data-news-filter="noticia" aria-pressed="false">Noticias</button>
+                        <button type="button" class="filter-pill" data-news-filter="evento" aria-pressed="false">Eventos</button>
+                    </div>
+                    <span class="teams-counter" id="contador-noticias"></span>
+                </div>
+
+                <!-- noticias.js pinta aquí las tarjetas -->
+                <div class="news-grid" id="lista-noticias">
+                    <p class="texto-vacio">Cargando noticias…</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="noticias.js"></script>
+</body>
+</html>

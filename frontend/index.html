@@ -3,34 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio - CD. Calasanz</title>
+    <title>CD. Calasanz Santander</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body data-pagina="inicio">
+<body>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
 
-    <noscript>
-        <p class="mensaje mensaje-aviso">Esta aplicación necesita JavaScript activado para funcionar.</p>
-    </noscript>
+    <main>
+        <!-- HERO PRINCIPAL -->
+        <section class="hero-home">
+            <div class="container hero-grid">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>FÚTBOL · SANTANDER</span>
+                    </div>
+                    <h1 class="display-title">Club Deportivo<br>Calasanz</h1>
+                    <p class="lead-text">La actualidad, los equipos y el próximo encuentro. Todo el club, en un mismo lugar.</p>
+                    <div class="hero-cta-group">
+                        <a href="equipos.html" class="btn-green">Conoce nuestros equipos <span aria-hidden="true">→</span></a>
+                        <a href="noticias.html" class="link-arrow">Noticias del club <span aria-hidden="true">→</span></a>
+                    </div>
+                </div>
 
-    <main id="contenido" tabindex="-1">
-        <h1>Club Deportivo Calasanz</h1>
-
-        <!-- Contenido provisional: B4 lo sustituirá por datos de GET /api/inicio -->
-        <section aria-labelledby="titulo-proximo">
-            <h2 id="titulo-proximo">Próximo partido</h2>
-            <p>Juvenil A vs. Peña Revilla</p>
-            <p>Domingo, 11:00 - Complejo Ruth Beitia</p>
+                <!-- TARJETA PRÓXIMO PARTIDO -->
+                <aside class="match-card-dark" aria-label="Próximo partido">
+                    <div class="match-card-top">
+                        <span>PRÓXIMO PARTIDO</span>
+                        
+                    </div>
+                    <div class="match-team-main" id="match-local">Juvenil A</div>
+                    <div class="match-team-rival"><span>vs.</span> <span id="match-rival">Rival por confirmar</span></div>
+                    <div class="match-divider"></div>
+                    <div class="match-meta">
+                        <div class="match-meta-row">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <strong id="match-cuando">Fecha por confirmar</strong>
+                        </div>
+                        <div class="match-meta-row">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span id="match-donde">Complejo Ruth Beitia</span>
+                        </div>
+                    </div>
+                </aside>
+            </div>
         </section>
 
-        <section aria-labelledby="titulo-noticias">
-            <h2 id="titulo-noticias">Últimas noticias</h2>
-            <p>¡Gran victoria del Cadete B! Lee la crónica del partido aquí.</p>
-            <p>Abierto el plazo de inscripción para la próxima temporada.</p>
-        </section>
+        <!-- ENVOLTORIO PARA REORDENAR EN MÓVIL SEGÚN FIGMA -->
+        <div class="home-flow-wrapper">
+            <!-- ACTUALIDAD DEL CLUB -->
+            <section class="section-news-band">
+                <div class="container">
+                    <div class="section-header-row">
+                        <h2 class="section-title">Actualidad del club</h2>
+                        <a href="noticias.html" class="link-arrow">Todas las noticias <span aria-hidden="true">→</span></a>
+                    </div>
+
+                    <div class="news-grid" id="home-noticias">
+                        <article class="news-card">
+                            <div class="news-card-meta">
+                                <span>CRÓNICA</span>
+                                <span>Club</span>
+                            </div>
+                            <h3>¡Gran victoria del Cadete B!</h3>
+                            <a href="noticias.html" class="link-arrow">Leer noticia <span aria-hidden="true">→</span></a>
+                        </article>
+
+                        <article class="news-card">
+                            <div class="news-card-meta">
+                                <span>CLUB</span>
+                                <span>Club</span>
+                            </div>
+                            <h3>Abierto el plazo de inscripción para la próxima temporada.</h3>
+                            <a href="noticias.html" class="link-arrow">Leer noticia <span aria-hidden="true">→</span></a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NUESTROS COLORES, NUESTROS EQUIPOS -->
+            <section class="section-colors-strip">
+                <div class="container colors-strip-inner">
+                    <div class="colors-strip-left">
+                        <div class="stripes-mini" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div>
+                            <h2 class="section-title titulo-franja">Nuestros colores, nuestros equipos.</h2>
+                            <p class="texto-franja">Plantillas, resultados, actas y estadísticas de cada categoría.</p>
+                        </div>
+                    </div>
+                    <a href="equipos.html" class="btn-outline">Ver equipos <span aria-hidden="true">→</span></a>
+                </div>
+            </section>
+        </div>
     </main>
 
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
     <script src="api.js"></script>
     <script src="session.js"></script>
     <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>
