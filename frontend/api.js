@@ -31,6 +31,7 @@
         constructor(status, codigo, mensaje, detalles) {
             super(mensaje);
             this.name = 'ApiError';
+            this.mensaje = mensaje;   // mismo texto que .message; api.js y las páginas usan .mensaje
             this.status = status;
             this.codigo = codigo;
             this.detalles = detalles || [];
@@ -151,6 +152,21 @@
         anunciar(msg, true);
     }
 
+    /* "Nombre Ap1 Ap2" a partir de un jugador (ignora los apellidos que falten). */
+    function nombreCompleto(j) {
+        if (!j) return '';
+        if (j.nombre_completo) return j.nombre_completo;
+        return [j.nombre, j.ap1, j.ap2].filter(Boolean).join(' ');
+    }
+
+    /* "2026-10-17" o "2026-10-17T20:00:00+02:00" → "17 oct 2026" (en español). */
+    function formatearFecha(texto) {
+        if (!texto) return '';
+        const fecha = new Date(texto.length <= 10 ? texto + 'T12:00:00' : texto);   // T12:00 evita saltos de día por zona horaria
+        if (isNaN(fecha)) return '';
+        return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
     global.Api = {
         get: (ruta, params, opts) => peticion('GET', ruta, { params, ...opts }),
         post: (ruta, cuerpo, opts) => peticion('POST', ruta, { cuerpo, ...opts }),
@@ -161,6 +177,8 @@
         getCsrfToken,
         ApiError,
         escapar,
+        nombreCompleto,
+        formatearFecha,
         el,
         anunciar,
         mostrarError

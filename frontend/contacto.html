@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Contacto</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="auth-section">
+        <div class="container auth-split">
+            <!-- PÓSTER IZQUIERDO VERDE OSCURO (ESCRITORIO) -->
+            <div class="auth-poster">
+                <div>
+                    <div class="kicker kicker-claro">
+                        <span class="kicker-line"></span>
+                        <span>CD. CALASANZ SANTANDER</span>
+                    </div>
+                    <h2>Hablemos<br>de fútbol.</h2>
+                    <p class="poster-parrafo">¿Tienes dudas sobre inscripciones, horarios de entrenamiento o pruebas de acceso? Estamos a tu disposición.</p>
+
+                    <div class="match-divider divider-espaciado"></div>
+
+                    <div class="match-meta match-meta-amplio">
+                        <div class="match-meta-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <span><strong>Sede:</strong> Colegio Calasanz (Escolapios), Santander</span>
+                        </div>
+                        <div class="match-meta-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            <span><strong>Campos:</strong> Complejo Municipal Ruth Beitia (La Albericia)</span>
+                        </div>
+                        <div class="match-meta-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <span><strong>Correo:</strong> info@cdcalasanz.es</span>
+                        </div>
+                        <div class="match-meta-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span><strong>Atención:</strong> Lunes a Viernes · 17:00 a 20:30 h</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ilustración de campo de fútbol como en Figma -->
+                <svg class="pitch-svg pitch-separado" viewBox="0 0 400 180" fill="none" stroke="white" stroke-width="1.5" aria-hidden="true">
+                    <rect x="10" y="10" width="380" height="160" />
+                    <line x1="200" y1="10" x2="200" y2="170" />
+                    <circle cx="200" cy="90" r="32" />
+                    <rect x="10" y="45" width="50" height="90" />
+                    <rect x="340" y="45" width="50" height="90" />
+                </svg>
+
+                <div class="auth-poster-footer">VERDE Y BLANCO. SIEMPRE.</div>
+            </div>
+
+            <!-- PANEL DE FORMULARIO DERECHO -->
+            <div class="auth-form-panel panel-ancho">
+                <a href="index.html" class="link-arrow enlace-volver-auth"><span aria-hidden="true">←</span> Volver al inicio</a>
+
+                <div class="kicker kicker-pegado">ATENCIÓN AL CLUB Y FAMILIAS</div>
+                <h1>Contacto</h1>
+                <p class="auth-intro">Envíanos tu consulta y el coordinador de la categoría te responderá lo antes posible.</p>
+
+                <form id="form-contacto" novalidate>
+                    <div class="field-group">
+                        <label for="contacto-nombre">Nombre y apellidos</label>
+                        <div class="input-with-icon">
+                            <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="contacto-nombre" name="nombre" placeholder="Tu nombre completo" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="contacto-email">Correo electrónico</label>
+                        <div class="input-with-icon">
+                            <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            <input type="email" id="contacto-email" name="email" placeholder="tucorreo@ejemplo.com" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="contacto-motivo">Motivo de la consulta</label>
+                        <select id="contacto-motivo" name="motivo" required>
+                            <option value="inscripcion">Inscripciones y pruebas de acceso</option>
+                            <option value="horarios">Horarios de entrenamientos y partidos</option>
+                            <option value="administracion">Secretaría y cuotas del club</option>
+                            <option value="otro">Otra consulta</option>
+                        </select>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="contacto-mensaje">Mensaje</label>
+                        <textarea id="contacto-mensaje" name="mensaje" rows="4" placeholder="Indica la categoría o año de nacimiento del jugador y tu consulta..." required></textarea>
+                    </div>
+
+                    <p id="contacto-feedback" class="feedback feedback-ok" role="status" hidden></p>
+
+                    <button type="submit" class="btn-green btn-submit-full">Enviar consulta <span aria-hidden="true">→</span></button>
+                </form>
+
+                <!-- Tarjeta informativa y banner exclusivo para móvil -->
+                <div class="auth-mobile-banner banner-columna">
+                    <div class="banner-fila">
+                        <div class="stripes-mini stripes-visibles stripes-bajas" aria-hidden="true">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div>
+                            <strong class="banner-titulo">CD. Calasanz Santander</strong>
+                            <span class="banner-texto">Colegio Calasanz · Complejo Ruth Beitia</span>
+                        </div>
+                    </div>
+                    <div class="banner-contacto">
+                        <strong>info@cdcalasanz.es</strong> · Lunes a Viernes (17:00 - 20:30)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="contacto.js"></script>
+</body>
+</html>

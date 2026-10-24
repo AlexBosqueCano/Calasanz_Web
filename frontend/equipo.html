@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipo - CD. Calasanz Santander</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body data-requiere-sesion>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <a href="equipos.html" class="link-arrow enlace-volver"><span aria-hidden="true">←</span> Volver a todos los equipos</a>
+                    <div class="kicker kicker-bloque">
+                        <span class="kicker-line"></span>
+                        <span id="equipo-kicker">CATEGORÍA OFICIAL</span>
+                    </div>
+                    <h1 class="display-title titulo-hero" id="equipo-nombre">Cargando equipo…</h1>
+                    <p class="lead-text lead-sin-margen" id="equipo-categoria"></p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <!-- Errores generales de la página (equipo no encontrado, sin conexión…) -->
+                <div id="mensajes-equipo"></div>
+
+                <!--
+                    PESTAÑAS ACCESIBLES (patrón WAI-ARIA "tabs"):
+                    role="tablist" agrupa las pestañas; cada botón es role="tab" y apunta a su panel con aria-controls.
+                    aria-selected dice cuál está activa. equipo.js las maneja también con las flechas del teclado.
+                -->
+                <div class="tabs-nav" role="tablist" aria-label="Información del equipo">
+                    <button type="button" class="filter-pill tab-btn active" role="tab" id="pestana-plantilla" data-target="plantilla" aria-controls="plantilla" aria-selected="true">Plantilla</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-estadisticas" data-target="estadisticas" aria-controls="estadisticas" aria-selected="false" tabindex="-1">Estadísticas</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-resultados" data-target="resultados" aria-controls="resultados" aria-selected="false" tabindex="-1">Resultados y actas</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-clasificacion" data-target="clasificacion" aria-controls="clasificacion" aria-selected="false" tabindex="-1">Clasificación</button>
+                </div>
+
+                <div id="plantilla" class="tab-pane active" role="tabpanel" aria-labelledby="pestana-plantilla" tabindex="0">
+                    <div class="teams-grid" id="lista-plantilla"></div>
+                </div>
+
+                <div id="estadisticas" class="tab-pane" role="tabpanel" aria-labelledby="pestana-estadisticas" tabindex="0" hidden>
+                    <table class="modern-table">
+                        <caption class="solo-lectores">Estadísticas de los jugadores del equipo</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Dorsal</th>
+                                <th scope="col">Jugador</th>
+                                <th scope="col">Posición</th>
+                                <th scope="col"><abbr title="Partidos jugados">PJ</abbr></th>
+                                <th scope="col">Minutos</th>
+                                <th scope="col">Goles</th>
+                                <th scope="col">Asist.</th>
+                                <th scope="col">Tarjetas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-estadisticas"></tbody>
+                    </table>
+                </div>
+
+                <div id="resultados" class="tab-pane" role="tabpanel" aria-labelledby="pestana-resultados" tabindex="0" hidden>
+                    <div class="news-grid" id="lista-resultados"></div>
+                </div>
+
+                <div id="clasificacion" class="tab-pane" role="tabpanel" aria-labelledby="pestana-clasificacion" tabindex="0" hidden>
+                    <table class="modern-table">
+                        <caption class="solo-lectores">Clasificación de la liga</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Pos</th>
+                                <th scope="col">Equipo</th>
+                                <th scope="col"><abbr title="Puntos">Pts</abbr></th>
+                                <th scope="col"><abbr title="Partidos jugados">PJ</abbr></th>
+                                <th scope="col"><abbr title="Partidos ganados">PG</abbr></th>
+                                <th scope="col"><abbr title="Partidos empatados">PE</abbr></th>
+                                <th scope="col"><abbr title="Partidos perdidos">PP</abbr></th>
+                                <th scope="col"><abbr title="Goles a favor">GF</abbr></th>
+                                <th scope="col"><abbr title="Goles en contra">GC</abbr></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-clasificacion"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="equipo.js"></script>
+</body>
+</html>

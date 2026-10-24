@@ -3,73 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Equipos - Mi Club de Fútbol</title>
+    <title>CD. Calasanz Santander / Equipos</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body>
+<body data-requiere-sesion>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
 
-    <header>
-        <img src="escudo.jpg" alt="Escudo del CD.CALASANZ">
-        <h1>CD.CALASANZ</h1>
-    </header>
+    <main class="main-flex">
+        <section class="page-hero-equipos">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker"><span>FÚTBOL BASE · CALASANZ</span></div>
+                    <h1 class="display-title titulo-hero">Equipos del club</h1>
+                    <p class="lead-text lead-sin-margen">Selecciona una categoría para consultar su plantilla, resultados, actas y estadísticas.</p>
+                </div>
 
-    <nav>
-        <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="equipos.html">Equipos</a></li>
-            <li><a href="noticias.html">Noticias</a></li>
-            <li><a href="contacto.html">Contacto</a></li>
-        </ul>
-    </nav>
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
 
-    <main>
-        <section>
-            <h2>Nuestros Equipos</h2>
-            <p>Aquí puedes explorar todas las categorías y equipos de nuestro club.</p>
+        <section class="equipos-band">
+            <div class="container">
+                <div class="filter-bar">
+                    <!-- equipos.js crea aquí los botones de categoría a partir de los datos -->
+                    <div class="filter-pills" id="filtros-categoria" role="group" aria-label="Filtrar por categoría"></div>
+                    <span class="teams-counter" id="contador-equipos"></span>
+                </div>
 
-            <div class="lista-equipos">
-                <h3>Categoría Juvenil</h3>
-                <ul>
-                    <li><a href="equipo-juvenil-a.html">Juvenil A</a></li>
-                    <li><a href="equipo-juvenil-b.html">Juvenil B</a></li>
-		    <li><a href="equipo-juvenil-c.html">Juvenil C</a></li>
-                </ul>
+                <!-- equipos.js pinta aquí una tarjeta por equipo -->
+                <div class="teams-grid" id="lista-equipos">
+                    <p class="texto-vacio">Cargando equipos…</p>
+                </div>
 
-                <h3>Categoría Cadete</h3>
-                <ul>
-                    <li><a href="equipo-cadete-a.html">Cadete A</a></li>
-                    <li><a href="equipo-cadete-b.html">Cadete B</a></li>
-                </ul>
-
-                <h3>Categoría Infantil</h3>
-                <ul>
-                    <li><a href="equipo-infantil-a.html">Infantil A</a></li>
-                    <li><a href="equipo-infantil-b.html">Infantil B</a></li>
-                </ul>
-		
-		<h3>Categoría Alevín</h3>
-                <ul>
-                    <li><a href="equipo-alevín-a.html">Alevín A</a></li>
-                    <li><a href="equipo-alevín-b.html">Alevín B</a></li>
-                </ul>
-
-		<h3>Categoría Benjamín</h3>
-                <ul>
-                    <li><a href="equipo-benajamín-a.html">Benjamín</a></li>
-                </ul>
-
-		<h3>Categoría Prebenjamín</h3>
-                <ul>
-                    <li><a href="equipo-prebenjamín-a.html">Prebenjamín</a></li>
-                </ul>
-
+                <div class="equipos-footnote">
+                    <span><span aria-hidden="true">ⓘ</span> Entra en cada equipo para consultar su información deportiva.</span>
+                </div>
             </div>
         </section>
     </main>
 
-    <footer>
-        <p>&copy; 2025 CD.CALASANZ. Todos los derechos reservados.</p>
-    </footer>
+    <footer></footer>
 
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="equipos.js"></script>
 </body>
 </html>

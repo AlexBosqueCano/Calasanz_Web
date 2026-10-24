@@ -85,8 +85,29 @@
         const idError = 'error-' + campo.id;
         campo.setAttribute('aria-invalid', 'true');
         campo.setAttribute('aria-describedby', idError);
-        campo.insertAdjacentElement('afterend',
+        // En el diseño nuevo algunos campos van dentro de .input-with-icon (con iconos
+        // colocados encima). El mensaje se pone DESPUÉS de ese envoltorio para no romper el diseño.
+        const referencia = campo.closest('.input-with-icon') || campo;
+        referencia.insertAdjacentElement('afterend',
             el('span', { texto: mensaje, clase: 'error-campo', atributos: { id: idError } }));
+    }
+
+    /*
+     * Botón del "ojo" del campo contraseña: alterna entre ocultar y mostrar.
+     * Antes este código estaba escrito dentro de login.html; los scripts van en ficheros .js.
+     * aria-pressed + aria-label permiten a un lector de pantalla saber qué hace y en qué estado está.
+     */
+    function iniciarOjoContrasena() {
+        const boton = document.getElementById('toggle-pass');
+        const campo = document.getElementById('password');
+        if (!boton || !campo) return;
+
+        boton.addEventListener('click', () => {
+            const mostrar = campo.type === 'password';
+            campo.type = mostrar ? 'text' : 'password';
+            boton.setAttribute('aria-pressed', String(mostrar));
+            boton.setAttribute('aria-label', mostrar ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
     }
 
     /*
@@ -136,7 +157,10 @@
      */
     function esperando(boton, activo, textoNormal) {
         boton.disabled = activo;
-        boton.textContent = activo ? 'Enviando…' : textoNormal;
+        // El botón tiene el texto en <span class="btn-texto"> y la flecha decorativa aparte:
+        // así cambiamos solo el texto y la flecha del diseño se conserva.
+        const etiqueta = boton.querySelector('.btn-texto') || boton;
+        etiqueta.textContent = activo ? 'Enviando…' : textoNormal;
     }
 
     // ------------------------------------------------------------------
@@ -246,5 +270,6 @@
         }
         iniciarLogin();
         iniciarRegistro();
+        iniciarOjoContrasena();
     });
 })();

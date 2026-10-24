@@ -1,60 +1,100 @@
 <!DOCTYPE html>
-<!-- lang="es": indica el idioma para que los lectores de pantalla pronuncien bien -->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión - CD. Calasanz</title>
+    <title>CD. Calasanz Santander / Iniciar sesión</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<!--
-    data-pagina="login": layout.js lo usa para marcar el enlace actual de la navegación.
-    Esta página NO lleva data-requiere-sesion porque es justo donde se inicia sesión.
--->
-<body data-pagina="login">
+<body>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
 
-    <!-- Si el navegador no tiene JavaScript, avisamos (la app lo necesita) -->
-    <noscript>
-        <p class="mensaje mensaje-aviso">Esta aplicación necesita JavaScript activado para funcionar.</p>
-    </noscript>
-
-    <!-- id="contenido" es el destino del enlace "Saltar al contenido" (lo crea layout.js) -->
-    <main id="contenido" tabindex="-1">
-        <section aria-labelledby="titulo-login">
-            <h1 id="titulo-login">Iniciar sesión</h1>
-
-            <!--
-                Aquí auth.js escribe avisos y errores generales.
-                No ponemos aria-live aquí: los mensajes ya llevan role="alert" / role="status".
-            -->
-            <div id="mensajes-formulario"></div>
-
-            <!--
-                novalidate: desactiva los mensajes por defecto del navegador para mostrar
-                los nuestros, que son accesibles y están en castellano.
-            -->
-            <form id="form-login" class="formulario" novalidate>
-                <div class="campo">
-                    <!-- for="username" enlaza la etiqueta con su input: pulsar el texto enfoca el campo -->
-                    <label for="username">Nombre de usuario</label>
-                    <!-- autocomplete ayuda a gestores de contraseñas y a quien usa teclado -->
-                    <input type="text" id="username" name="username" autocomplete="username" required>
+    <main class="auth-section">
+        <div class="container auth-split">
+            <div class="auth-poster">
+                <div>
+                    <div class="kicker kicker-claro">
+                        <span class="kicker-line"></span>
+                        <span>CD. CALASANZ SANTANDER</span>
+                    </div>
+                    <h2>Un club.<br>Una misma<br>pasión.</h2>
+                    <p>El punto de encuentro de nuestra familia verdiblanca.</p>
                 </div>
-                <div class="campo">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" autocomplete="current-password" required>
-                </div>
-                <button type="submit" class="boton">Iniciar sesión</button>
-            </form>
 
-            <p>¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
-        </section>
+                <!-- Ilustración decorativa de un campo de fútbol -->
+                <svg class="pitch-svg" viewBox="0 0 400 220" fill="none" stroke="white" stroke-width="1.5" aria-hidden="true">
+                    <rect x="10" y="10" width="380" height="200" />
+                    <line x1="200" y1="10" x2="200" y2="210" />
+                    <circle cx="200" cy="110" r="38" />
+                    <rect x="10" y="60" width="55" height="100" />
+                    <rect x="335" y="60" width="55" height="100" />
+                </svg>
+
+                <div class="auth-poster-footer">VERDE Y BLANCO. SIEMPRE.</div>
+            </div>
+
+            <!-- Panel del formulario -->
+            <div class="auth-form-panel">
+                <a href="index.html" class="link-arrow enlace-volver-auth"><span aria-hidden="true">←</span> Volver al inicio</a>
+
+                <div class="kicker kicker-pegado">ÁREA DEL CLUB</div>
+                <h1>Iniciar sesión</h1>
+                <p class="auth-intro">Bienvenido de nuevo. Accede con tu cuenta del club.</p>
+
+                <!-- auth.js escribe aquí los avisos y errores generales -->
+                <div id="mensajes-formulario"></div>
+
+                <!--
+                    method="post": si por cualquier motivo el JavaScript no cargase, el navegador NUNCA
+                    pondría la contraseña en la URL (con GET sí lo haría).
+                    novalidate: usamos nuestros mensajes de error, que son accesibles y están en castellano.
+                -->
+                <form id="form-login" method="post" action="login.html" novalidate>
+                    <div class="field-group">
+                        <label for="username">Nombre de usuario</label>
+                        <div class="input-with-icon">
+                            <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <input type="text" id="username" name="username" placeholder="Tu nombre de usuario" autocomplete="username" required>
+                        </div>
+                    </div>
+
+                    <div class="field-group">
+                        <label for="password">Contraseña</label>
+                        <div class="input-with-icon">
+                            <svg class="icon-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            <input type="password" id="password" name="password" placeholder="Tu contraseña" autocomplete="current-password" required>
+                            <button type="button" class="btn-eye" id="toggle-pass" aria-label="Mostrar contraseña" aria-pressed="false">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-green btn-submit-full"><span class="btn-texto">Iniciar sesión</span> <span aria-hidden="true">→</span></button>
+                </form>
+
+                <p class="auth-switch-text">¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+
+                <!-- Banner solo para móvil -->
+                <div class="auth-mobile-banner">
+                    <div class="stripes-mini stripes-visibles" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div>
+                        <strong class="banner-titulo">Un club. Una misma pasión.</strong>
+                        <span class="banner-texto">Verde y blanco. Siempre.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
+    <footer></footer>
+
     <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
-    <script src="api.js"></script>      <!-- peticiones al servidor -->
-    <script src="session.js"></script>  <!-- estado de sesión -->
-    <script src="layout.js"></script>   <!-- cabecera, menú y pie -->
-    <script src="auth.js"></script>     <!-- lógica de esta página -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="auth.js"></script>
 </body>
 </html>
