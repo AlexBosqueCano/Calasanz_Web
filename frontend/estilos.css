@@ -1485,6 +1485,30 @@ html.dark-mode .dorsal-num { color: var(--text-dark); }
 .aviso-errores ul { margin: 0; padding-left: 1.1rem; word-break: break-word; }
 html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-color: #ffb4ab; }
 
+/*
+ * Tablas con pocas columnas (goleadores, lesionados): se ajustan al ancho del móvil en vez de
+ * obligar a deslizar. Sin esto, el dato clave ("Vuelta estimada") quedaba fuera de la pantalla.
+ * Las tablas anchas (estadísticas, clasificación) siguen deslizándose como antes.
+ */
+.table-responsive .modern-table.tabla-compacta { min-width: 0; }
+@media (max-width: 768px) {
+    .tabla-compacta th,
+    .tabla-compacta td { padding: 0.75rem 0.55rem; font-size: 0.85rem; white-space: normal; }
+}
+
+/* Pestañas del equipo (7): en el móvil van en UNA sola fila que se desliza con el dedo,
+   en vez de apilarse en 3 filas. Las pestañas no se encogen ni parten el texto. */
+@media (max-width: 768px) {
+    .tabs-nav {
+        position: relative;              /* equipo.js calcula la posición de cada pestaña respecto a esta fila */
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;          /* hueco para que el foco no se corte por abajo */
+    }
+    .tabs-nav .tab-btn { flex-shrink: 0; white-space: nowrap; }
+}
+
 /* Contacto: bloque de alternativa si no se abre el correo */
 .contacto-alternativa {
     display: flex; flex-direction: column; gap: 0.75rem;

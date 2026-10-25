@@ -1,8 +1,8 @@
 /*
  * equipo.js — Página de un equipo con 4 pestañas (equipo.html?id=N)
  * ==================================================================
- * Una sola página sirve para TODOS los equipos. Pestañas:
- *   Plantilla · Estadísticas · Resultados y actas · Clasificación
+ * Una sola página sirve para TODOS los equipos. Pestañas (en este orden):
+ *   Plantilla · Estadísticas · Goleadores · Calendario · Resultados y actas · Clasificación · Lesionados
  *
  * CÓMO FUNCIONA
  *   1. Leemos el id del equipo de la URL (?id=1).
@@ -12,8 +12,12 @@
  *
  * ENDPOINTS (docs/API_CONTRATO.md §4)
  *   GET /api/equipos/{id}                 GET /api/equipos/{id}/plantilla
- *   GET /api/equipos/{id}/estadisticas    GET /api/equipos/{id}/partidos
- *   GET /api/equipos/{id}/clasificacion
+ *   GET /api/equipos/{id}/estadisticas    GET /api/equipos/{id}/goleadores
+ *   GET /api/equipos/{id}/partidos        GET /api/equipos/{id}/clasificacion
+ *   GET /api/lesiones?equipo={id}&activa=true
+ *
+ * "Calendario" y "Resultados y actas" salen de la MISMA petición de partidos: los que
+ * aún no se han jugado van al calendario y los finalizados a resultados.
  *
  * SEGURIDAD: todo se pinta con Api.el() (textContent). Jamás innerHTML con datos del servidor.
  *
@@ -29,11 +33,16 @@
     const cargadas = {};      // qué pestañas ya tienen sus datos (para no repetir peticiones)
 
     // Qué función carga cada pestaña. El nombre es el data-target del botón.
+    // OJO: el orden de las claves debe ser el mismo que el de las pestañas en equipo.html,
+    // porque las flechas ← → del teclado recorren las pestañas en este orden.
     const cargadores = {
         plantilla: cargarPlantilla,
         estadisticas: cargarEstadisticas,
+        goleadores: cargarGoleadores,
+        calendario: cargarCalendario,
         resultados: cargarResultados,
-        clasificacion: cargarClasificacion
+        clasificacion: cargarClasificacion,
+        lesionados: cargarLesionados
     };
 
     // ------------------------------------------------------------------
@@ -129,48 +138,115 @@
     }
 
     // ------------------------------------------------------------------
-    // PESTAÑA: RESULTADOS Y ACTAS
+    // PESTAÑA: GOLEADORES
+    // ------------------------------------------------------------------
+    async function cargarGoleadores() {
+        const cuerpo = document.getElementById('tabla-goleadores');
+        filaMensaje(cuerpo, 5, 'Cargando goleadores…');
+        try {
+            const filas = await Demo.obtener(`/equipos/${equipoId}/goleadores`, null, Demo.goleadores);
+            if (!filas.length) { filaMensaje(cuerpo, 5, 'Todavía no hay goles en esta temporada.'); return; }
+
+            cuerpo.textContent = '';
+            // El contrato dice "ordenado por goles", pero ordenamos por si acaso (más goles primero)
+            filas.slice().sort((a, b) => (b.goles ?? 0) - (a.goles ?? 0)).forEach((f, i) => {
+                const j = f.jugador || {};
+                const nombre = el('a', {
+                    texto: nombreCompleto(j), clase: 'enlace-tabla',
+                    atributos: { href: 'jugador.html?id=' + encodeURIComponent(j.id) }
+                });
+                // Media de goles por partido, con 2 decimales; si no ha jugado, un guion
+                const media = f.partidos ? (f.goles / f.partidos).toFixed(2) : '—';
+                cuerpo.appendChild(el('tr', { hijos: [
+                    td(i + 1), el('td', { hijos: [nombre] }),
+                    el('td', { hijos: [el('strong', { texto: String(f.goles ?? 0) })] }),
+                    td(f.partidos ?? 0), td(media)
+                ]}));
+            });
+            cargadas.goleadores = true;
+        } catch (error) { filaMensaje(cuerpo, 5, error.message || 'No se pudieron cargar los goleadores.'); Api.mostrarError(null, error); }
+    }
+
+    // ------------------------------------------------------------------
+    // PARTIDOS: una sola petición que comparten CALENDARIO y RESULTADOS
+    // ------------------------------------------------------------------
+    let promesaPartidos = null;   // guarda la petición para no repetirla al cambiar de pestaña
+
+    /* Devuelve el array de partidos del equipo (pide al servidor solo la primera vez). */
+    function obtenerPartidos() {
+        if (!promesaPartidos) {
+            promesaPartidos = Demo.obtener(`/equipos/${equipoId}/partidos`, null, Demo.partidos)
+                // El contrato dice que puede ser un array directo o una página { items: [...] }
+                .then(datos => Array.isArray(datos) ? datos : (datos.items || []))
+                // Si falla, olvidamos la promesa para poder reintentarlo al volver a la pestaña
+                .catch(error => { promesaPartidos = null; throw error; });
+        }
+        return promesaPartidos;
+    }
+
+    /* Tarjeta de un partido (la usan Calendario y Resultados). */
+    function tarjetaPartido(p) {
+        const jugado = p.estado === 'finalizado';
+        const local = p.local ? p.local.nombre : '';
+        const visitante = p.visitante ? p.visitante.nombre : '';
+        // "C.D. Calasanz 4 - 2 Rival" si se jugó; "C.D. Calasanz vs. Rival" si no
+        const titulo = jugado
+            ? `${local} ${p.resultado_local} - ${p.resultado_visitante} ${visitante}`
+            : `${local} vs. ${visitante}`;
+
+        const meta = [el('span', { texto: `JORNADA ${p.jornada} · ${jugado ? 'FINALIZADO' : 'PRÓXIMO ENCUENTRO'}` })];
+        // "lugar" no está aún en el contrato: se muestra solo si el servidor lo envía
+        meta.push(el('span', { texto: p.lugar || Api.formatearFecha(p.fecha) }));
+
+        // Partido jugado → ver acta (todos). Pendiente → registrar acta (solo entrenador/dev)
+        let enlace = null;
+        if (jugado) {
+            enlace = el('a', { clase: 'link-arrow', atributos: { href: 'acta.html?id=' + encodeURIComponent(p.id) }, hijos: [
+                document.createTextNode('Ver acta oficial del partido '), flecha()
+            ]});
+        } else if (Sesion.tieneRol('ENTRENADOR', 'DESARROLLADOR') || Sesion.enModoDemo()) {
+            enlace = el('a', { clase: 'link-arrow', atributos: { href: 'admin-plantilla.html#acta' }, hijos: [
+                document.createTextNode('Registrar acta (entrenador) '), flecha()
+            ]});
+        }
+
+        const hijos = [el('div', { clase: 'news-card-meta', hijos: meta }), el('h3', { texto: titulo })];
+        if (enlace) hijos.push(enlace);
+        return el('article', { clase: 'news-card', hijos });
+    }
+
+    // ------------------------------------------------------------------
+    // PESTAÑA: CALENDARIO (partidos que todavía no se han jugado)
+    // ------------------------------------------------------------------
+    async function cargarCalendario() {
+        const cont = document.getElementById('lista-calendario');
+        cargando(cont, 'Cargando calendario…');
+        try {
+            const todos = await obtenerPartidos();
+            // Pendientes = todo lo que no está finalizado. El más cercano primero (fecha ascendente).
+            const pendientes = todos.filter(p => p.estado !== 'finalizado')
+                .sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+            cont.textContent = '';
+            if (!pendientes.length) { cont.appendChild(vacio('No hay partidos programados por ahora.')); }
+            pendientes.forEach(p => cont.appendChild(tarjetaPartido(p)));
+            cargadas.calendario = true;
+        } catch (error) { Api.mostrarError(cont, error); }
+    }
+
+    // ------------------------------------------------------------------
+    // PESTAÑA: RESULTADOS Y ACTAS (partidos ya jugados)
     // ------------------------------------------------------------------
     async function cargarResultados() {
         const cont = document.getElementById('lista-resultados');
         cargando(cont, 'Cargando resultados…');
         try {
-            const datos = await Demo.obtener(`/equipos/${equipoId}/partidos`, null, Demo.partidos);
-            // El contrato dice que puede ser un array directo o una página { items: [...] }
-            const partidos = Array.isArray(datos) ? datos : (datos.items || []);
+            const todos = await obtenerPartidos();
+            // Solo los finalizados; el más reciente primero (jornada descendente)
+            const jugados = todos.filter(p => p.estado === 'finalizado')
+                .sort((a, b) => (b.jornada ?? 0) - (a.jornada ?? 0));
             cont.textContent = '';
-            if (!partidos.length) { cont.appendChild(vacio('Todavía no hay partidos programados.')); return; }
-
-            // Los más recientes primero
-            partidos.slice().sort((a, b) => (b.jornada ?? 0) - (a.jornada ?? 0)).forEach(p => {
-                const jugado = p.estado === 'finalizado';
-                const local = p.local ? p.local.nombre : '';
-                const visitante = p.visitante ? p.visitante.nombre : '';
-                // "C.D. Calasanz 4 - 2 Rival" si se jugó; "C.D. Calasanz vs. Rival" si no
-                const titulo = jugado
-                    ? `${local} ${p.resultado_local} - ${p.resultado_visitante} ${visitante}`
-                    : `${local} vs. ${visitante}`;
-
-                const meta = [el('span', { texto: `JORNADA ${p.jornada} · ${jugado ? 'FINALIZADO' : 'PRÓXIMO ENCUENTRO'}` })];
-                // "lugar" no está aún en el contrato: se muestra solo si el servidor lo envía
-                meta.push(el('span', { texto: p.lugar || Api.formatearFecha(p.fecha) }));
-
-                // Partido jugado → ver acta (todos). Pendiente → registrar acta (solo entrenador/dev)
-                let enlace = null;
-                if (jugado) {
-                    enlace = el('a', { clase: 'link-arrow', atributos: { href: 'acta.html?id=' + encodeURIComponent(p.id) }, hijos: [
-                        document.createTextNode('Ver acta oficial del partido '), flecha()
-                    ]});
-                } else if (Sesion.tieneRol('ENTRENADOR', 'DESARROLLADOR') || Sesion.enModoDemo()) {
-                    enlace = el('a', { clase: 'link-arrow', atributos: { href: 'admin-plantilla.html#acta' }, hijos: [
-                        document.createTextNode('Registrar acta (entrenador) '), flecha()
-                    ]});
-                }
-
-                const hijos = [el('div', { clase: 'news-card-meta', hijos: meta }), el('h3', { texto: titulo })];
-                if (enlace) hijos.push(enlace);
-                cont.appendChild(el('article', { clase: 'news-card', hijos }));
-            });
+            if (!jugados.length) { cont.appendChild(vacio('Todavía no se ha jugado ningún partido.')); }
+            jugados.forEach(p => cont.appendChild(tarjetaPartido(p)));
             cargadas.resultados = true;
         } catch (error) { Api.mostrarError(cont, error); }
     }
@@ -205,8 +281,51 @@
     }
 
     // ------------------------------------------------------------------
+    // PESTAÑA: LESIONADOS
+    // ------------------------------------------------------------------
+    /*
+     * PRIVACIDAD: solo enseñamos quién está de baja y la fecha estimada de vuelta. NUNCA el tipo
+     * de lesión ni diagnóstico: son datos de salud de menores (decisión D5 del contrato de API).
+     */
+    async function cargarLesionados() {
+        const cuerpo = document.getElementById('tabla-lesionados');
+        filaMensaje(cuerpo, 3, 'Cargando lesionados…');
+        try {
+            const filas = await Demo.obtener('/lesiones', { equipo: equipoId, activa: true }, Demo.lesiones);
+            if (!filas.length) { filaMensaje(cuerpo, 3, 'No hay jugadores lesionados en este momento.'); return; }
+
+            cuerpo.textContent = '';
+            // Los que antes vuelven, primero
+            filas.slice().sort((a, b) => String(a.fecha_estimada_vuelta).localeCompare(String(b.fecha_estimada_vuelta))).forEach(l => {
+                const j = l.jugador || {};
+                const nombre = el('a', {
+                    texto: nombreCompleto(j), clase: 'enlace-tabla',
+                    atributos: { href: 'jugador.html?id=' + encodeURIComponent(j.id) }
+                });
+                cuerpo.appendChild(el('tr', { hijos: [
+                    el('td', { hijos: [nombre] }),
+                    td(Api.formatearFecha(l.fecha_inicio)),
+                    // Si el cuerpo técnico aún no ha fijado fecha, lo decimos claramente
+                    td(l.fecha_estimada_vuelta ? Api.formatearFecha(l.fecha_estimada_vuelta) : 'Sin fecha estimada')
+                ]}));
+            });
+            cargadas.lesionados = true;
+        } catch (error) { filaMensaje(cuerpo, 3, error.message || 'No se pudieron cargar las lesiones.'); Api.mostrarError(null, error); }
+    }
+
+    // ------------------------------------------------------------------
     // PESTAÑAS: cambiar de una a otra (ratón, táctil y teclado)
     // ------------------------------------------------------------------
+    /*
+     * En el móvil las pestañas van en una fila que se desliza. Esto desplaza SOLO esa fila
+     * (no la página entera) para que la pestaña activa quede centrada y a la vista.
+     */
+    function centrarPestana(boton) {
+        const fila = boton.parentElement;
+        if (!fila || fila.scrollWidth <= fila.clientWidth) return;   // todo cabe: no hay nada que mover
+        fila.scrollLeft = boton.offsetLeft - (fila.clientWidth - boton.offsetWidth) / 2;
+    }
+
     function activarPestana(nombre, moverFoco) {
         document.querySelectorAll('.tab-btn').forEach(boton => {
             const esta = boton.dataset.target === nombre;
@@ -215,6 +334,7 @@
             // Solo la pestaña activa entra en el orden del Tab; las demás se mueven con flechas
             boton.setAttribute('tabindex', esta ? '0' : '-1');
             if (esta && moverFoco) boton.focus();
+            if (esta) centrarPestana(boton);
         });
         document.querySelectorAll('.tab-pane').forEach(panel => {
             const es = panel.id === nombre;

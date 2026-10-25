@@ -47,8 +47,11 @@
                 <div class="tabs-nav" role="tablist" aria-label="Información del equipo">
                     <button type="button" class="filter-pill tab-btn active" role="tab" id="pestana-plantilla" data-target="plantilla" aria-controls="plantilla" aria-selected="true">Plantilla</button>
                     <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-estadisticas" data-target="estadisticas" aria-controls="estadisticas" aria-selected="false" tabindex="-1">Estadísticas</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-goleadores" data-target="goleadores" aria-controls="goleadores" aria-selected="false" tabindex="-1">Goleadores</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-calendario" data-target="calendario" aria-controls="calendario" aria-selected="false" tabindex="-1">Calendario</button>
                     <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-resultados" data-target="resultados" aria-controls="resultados" aria-selected="false" tabindex="-1">Resultados y actas</button>
                     <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-clasificacion" data-target="clasificacion" aria-controls="clasificacion" aria-selected="false" tabindex="-1">Clasificación</button>
+                    <button type="button" class="filter-pill tab-btn" role="tab" id="pestana-lesionados" data-target="lesionados" aria-controls="lesionados" aria-selected="false" tabindex="-1">Lesionados</button>
                 </div>
 
                 <div id="plantilla" class="tab-pane active" role="tabpanel" aria-labelledby="pestana-plantilla" tabindex="0">
@@ -74,6 +77,27 @@
                     </table>
                 </div>
 
+                <div id="goleadores" class="tab-pane" role="tabpanel" aria-labelledby="pestana-goleadores" tabindex="0" hidden>
+                    <table class="modern-table tabla-compacta">
+                        <caption class="solo-lectores">Máximos goleadores del equipo</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Pos</th>
+                                <th scope="col">Jugador</th>
+                                <th scope="col">Goles</th>
+                                <th scope="col"><abbr title="Partidos jugados">PJ</abbr></th>
+                                <th scope="col"><abbr title="Goles por partido">Media</abbr></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-goleadores"></tbody>
+                    </table>
+                </div>
+
+                <!-- Calendario: los partidos que todavía no se han jugado (equipo.js los pinta aquí) -->
+                <div id="calendario" class="tab-pane" role="tabpanel" aria-labelledby="pestana-calendario" tabindex="0" hidden>
+                    <div class="news-grid" id="lista-calendario"></div>
+                </div>
+
                 <div id="resultados" class="tab-pane" role="tabpanel" aria-labelledby="pestana-resultados" tabindex="0" hidden>
                     <div class="news-grid" id="lista-resultados"></div>
                 </div>
@@ -97,6 +121,25 @@
                         <tbody id="tabla-clasificacion"></tbody>
                     </table>
                 </div>
+
+                <!--
+                    Lesionados: SOLO estado y fecha estimada de vuelta, sin diagnóstico.
+                    Son datos de salud de menores (decisión D5 de docs/API_CONTRATO.md).
+                -->
+                <div id="lesionados" class="tab-pane" role="tabpanel" aria-labelledby="pestana-lesionados" tabindex="0" hidden>
+                    <table class="modern-table tabla-compacta">
+                        <caption class="solo-lectores">Jugadores lesionados del equipo</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Jugador</th>
+                                <th scope="col">Baja desde</th>
+                                <th scope="col">Vuelta estimada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-lesionados"></tbody>
+                    </table>
+                </div>
+
             </div>
         </section>
     </main>
