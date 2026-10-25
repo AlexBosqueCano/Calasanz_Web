@@ -98,6 +98,18 @@
 
                     <p id="contacto-feedback" class="feedback feedback-ok" role="status" hidden></p>
 
+                    <!--
+                        ALTERNATIVA SI NO SE ABRE EL CORREO: algunos navegadores (por ejemplo los que van
+                        dentro de una app como Koder) no abren "mailto:". contacto.js rellena y enseña
+                        este bloque al enviar, con el mensaje listo para copiar y pegar.
+                    -->
+                    <div id="contacto-alternativa" class="contacto-alternativa" hidden>
+                        <p>¿No se ha abierto tu correo? Escribe a <a id="contacto-enlace-correo" class="enlace-subrayado" href="mailto:info@cdcalasanz.es">info@cdcalasanz.es</a> con este texto:</p>
+                        <label for="contacto-copia" class="solo-lectores">Mensaje preparado para copiar</label>
+                        <textarea id="contacto-copia" rows="6" readonly></textarea>
+                        <button type="button" id="contacto-copiar" class="btn-outline">Copiar mensaje</button>
+                    </div>
+
                     <button type="submit" class="btn-green btn-submit-full">Enviar consulta <span aria-hidden="true">→</span></button>
                 </form>
 

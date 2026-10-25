@@ -200,7 +200,119 @@
         return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    /*
+     * TARJETAS DE FÚTBOL (amarilla / roja)
+     * ------------------------------------
+     * Devuelve un <span> con el dibujo de la tarjeta (un rectángulo de color, definido en
+     * estilos.css con las clases .tarjeta-futbol, .tarjeta-amarilla y .tarjeta-roja) seguido
+     * del texto. Se dibuja con CSS y no con emojis para que se vea igual en todos los móviles.
+     *   tipo     → 'amarilla' o 'roja'
+     *   cantidad → número que se escribe al lado (opcional; si no se pasa, solo el dibujo)
+     *   texto    → texto visible al lado (opcional), p. ej. 'Amarilla'
+     * Para lectores de pantalla el rectángulo se oculta y se lee el texto "2 amarillas".
+     */
+    function tarjeta(tipo, cantidad, texto) {
+        const clase = tipo === 'roja' ? 'tarjeta-roja' : 'tarjeta-amarilla';
+        const hijos = [el('span', { clase: 'tarjeta-futbol ' + clase, atributos: { 'aria-hidden': 'true' } })];
+        if (cantidad !== undefined) hijos.push(el('span', { texto: String(cantidad), clase: 'tarjeta-numero' }));
+        if (texto) hijos.push(el('span', { texto }));
+        else if (cantidad !== undefined) {
+            // sin texto visible: añadimos uno solo para lectores de pantalla
+            const plural = tipo === 'roja' ? (cantidad === 1 ? 'roja' : 'rojas') : (cantidad === 1 ? 'amarilla' : 'amarillas');
+            hijos.push(el('span', { texto: ' ' + plural, clase: 'solo-lectores' }));
+        }
+        return el('span', { clase: 'tarjeta-grupo', hijos });
+    }
+
+    /* Par "amarillas + rojas" para resúmenes (KPI del jugador, tabla de estadísticas). */
+    function tarjetasResumen(amarillas, rojas) {
+        return el('span', { clase: 'tarjetas-resumen', hijos: [
+            tarjeta('amarilla', amarillas ?? 0),
+            tarjeta('roja', rojas ?? 0)
+        ]});
+    }
+
+    /*
+     * Texto del servidor ('', 'Amarilla', 'Roja', 'Doble amarilla') → tarjetas dibujadas con su texto.
+     * Si no hay tarjetas devuelve un guion.
+     */
+    function tarjetasDeTexto(textoServidor) {
+        const t = String(textoServidor || '').toLowerCase();
+        if (!t) return document.createTextNode('—');
+        const grupo = el('span', { clase: 'tarjetas-resumen' });
+        if (t.includes('doble')) {
+            // doble amarilla = dos amarillas que acaban en expulsión
+            grupo.appendChild(tarjeta('amarilla'));
+            grupo.appendChild(tarjeta('amarilla'));
+            grupo.appendChild(tarjeta('roja', undefined, 'Doble amarilla'));
+        } else if (t.includes('roja')) {
+            grupo.appendChild(tarjeta('roja', undefined, 'Roja'));
+        } else if (t.includes('amarilla')) {
+            grupo.appendChild(tarjeta('amarilla', undefined, 'Amarilla'));
+        } else {
+            return document.createTextNode(String(textoServidor));   // texto desconocido: se enseña tal cual
+        }
+        return grupo;
+    }
+
+    /*
+     * AVISO DE ERRORES EN PANTALLA
+     * ----------------------------
+     * En un móvil no hay consola para ver los errores de JavaScript, y la página simplemente
+     * "no funciona". Este bloque enseña, en un cuadro al pie de la página, cualquier:
+     *   - error de JavaScript no controlado,
+     *   - promesa rechazada sin controlar (errores dentro de funciones async),
+     *   - archivo (.js, .css, imagen) que no se ha podido cargar.
+     * Así basta una captura de pantalla para saber qué falla. Se escribe con textContent (seguro).
+     */
+    (function instalarAvisoDeErrores() {
+        const mensajes = [];    // lista de errores ya mostrados (para no repetir el mismo)
+        let panel = null;
+        let lista = null;
+
+        function mostrar(texto) {
+            if (mensajes.includes(texto) || mensajes.length >= 5) return;   // máx. 5 para no saturar
+            mensajes.push(texto);
+            if (!document.body) { document.addEventListener('DOMContentLoaded', () => mostrar(texto)); return; }
+
+            if (!panel) {
+                panel = el('div', { clase: 'aviso-errores', atributos: { role: 'alert' } });
+                const cerrar = el('button', { texto: 'Cerrar', clase: 'btn-outline btn-pequeno', atributos: { type: 'button' } });
+                cerrar.addEventListener('click', () => { panel.hidden = true; });
+                lista = el('ul');
+                panel.appendChild(el('strong', { texto: 'Se ha producido un error en esta página' }));
+                panel.appendChild(lista);
+                panel.appendChild(el('p', { texto: 'Haz una captura de pantalla de este aviso y compártela con el equipo.' }));
+                panel.appendChild(cerrar);
+                document.body.appendChild(panel);
+            }
+            panel.hidden = false;
+            lista.appendChild(el('li', { texto }));
+        }
+
+        // Errores de JavaScript (y archivos que no cargan: se detectan con "capture = true")
+        window.addEventListener('error', (e) => {
+            const destino = e.target;
+            if (destino && destino !== window && destino.tagName) {
+                const ruta = destino.src || destino.href || '';
+                if (ruta) mostrar('No se pudo cargar el archivo: ' + ruta.split('/').slice(-2).join('/'));
+                return;
+            }
+            const donde = e.filename ? ` (${e.filename.split('/').pop()}:${e.lineno})` : '';
+            mostrar((e.message || 'Error desconocido') + donde);
+        }, true);
+
+        // Errores dentro de funciones async que nadie ha capturado
+        window.addEventListener('unhandledrejection', (e) => {
+            const r = e.reason;
+            mostrar('Error: ' + (r && r.message ? r.message : String(r)));
+        });
+    })();
+
     global.Api = {
+        tarjeta,
+        tarjetasResumen,
+        tarjetasDeTexto,
         get: (ruta, params, opts) => peticion('GET', ruta, { params, ...opts }),
         post: (ruta, cuerpo, opts) => peticion('POST', ruta, { cuerpo, ...opts }),
         put: (ruta, cuerpo, opts) => peticion('PUT', ruta, { cuerpo, ...opts }),

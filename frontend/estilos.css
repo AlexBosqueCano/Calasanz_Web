@@ -1469,6 +1469,46 @@ html.dark-mode .btn-peligro { color: #ffb4ab; }
 .dorsal-num { font-size: 1.25rem; color: var(--forest-dark); }
 html.dark-mode .dorsal-num { color: var(--text-dark); }
 
+/* Aviso de errores en pantalla (lo crea api.js cuando algo falla; sirve para depurar en móvil) */
+.aviso-errores {
+    position: fixed; left: 0.75rem; right: 0.75rem; bottom: 0.75rem; z-index: 300;
+    max-height: 50vh; overflow-y: auto;
+    background: #fdecea; color: #8a1c1c; border: 2px solid #b3261e; border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem; font-size: 0.85rem; box-shadow: var(--shadow-soft);
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.aviso-errores ul { margin: 0; padding-left: 1.1rem; word-break: break-word; }
+html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-color: #ffb4ab; }
+
+/* Contacto: bloque de alternativa si no se abre el correo */
+.contacto-alternativa {
+    display: flex; flex-direction: column; gap: 0.75rem;
+    margin-bottom: 1rem; padding: 1rem;
+    background: var(--bg-soft); border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+    font-size: 0.9rem; color: var(--text-body);
+}
+.contacto-alternativa textarea { width: 100%; font: inherit; }
+
+/*
+ * Tarjetas de fútbol (amarilla / roja), dibujadas con CSS en vez de emojis.
+ * Las crea Api.tarjeta() en api.js. El rectángulo es solo decorativo: el número y el texto
+ * (visible o para lector de pantalla) dicen lo mismo, así no depende solo del color.
+ */
+.tarjetas-resumen { display: inline-flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+.tarjeta-grupo { display: inline-flex; align-items: center; gap: 0.35rem; }
+.tarjeta-futbol {
+    display: inline-block;
+    width: 0.8rem; height: 1.1rem;          /* proporción de una tarjeta de árbitro */
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.25);  /* el borde la separa del fondo en tema claro y oscuro */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    flex-shrink: 0;
+}
+.tarjeta-amarilla { background-color: #f5c400; }
+.tarjeta-roja { background-color: #d62828; }
+html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
+.tarjeta-numero { font-weight: 800; color: var(--text-dark); }
+
 /* Acta */
 .acta-etiqueta { font-size: 0.72rem; color: var(--text-muted); display: block; }
 .acta-block-centrado { text-align: center; padding-top: 0.5rem; }

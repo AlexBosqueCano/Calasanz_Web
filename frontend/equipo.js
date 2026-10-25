@@ -121,7 +121,7 @@
                     td(f.goles ?? 0),
                     td(f.asistencias ?? 0),
                     // En texto, no solo con emojis: así también se entiende con lector de pantalla
-                    td(`${f.amarillas ?? 0} amarillas · ${f.rojas ?? 0} rojas`)
+                    el('td', { hijos: [Api.tarjetasResumen(f.amarillas, f.rojas)] })
                 ]}));
             });
             cargadas.estadisticas = true;
@@ -223,7 +223,10 @@
         });
 
         // Guardamos la pestaña en la URL (#clasificacion) para poder compartir el enlace
-        history.replaceState(null, '', '#' + nombre);
+        // OJO: algunas vistas web (apps como Koder, archivos abiertos con file://) lanzan un error
+        // de seguridad al tocar el historial. Si pasa, no es grave: solo perdemos el enlace compartible,
+        // pero NO podemos dejar que el error impida cargar los datos de la pestaña.
+        try { history.replaceState(null, '', '#' + nombre); } catch (e) { /* sin historial: seguimos */ }
 
         // Carga perezosa: solo la primera vez que se abre
         if (!cargadas[nombre]) cargadores[nombre]();
