@@ -215,13 +215,18 @@
         const clase = tipo === 'roja' ? 'tarjeta-roja' : 'tarjeta-amarilla';
         const hijos = [el('span', { clase: 'tarjeta-futbol ' + clase, atributos: { 'aria-hidden': 'true' } })];
         if (cantidad !== undefined) hijos.push(el('span', { texto: String(cantidad), clase: 'tarjeta-numero' }));
-        if (texto) hijos.push(el('span', { texto }));
+        // `texto` NO se ve en pantalla: la tarjeta se distingue por su color. Solo se lee en voz
+        // alta para lectores de pantalla (clase .solo-lectores) y sale al pasar el ratón (title).
+        if (texto) hijos.push(el('span', { texto: ' ' + texto, clase: 'solo-lectores' }));
         else if (cantidad !== undefined) {
             // sin texto visible: añadimos uno solo para lectores de pantalla
             const plural = tipo === 'roja' ? (cantidad === 1 ? 'roja' : 'rojas') : (cantidad === 1 ? 'amarilla' : 'amarillas');
             hijos.push(el('span', { texto: ' ' + plural, clase: 'solo-lectores' }));
         }
-        return el('span', { clase: 'tarjeta-grupo', hijos });
+        // title: al pasar el ratón por encima (escritorio) se ve qué tarjeta es
+        const grupo = el('span', { clase: 'tarjeta-grupo', hijos });
+        if (texto) grupo.setAttribute('title', texto);
+        return grupo;
     }
 
     /* Par "amarillas + rojas" para resúmenes (KPI del jugador, tabla de estadísticas). */

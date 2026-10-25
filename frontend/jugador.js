@@ -25,16 +25,17 @@
         if (subEl) subEl.textContent = sub || '';
     }
 
-    /* Rellena las 4 tarjetas con las estadísticas (o ceros si no hay). */
+    /* Rellena las 5 casillas (partidos, minutos, goles, asistencias y tarjetas) con las estadísticas (o ceros). */
     function pintarEstadisticas(s) {
         s = s || {};
         pintarKpi('kpi-pj', s.partidos_jugados, 'kpi-pj-sub', s.titular !== undefined ? `(${s.titular} titular)` : '');
         pintarKpi('kpi-min', (s.minutos_totales ?? 0) + "'", 'kpi-min-sub', '');
         pintarKpi('kpi-goles', s.goles_totales, 'kpi-goles-sub', '');
-        pintarKpi('kpi-asist', s.asistencias_totales, 'kpi-asist-sub', '');
-        // Debajo de las asistencias: tarjeta amarilla y roja dibujadas con su número
-        const sub = document.getElementById('kpi-asist-sub');
-        if (sub) sub.appendChild(Api.tarjetasResumen(s.amarillas_totales, s.rojas_totales));
+        pintarKpi('kpi-asist', s.asistencias_totales);
+        // Casilla "Tarjetas": amarilla y roja dibujadas con su número (se vacía antes por si se repinta)
+        const caja = document.getElementById('kpi-tarjetas');
+        caja.textContent = '';
+        caja.appendChild(Api.tarjetasResumen(s.amarillas_totales, s.rojas_totales));
     }
 
     /* Tabla "participación por jornada". Si no hay datos, se oculta toda la sección. */

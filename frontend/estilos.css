@@ -1233,7 +1233,7 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
    ========================================================= */
 .stat-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);   /* partidos, minutos, goles, asistencias y tarjetas */
     gap: 1.25rem;
     margin-bottom: 2rem;
 }
@@ -1275,6 +1275,10 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
     .stat-kpi-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+    /* Con 5 casillas en 2 columnas, la última (tarjetas) ocupa todo el ancho para no quedar coja */
+    .stat-kpi-grid > :last-child {
+        grid-column: 1 / -1;
+    }
     .admin-grid-2 {
         grid-template-columns: 1fr;
     }
@@ -1291,6 +1295,7 @@ html, body {
 
 /* Contenedor que recorta la tabla y permite arrastrarla con el dedo */
 .table-responsive {
+    position: relative;   /* contiene los textos .solo-lectores (position: absolute) de las celdas */
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch; /* Deslizamiento suave en iOS y Android */
@@ -1495,7 +1500,9 @@ html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-colo
  * (visible o para lector de pantalla) dicen lo mismo, así no depende solo del color.
  */
 .tarjetas-resumen { display: inline-flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
-.tarjeta-grupo { display: inline-flex; align-items: center; gap: 0.35rem; }
+/* position: relative es IMPORTANTE: el texto .solo-lectores de dentro es position: absolute y, sin un
+   contenedor de referencia, se escapa de la tabla deslizable y ensancha toda la página en el móvil. */
+.tarjeta-grupo { display: inline-flex; align-items: center; gap: 0.35rem; position: relative; }
 .tarjeta-futbol {
     display: inline-block;
     width: 0.8rem; height: 1.1rem;          /* proporción de una tarjeta de árbitro */
