@@ -200,7 +200,65 @@
         return fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
     }
 
+    /*
+     * TARJETAS DE FÚTBOL (amarilla / roja)
+     * ------------------------------------
+     * Devuelve un <span> con el dibujo de la tarjeta (un rectángulo de color, definido en
+     * estilos.css con las clases .tarjeta-futbol, .tarjeta-amarilla y .tarjeta-roja) seguido
+     * del texto. Se dibuja con CSS y no con emojis para que se vea igual en todos los móviles.
+     *   tipo     → 'amarilla' o 'roja'
+     *   cantidad → número que se escribe al lado (opcional; si no se pasa, solo el dibujo)
+     *   texto    → texto visible al lado (opcional), p. ej. 'Amarilla'
+     * Para lectores de pantalla el rectángulo se oculta y se lee el texto "2 amarillas".
+     */
+    function tarjeta(tipo, cantidad, texto) {
+        const clase = tipo === 'roja' ? 'tarjeta-roja' : 'tarjeta-amarilla';
+        const hijos = [el('span', { clase: 'tarjeta-futbol ' + clase, atributos: { 'aria-hidden': 'true' } })];
+        if (cantidad !== undefined) hijos.push(el('span', { texto: String(cantidad), clase: 'tarjeta-numero' }));
+        if (texto) hijos.push(el('span', { texto }));
+        else if (cantidad !== undefined) {
+            // sin texto visible: añadimos uno solo para lectores de pantalla
+            const plural = tipo === 'roja' ? (cantidad === 1 ? 'roja' : 'rojas') : (cantidad === 1 ? 'amarilla' : 'amarillas');
+            hijos.push(el('span', { texto: ' ' + plural, clase: 'solo-lectores' }));
+        }
+        return el('span', { clase: 'tarjeta-grupo', hijos });
+    }
+
+    /* Par "amarillas + rojas" para resúmenes (KPI del jugador, tabla de estadísticas). */
+    function tarjetasResumen(amarillas, rojas) {
+        return el('span', { clase: 'tarjetas-resumen', hijos: [
+            tarjeta('amarilla', amarillas ?? 0),
+            tarjeta('roja', rojas ?? 0)
+        ]});
+    }
+
+    /*
+     * Texto del servidor ('', 'Amarilla', 'Roja', 'Doble amarilla') → tarjetas dibujadas con su texto.
+     * Si no hay tarjetas devuelve un guion.
+     */
+    function tarjetasDeTexto(textoServidor) {
+        const t = String(textoServidor || '').toLowerCase();
+        if (!t) return document.createTextNode('—');
+        const grupo = el('span', { clase: 'tarjetas-resumen' });
+        if (t.includes('doble')) {
+            // doble amarilla = dos amarillas que acaban en expulsión
+            grupo.appendChild(tarjeta('amarilla'));
+            grupo.appendChild(tarjeta('amarilla'));
+            grupo.appendChild(tarjeta('roja', undefined, 'Doble amarilla'));
+        } else if (t.includes('roja')) {
+            grupo.appendChild(tarjeta('roja', undefined, 'Roja'));
+        } else if (t.includes('amarilla')) {
+            grupo.appendChild(tarjeta('amarilla', undefined, 'Amarilla'));
+        } else {
+            return document.createTextNode(String(textoServidor));   // texto desconocido: se enseña tal cual
+        }
+        return grupo;
+    }
+
     global.Api = {
+        tarjeta,
+        tarjetasResumen,
+        tarjetasDeTexto,
         get: (ruta, params, opts) => peticion('GET', ruta, { params, ...opts }),
         post: (ruta, cuerpo, opts) => peticion('POST', ruta, { cuerpo, ...opts }),
         put: (ruta, cuerpo, opts) => peticion('PUT', ruta, { cuerpo, ...opts }),

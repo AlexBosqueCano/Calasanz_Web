@@ -31,8 +31,10 @@
         pintarKpi('kpi-pj', s.partidos_jugados, 'kpi-pj-sub', s.titular !== undefined ? `(${s.titular} titular)` : '');
         pintarKpi('kpi-min', (s.minutos_totales ?? 0) + "'", 'kpi-min-sub', '');
         pintarKpi('kpi-goles', s.goles_totales, 'kpi-goles-sub', '');
-        pintarKpi('kpi-asist', s.asistencias_totales, 'kpi-asist-sub',
-            `· ${s.amarillas_totales ?? 0} amarillas · ${s.rojas_totales ?? 0} rojas`);
+        pintarKpi('kpi-asist', s.asistencias_totales, 'kpi-asist-sub', '');
+        // Debajo de las asistencias: tarjeta amarilla y roja dibujadas con su número
+        const sub = document.getElementById('kpi-asist-sub');
+        if (sub) sub.appendChild(Api.tarjetasResumen(s.amarillas_totales, s.rojas_totales));
     }
 
     /* Tabla "participación por jornada". Si no hay datos, se oculta toda la sección. */
@@ -53,7 +55,7 @@
                 el('td', { texto: p.condicion }),
                 el('td', { texto: (p.minutos ?? 0) + "'" }),
                 el('td', { texto: String(p.goles ?? 0) }),
-                el('td', { texto: p.tarjetas || '—' }),
+                el('td', { hijos: [Api.tarjetasDeTexto(p.tarjetas)] }),
                 el('td', { hijos: [enlace] })
             ]}));
         });

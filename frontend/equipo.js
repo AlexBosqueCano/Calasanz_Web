@@ -121,7 +121,7 @@
                     td(f.goles ?? 0),
                     td(f.asistencias ?? 0),
                     // En texto, no solo con emojis: así también se entiende con lector de pantalla
-                    td(`${f.amarillas ?? 0} amarillas · ${f.rojas ?? 0} rojas`)
+                    el('td', { hijos: [Api.tarjetasResumen(f.amarillas, f.rojas)] })
                 ]}));
             });
             cargadas.estadisticas = true;

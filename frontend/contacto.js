@@ -15,6 +15,7 @@
 
     const form = document.getElementById('form-contacto');
     const aviso = document.getElementById('contacto-feedback');
+    const alternativa = document.getElementById('contacto-alternativa');
     if (!form) return;
 
     form.addEventListener('submit', (e) => {
@@ -28,12 +29,34 @@
         const mensaje = form.elements.mensaje.value.trim();
 
         // encodeURIComponent convierte los caracteres especiales para que viajen bien en la URL
-        const asunto = encodeURIComponent('Consulta web: ' + motivo);
-        const cuerpo = encodeURIComponent(`${mensaje}\n\nNombre: ${nombre}\nCorreo de contacto: ${email}`);
-        window.location.href = `mailto:${CORREO_CLUB}?subject=${asunto}&body=${cuerpo}`;
+        const asuntoTexto = 'Consulta web: ' + motivo;
+        const cuerpoTexto = `${mensaje}\n\nNombre: ${nombre}\nCorreo de contacto: ${email}`;
+        const enlaceMailto = `mailto:${CORREO_CLUB}?subject=${encodeURIComponent(asuntoTexto)}&body=${encodeURIComponent(cuerpoTexto)}`;
 
-        aviso.textContent = 'Se ha abierto tu programa de correo con el mensaje preparado. Pulsa "Enviar" allí para que nos llegue.';
+        // ALTERNATIVA: rellenamos el bloque con el enlace y el texto para copiar, por si el
+        // navegador no sabe abrir "mailto:" (pasa en vistas embebidas como la de Koder en iOS).
+        document.getElementById('contacto-enlace-correo').href = enlaceMailto;
+        document.getElementById('contacto-copia').value = `Para: ${CORREO_CLUB}\nAsunto: ${asuntoTexto}\n\n${cuerpoTexto}`;
+        alternativa.hidden = false;
+
+        aviso.textContent = 'Si tu programa de correo se ha abierto, pulsa "Enviar" allí para que nos llegue. Si no, usa el enlace o copia el mensaje de abajo.';
         aviso.hidden = false;
         Api.anunciar(aviso.textContent);
+
+        window.location.href = enlaceMailto;   // intenta abrir el correo
+    });
+
+    /* Botón "Copiar mensaje": usa el portapapeles; si no está disponible, selecciona el texto. */
+    document.getElementById('contacto-copiar').addEventListener('click', async () => {
+        const caja = document.getElementById('contacto-copia');
+        try {
+            await navigator.clipboard.writeText(caja.value);
+            Api.anunciar('Mensaje copiado.');
+        } catch (e) {
+            // Sin permiso de portapapeles: dejamos el texto seleccionado para copiarlo a mano
+            caja.focus();
+            caja.select();
+            Api.anunciar('Selecciona el texto y cópialo con el menú del móvil.');
+        }
     });
 })();
