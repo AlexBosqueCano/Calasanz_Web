@@ -45,13 +45,16 @@ Un entrenador está vinculado a su equipo (`equipo.id_entrenador`) y un jugador 
 | Acción | ESTANDAR | JUGADOR | ENTRENADOR | COORDINADOR | DESARROLLADOR |
 |---|---|---|---|---|---|
 | Registrarse, iniciar sesión | sí | sí | sí | sí | sí |
-| Ver equipos, plantillas, partidos, clasificación, estadísticas, noticias, lesiones | sí | sí | sí | sí | sí |
+| Ver equipos, plantillas, partidos, clasificación, estadísticas, noticias, crónicas, lesiones | sí | sí | sí | sí | sí |
 | Ver datos físicos de un jugador (estatura, peso) | no | solo el suyo | los de su equipo | sí | sí |
 | Solicitar acceso como jugador o entrenador | sí | no | no | no | no |
 | Gestionar solicitudes | no | no | no | JUGADOR y ENTRENADOR | todas |
 | Crear, editar y dar de baja jugadores | no | no | no | sí | sí |
 | Crear, editar y borrar partidos | no | no | no | sí | sí |
-| Rellenar o modificar el acta de un partido | no | no | solo su equipo | no | sí |
+| Rellenar o modificar el acta de un partido propio | no | no | solo su equipo | sí | sí |
+| Registrar el resultado de un partido entre rivales (para la clasificación) | no | no | sí | sí | sí |
+| Escribir crónicas de partidos propios ya jugados | no | no | solo su equipo | sí | sí |
+| Editar o borrar una crónica | no | no | solo las suyas | sí | sí |
 | Apuntes de rival/partido | no | no | solo su equipo | no | sí |
 | Registrar y editar lesiones | no | no | solo su equipo | sí | sí |
 | Borrar lesiones | no | no | no | sí | sí |
@@ -90,20 +93,60 @@ Notas:
 { "id": 1, "temporada_id": 2, "jornada": 1, "fecha": "2026-11-08",
   "local": { "id": 1, "nombre": "Juvenil A" }, "visitante": { "id": 11, "nombre": "CD. Laredo Juvenil" },
   "resultado_local": null, "resultado_visitante": null, "ganador_id": null,
-  "estado": "programado", "evento": null }
+  "estado": "programado", "evento": null, "cronica_id": null }
 ```
-`estado` es `programado` hasta que se envía el acta y `finalizado` después.
+`estado` es `programado` hasta que se envía el acta (o el resultado) y `finalizado` después.
 
-**Acta** (cuerpo de `PUT /api/partidos/{id}/acta`)
+Hay dos tipos de partido, según los equipos:
+- **Propio**: local o visitante es un equipo propio. Lleva **acta completa** (alineación, árbitros, eventos con minuto).
+- **Entre rivales**: ninguno es propio. Solo se guarda el **resultado**, para que la clasificación se actualice. No tiene acta ni crónica.
+
+En un partido propio, del equipo rival solo se registra el marcador y los minutos (y, si se quiere, el autor) de sus goles; nunca su alineación.
+
+**Acta de un partido propio** (cuerpo de `PUT /api/partidos/{id}/acta`)
 ```json
-{ "resultado_local": 2, "resultado_visitante": 0,
-  "estadisticas": [
-    { "jugador_id": 1, "estado": "titular", "mins_jugados": 90, "goles": 2,
-      "goles_recibidos": 0, "asistencias": 0, "amarillas": 0, "roja": false },
-    { "jugador_id": 2, "estado": "titular", "mins_jugados": 90, "goles": 0,
-      "goles_recibidos": 0, "asistencias": 0, "amarillas": 0, "roja": false }
+{ "resultado_local": 4, "resultado_visitante": 2, "duracion": 90,
+  "arbitros": { "principal": "Apellidos, Nombre", "asistentes": ["Apellidos, Nombre", "Apellidos, Nombre"] },
+  "cuerpo_tecnico": { "delegado_campo": "Apellidos, Nombre", "delegado_equipo": "Apellidos, Nombre" },
+  "alineacion": [
+    { "jugador_id": 1, "estado": "titular" },
+    { "jugador_id": 4, "estado": "titular" },
+    { "jugador_id": 9, "estado": "suplente" }
+  ],
+  "eventos": [
+    { "tipo": "gol",          "minuto": 8,  "jugador_id": 4, "asistente_id": 3 },
+    { "tipo": "gol_rival",    "minuto": 19, "autor": "Apellidos, Nombre" },
+    { "tipo": "tarjeta",      "minuto": 22, "jugador_id": 11, "color": "amarilla" },
+    { "tipo": "sustitucion",  "minuto": 45, "sale_id": 7, "entra_id": 9 }
   ] }
 ```
+- `arbitros` y `cuerpo_tecnico` son opcionales (texto libre, sin datos de contacto).
+- `eventos` es la **fuente única** de goles, asistencias y tarjetas: el servidor calcula `goles`, `asistencias`, `amarillas` y `roja` de cada jugador a partir de ellos
+  (dos amarillas cuentan como una roja) y los guarda en `estadisticas_partido`. El cliente **no** los envía.
+- `duracion` es la duración del partido en minutos (1–120, por defecto 90; en categorías inferiores los partidos son más cortos).
+- Los **minutos jugados** y los **goles recibidos** de cada jugador tampoco los envía el cliente: el servidor los calcula de los eventos.
+  - Un jugador está en el campo desde su minuto de entrada (0 si es titular; el de la sustitución si es suplente) hasta su salida (la sustitución en la que sale, su roja, o `duracion` si llega al final). `mins_jugados` = salida − entrada; un suplente que no entra tiene 0.
+  - Las sustituciones y expulsiones del minuto *m* se aplican al empezar ese minuto.
+  - `goles_recibidos` de un portero (`posicion` = `Portero`) = nº de `gol_rival` que se marcan mientras está en el campo. Los jugadores que no son porteros siempre tienen 0.
+- `gol` es de un jugador propio; `gol_rival` lleva el minuto y, opcionalmente, `autor` (texto libre, el rival no tiene fichas de jugador).
+- El marcador debe coincidir con los eventos: nº de `gol` = goles del equipo propio y nº de `gol_rival` = goles del rival.
+- Las actas ya guardadas se leen con `GET /api/partidos/{id}` (devuelve el mismo formato, con nombre y dorsal de cada jugador).
+
+**Resultado de un partido entre rivales** (cuerpo de `PUT /api/partidos/{id}/resultado`)
+```json
+{ "resultado_local": 1, "resultado_visitante": 3 }
+```
+
+**Crónica** (texto corto sobre un partido propio ya jugado; es distinta de los apuntes, que son privados del entrenador)
+```json
+{ "id": 3, "partido": { "id": 1, "jornada": 7, "fecha": "2026-10-17",
+                         "local": { "id": 1, "nombre": "Juvenil A" }, "visitante": { "id": 11, "nombre": "CD. Laredo Juvenil" },
+                         "resultado_local": 4, "resultado_visitante": 2 },
+  "titulo": "Victoria de prestigio ante el Laredo", "texto": "Los goles tempraneros…",
+  "autor": { "id": 7, "username": "mgarcia" },
+  "creada_en": "2026-10-18T10:00:00+02:00", "actualizada_en": null }
+```
+Es texto plano: se muestra siempre con `textContent`, nunca como HTML. Hay como máximo **una crónica por partido**.
 
 **Estadísticas agregadas de un jugador** (mismos nombres que usa ya `main.js`)
 ```json
@@ -206,7 +249,8 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 | POST | `/api/partidos` `{ temporada_id, jornada, fecha, local_id, visitante_id, evento? }` | COORD, DEV | 201 · 403 · 422 |
 | PATCH | `/api/partidos/{id}` | COORD, DEV | 200 · 403 · 404 · 409 (ya tiene acta y se cambia algo que la invalida) · 422 |
 | DELETE | `/api/partidos/{id}` | COORD, DEV | 204 (borra también su acta; la interfaz pide confirmación) · 403 · 404 |
-| PUT | `/api/partidos/{id}/acta` | ENTRENADOR del equipo, DEV | 200 (reemplaza el acta completa en una transacción) · 403 · 404 · 409 (partido en el futuro) · 422 |
+| PUT | `/api/partidos/{id}/acta` | ENTRENADOR del equipo, COORD, DEV | 200 (reemplaza el acta completa en una transacción) · 403 · 404 · 409 (partido en el futuro, o partido entre rivales) · 422 |
+| PUT | `/api/partidos/{id}/resultado` | ENTRENADOR, COORD, DEV | 200 (solo partidos entre rivales; actualiza la clasificación) · 403 · 404 · 409 (partido propio, que necesita acta, o partido en el futuro) · 422 |
 
 ### Apuntes, lesiones y noticias
 
@@ -222,6 +266,18 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 | GET | `/api/noticias?tipo=&estado_evento=&page=` | autenticado | 200 paginado (más recientes primero) |
 | GET | `/api/noticias/{id}` | autenticado | 200 · 404 |
 | POST / PATCH / DELETE | `/api/noticias[/{id}]` | COORD, DEV | 201/200/204 · 403 · 404 · 422 |
+
+### Crónicas
+
+| Método | Ruta | Quién | Respuestas |
+|---|---|---|---|
+| GET | `/api/cronicas?equipo=&temporada=&page=` | autenticado | 200 paginado (más recientes primero) |
+| GET | `/api/cronicas/{id}` | autenticado | 200 · 404 |
+| POST | `/api/cronicas` `{ partido_id, titulo, texto }` | ENTRENADOR del equipo, COORD, DEV | 201 · 403 · 404 · 409 (partido no jugado, entre rivales, o ya tiene crónica) · 422 |
+| PATCH | `/api/cronicas/{id}` `{ titulo?, texto? }` | su autor, COORD, DEV | 200 · 403 · 404 · 422 |
+| DELETE | `/api/cronicas/{id}` | su autor, COORD, DEV | 204 · 403 · 404 |
+
+`GET /api/partidos/{id}` devuelve `cronica_id` (o `null`) para poder enlazar el partido con su crónica.
 
 La página de **contacto** es estática, sin endpoint.
 
@@ -243,17 +299,32 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - `equipo_id` debe existir y ser un equipo propio.
 
 **Partido**
-- `local_id` ≠ `visitante_id`; al menos uno es equipo propio; ambos de la misma categoría.
+- `local_id` ≠ `visitante_id`; ambos de la misma categoría. Se permiten partidos **entre rivales** (ninguno propio): solo llevan resultado.
 - `jornada` ≥ 1; `fecha` obligatoria y válida; la temporada debe existir.
 
-**Acta**
-- Solo se puede enviar si la fecha del partido ya ha llegado (`409` si es futura).
+**Acta (partido propio)**
+- Solo se puede enviar si la fecha del partido ya ha llegado (`409` si es futura) y si el partido es propio (`409` si es entre rivales).
+- Un entrenador solo puede enviar el acta de partidos de su equipo (`403` en otro caso); coordinador y desarrollador, de cualquiera.
 - `resultado_*` entre 0 y 99.
-- Cada jugador del acta pertenece al equipo propio del partido, está activo y no se repite.
-- La suma de goles de los jugadores ≤ goles del equipo propio en el resultado.
-- `goles_recibidos` > 0 solo para porteros (hoy lo hace un trigger de BD; la API debe devolver `422`, no `500`).
-- `mins_jugados` 0–120; `amarillas` 0–2; `estado` ∈ {`titular`, `suplente`}; el resto, enteros ≥ 0.
-- El acta se reemplaza de forma atómica: si falla la validación, **el acta anterior queda intacta**.
+- Cada jugador de `alineacion` pertenece al equipo propio del partido, está activo y no se repite. `estado` ∈ {`titular`, `suplente`}; como máximo 11 titulares.
+- `duracion` entero 1–120 (por defecto 90). Los minutos jugados calculados nunca superan `duracion`. Los errores de BD (CHECK, trigger de goles recibidos de porteros) deben llegar como `422`, nunca como `500`.
+- Eventos: `minuto` entero 0–120; `tipo` ∈ {`gol`, `gol_rival`, `tarjeta`, `sustitucion`}.
+  - `gol`: `jugador_id` en la alineación; `asistente_id` opcional, en la alineación y distinto del goleador.
+  - `tarjeta`: `color` ∈ {`amarilla`, `roja`}; un jugador no puede tener más de 2 amarillas, ni nada después de una roja.
+  - `sustitucion`: `sale_id` estaba en el campo (titular, o suplente que ya había entrado) y `entra_id` es un suplente que aún no ha jugado.
+- El marcador coincide con los eventos (nº de `gol` y de `gol_rival`), y la suma de goles de los jugadores es la de sus `gol`.
+- `arbitros` y `cuerpo_tecnico`: texto de hasta 100 caracteres cada campo; `asistentes` máximo 2.
+- El acta se reemplaza de forma atómica (alineación, eventos y datos del partido): si falla la validación, **el acta anterior queda intacta**.
+- Al guardar el acta, `estado` pasa a `finalizado` y la clasificación se recalcula.
+
+**Resultado (partido entre rivales)**
+- Solo si ninguno de los dos equipos es propio (`409` si es propio) y la fecha ya ha llegado (`409` si es futura).
+- `resultado_*` entre 0 y 99; se puede corregir después. Recalcula la clasificación.
+
+**Crónicas**
+- `titulo` 3–120 caracteres; `texto` 50–3 000 caracteres, texto plano.
+- Solo de partidos propios con `estado` = `finalizado` (`409` en otro caso). Una por partido: crear otra devuelve `409`.
+- Un entrenador solo puede crearla para partidos de su equipo (`403`); editar o borrar, solo las suyas. Coordinador y desarrollador, todas.
 
 **Solicitudes de acceso**
 - Una sola solicitud pendiente por usuario (`409`).
@@ -277,17 +348,24 @@ Para implementar este contrato hay que modificar el esquema actual (`PostGres/we
 3. `jugador`: añadir `id_usuario` (FK opcional y única) y `activo`; restricción única `(equipo, dorsal)` entre activos.
 4. `equipo_calasanz.entrenador` (texto) pasa a ser `id_entrenador` (FK a `usuarios`).
 5. `partido`: FKs de `local` y `visitante` (hoy no existen) y `resultado_*` en `NULL` hasta que haya acta (hoy valen 0, y no se distingue «sin jugar» de «0-0»). Ver D1.
-6. Tablas nuevas: `noticia`, `lesion`, `apunte_entrenador`, `solicitud_acceso`.
+6. Tablas nuevas: `noticia`, `lesion`, `apunte_entrenador`, `solicitud_acceso`, `cronica` y las del acta ampliada:
+   - `acta_partido` (`partido` PK/FK, `duracion`, `arbitro_principal`, `arbitro_asistente_1`, `arbitro_asistente_2`, `delegado_campo`, `delegado_equipo`).
+   - `acta_evento` (`id`, `partido` FK, `tipo`, `minuto`, `id_jugador` FK, `id_jugador_2` FK para asistente o jugador que entra, `color`, `autor_rival`), con CHECKs de `tipo`, `color` y `minuto`.
+   - `cronica` (`id`, `partido` FK **única**, `titulo`, `texto`, `id_autor` FK a `usuarios`, `creada_en`, `actualizada_en`).
+   - `estadisticas_partido` se conserva, pero `mins_jugados`, `goles`, `goles_recibidos`, `asistencias`, `amarillas` y `roja` se calculan desde `alineacion` y `acta_evento` (no los envía el cliente).
+   - Quitar la restricción de que un partido tenga un equipo propio, para guardar partidos entre rivales.
 7. Ordenar los scripts de `PostGres/web` (`01_tablas.sql`, `02_datos.sql`), corregir `mins__jugados` y eliminar o corregir `create_base.sql` (crea `cd_calasanz`, pero la app usa `calasanz_db`).
 
 ## 7. Decisiones abiertas (cerrar en la Fase 0)
 
-- **D1. Equipos.** Hoy hay dos tablas (`equipo` rivales y `equipo_calasanz`), y `partido.local/visitante` no puede apuntar a ambas. *Recomendación:* una sola tabla `equipo` con `es_propio`. Así los partidos entre rivales también se guardan y la clasificación puede ser de toda la liga y no solo de nuestro equipo.
+- **D1. Equipos (DECIDIDA: una sola tabla `equipo` con `es_propio`).** Hoy hay dos tablas (`equipo` rivales y `equipo_calasanz`), y `partido.local/visitante` no puede apuntar a ambas. *Recomendación:* una sola tabla `equipo` con `es_propio`. Así los partidos entre rivales también se guardan y la clasificación puede ser de toda la liga y no solo de nuestro equipo.
 - **D2. Sesión o JWT.** *Recomendación:* sesión con cookie (más sencillo y seguro para esta app, y encaja con el CSRF descrito).
-- **D3. Quién crea partidos y calendario.** El enunciado de requisitos no lo dice. *Recomendación:* coordinador; el entrenador solo rellena el acta.
+- **D3. Quién crea partidos y calendario.** El enunciado de requisitos no lo dice. *Pendiente de cerrar:* hoy solo COORD y DEV (ver §2). Se quiere abrirlo también a los entrenadores, con un alcance por definir (solo partidos de su equipo, o también entre rivales de su categoría).
 - **D4. Visibilidad.** Se asume que todo requiere sesión (el requisito dice que antes de la página principal hay login). ¿Se quiere algo público (por ejemplo, la página de contacto)?
 - **D5. Datos de lesiones.** Son datos de salud de menores: se propone mostrar solo estado y fecha estimada, sin diagnóstico.
 - **D6. Frameworks.** El frontend actual es JavaScript puro. Cualquier librería (React, framework CSS) hay que consensuarla con el profesor.
+- **D7. Actas (DECIDIDA).** Acta completa solo en partidos propios; en los partidos entre rivales solo el resultado, para actualizar la clasificación. Del rival en un partido propio solo se guarda el marcador y los minutos de sus goles.
+- **D8. Mejora futura (fuera de esta versión).** Más adelante se quiere traer calendario, actas y clasificación de la Federación Cántabra de Fútbol (scraping o importación). Habrá que revisar antes sus condiciones de uso. La versión básica se rellena a mano.
 
 ## 8. Mínimo de pruebas por endpoint
 
