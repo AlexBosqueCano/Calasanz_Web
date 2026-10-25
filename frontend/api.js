@@ -118,10 +118,12 @@
         let datos = null;
         try { datos = await respuesta.json(); } catch (e) { /* cuerpo vacío o no JSON */ }
 
-        // Un "200 OK" que trae una página HTML no es nuestra API: es un servidor estático,
-        // un túnel o un proxy que contesta con su propia página. Lo tratamos como "sin servidor"
-        // en lugar de dejar que el código falle más adelante con datos == null.
-        if (respuesta.ok && datos === null && (respuesta.headers.get('content-type') || '').includes('text/html')) {
+        // Un "200 OK" SIN JSON válido no es nuestra API (nuestra API siempre contesta JSON, o 204 sin
+        // cuerpo, que ya hemos tratado arriba). Es un servidor de ficheros, un túnel, un proxy o una app
+        // como Koder que contesta "OK" a cualquier ruta con una página HTML, texto o un cuerpo vacío.
+        // Lo tratamos como "sin servidor" (status 0) en lugar de dejar que el código falle más adelante
+        // con "null is not an object" al hacer datos.usuario o datos.items.
+        if (respuesta.ok && datos === null) {
             throw new ApiError(0, 'respuesta_invalida', MENSAJES_POR_STATUS[0]);
         }
 
@@ -215,13 +217,18 @@
         const clase = tipo === 'roja' ? 'tarjeta-roja' : 'tarjeta-amarilla';
         const hijos = [el('span', { clase: 'tarjeta-futbol ' + clase, atributos: { 'aria-hidden': 'true' } })];
         if (cantidad !== undefined) hijos.push(el('span', { texto: String(cantidad), clase: 'tarjeta-numero' }));
-        if (texto) hijos.push(el('span', { texto }));
+        // `texto` NO se ve en pantalla: la tarjeta se distingue por su color. Solo se lee en voz
+        // alta para lectores de pantalla (clase .solo-lectores) y sale al pasar el ratón (title).
+        if (texto) hijos.push(el('span', { texto: ' ' + texto, clase: 'solo-lectores' }));
         else if (cantidad !== undefined) {
             // sin texto visible: añadimos uno solo para lectores de pantalla
             const plural = tipo === 'roja' ? (cantidad === 1 ? 'roja' : 'rojas') : (cantidad === 1 ? 'amarilla' : 'amarillas');
             hijos.push(el('span', { texto: ' ' + plural, clase: 'solo-lectores' }));
         }
-        return el('span', { clase: 'tarjeta-grupo', hijos });
+        // title: al pasar el ratón por encima (escritorio) se ve qué tarjeta es
+        const grupo = el('span', { clase: 'tarjeta-grupo', hijos });
+        if (texto) grupo.setAttribute('title', texto);
+        return grupo;
     }
 
     /* Par "amarillas + rojas" para resúmenes (KPI del jugador, tabla de estadísticas). */
