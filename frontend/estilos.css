@@ -1469,6 +1469,17 @@ html.dark-mode .btn-peligro { color: #ffb4ab; }
 .dorsal-num { font-size: 1.25rem; color: var(--forest-dark); }
 html.dark-mode .dorsal-num { color: var(--text-dark); }
 
+/* Aviso de errores en pantalla (lo crea api.js cuando algo falla; sirve para depurar en móvil) */
+.aviso-errores {
+    position: fixed; left: 0.75rem; right: 0.75rem; bottom: 0.75rem; z-index: 300;
+    max-height: 50vh; overflow-y: auto;
+    background: #fdecea; color: #8a1c1c; border: 2px solid #b3261e; border-radius: var(--radius-sm);
+    padding: 0.85rem 1rem; font-size: 0.85rem; box-shadow: var(--shadow-soft);
+    display: flex; flex-direction: column; gap: 0.5rem;
+}
+.aviso-errores ul { margin: 0; padding-left: 1.1rem; word-break: break-word; }
+html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-color: #ffb4ab; }
+
 /* Contacto: bloque de alternativa si no se abre el correo */
 .contacto-alternativa {
     display: flex; flex-direction: column; gap: 0.75rem;

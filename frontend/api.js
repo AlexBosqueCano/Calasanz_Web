@@ -255,6 +255,60 @@
         return grupo;
     }
 
+    /*
+     * AVISO DE ERRORES EN PANTALLA
+     * ----------------------------
+     * En un móvil no hay consola para ver los errores de JavaScript, y la página simplemente
+     * "no funciona". Este bloque enseña, en un cuadro al pie de la página, cualquier:
+     *   - error de JavaScript no controlado,
+     *   - promesa rechazada sin controlar (errores dentro de funciones async),
+     *   - archivo (.js, .css, imagen) que no se ha podido cargar.
+     * Así basta una captura de pantalla para saber qué falla. Se escribe con textContent (seguro).
+     */
+    (function instalarAvisoDeErrores() {
+        const mensajes = [];    // lista de errores ya mostrados (para no repetir el mismo)
+        let panel = null;
+        let lista = null;
+
+        function mostrar(texto) {
+            if (mensajes.includes(texto) || mensajes.length >= 5) return;   // máx. 5 para no saturar
+            mensajes.push(texto);
+            if (!document.body) { document.addEventListener('DOMContentLoaded', () => mostrar(texto)); return; }
+
+            if (!panel) {
+                panel = el('div', { clase: 'aviso-errores', atributos: { role: 'alert' } });
+                const cerrar = el('button', { texto: 'Cerrar', clase: 'btn-outline btn-pequeno', atributos: { type: 'button' } });
+                cerrar.addEventListener('click', () => { panel.hidden = true; });
+                lista = el('ul');
+                panel.appendChild(el('strong', { texto: 'Se ha producido un error en esta página' }));
+                panel.appendChild(lista);
+                panel.appendChild(el('p', { texto: 'Haz una captura de pantalla de este aviso y compártela con el equipo.' }));
+                panel.appendChild(cerrar);
+                document.body.appendChild(panel);
+            }
+            panel.hidden = false;
+            lista.appendChild(el('li', { texto }));
+        }
+
+        // Errores de JavaScript (y archivos que no cargan: se detectan con "capture = true")
+        window.addEventListener('error', (e) => {
+            const destino = e.target;
+            if (destino && destino !== window && destino.tagName) {
+                const ruta = destino.src || destino.href || '';
+                if (ruta) mostrar('No se pudo cargar el archivo: ' + ruta.split('/').slice(-2).join('/'));
+                return;
+            }
+            const donde = e.filename ? ` (${e.filename.split('/').pop()}:${e.lineno})` : '';
+            mostrar((e.message || 'Error desconocido') + donde);
+        }, true);
+
+        // Errores dentro de funciones async que nadie ha capturado
+        window.addEventListener('unhandledrejection', (e) => {
+            const r = e.reason;
+            mostrar('Error: ' + (r && r.message ? r.message : String(r)));
+        });
+    })();
+
     global.Api = {
         tarjeta,
         tarjetasResumen,

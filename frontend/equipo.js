@@ -223,7 +223,10 @@
         });
 
         // Guardamos la pestaña en la URL (#clasificacion) para poder compartir el enlace
-        history.replaceState(null, '', '#' + nombre);
+        // OJO: algunas vistas web (apps como Koder, archivos abiertos con file://) lanzan un error
+        // de seguridad al tocar el historial. Si pasa, no es grave: solo perdemos el enlace compartible,
+        // pero NO podemos dejar que el error impida cargar los datos de la pestaña.
+        try { history.replaceState(null, '', '#' + nombre); } catch (e) { /* sin historial: seguimos */ }
 
         // Carga perezosa: solo la primera vez que se abre
         if (!cargadas[nombre]) cargadores[nombre]();
