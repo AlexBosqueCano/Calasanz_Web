@@ -93,7 +93,33 @@
               resultado_local: 1, resultado_visitante: 1 },
             { id: 4, jornada: 8, fecha: '2026-10-25', estado: 'programado', lugar: 'Domingo 11:00 · Complejo Ruth Beitia',
               local: { id: 1, nombre: 'C.D. Calasanz' }, visitante: { id: 14, nombre: 'Textil Norte' },
+              resultado_local: null, resultado_visitante: null },
+            { id: 5, jornada: 9, fecha: '2026-11-01', estado: 'programado', lugar: 'Domingo 12:00 · Campo de la Ribera',
+              local: { id: 13, nombre: 'Ribera B' }, visitante: { id: 1, nombre: 'C.D. Calasanz' },
               resultado_local: null, resultado_visitante: null }
+        ];
+    }
+
+    /* GET /api/equipos/{id}/goleadores  → array { jugador, goles, partidos } ordenado por goles */
+    function goleadores() {
+        return JUGADORES.filter(j => j.goles > 0)
+            .sort((a, b) => b.goles - a.goles)
+            .map(j => ({
+                jugador: { id: j.id, nombre: j.nombre, ap1: j.ap1, ap2: j.ap2, dorsal: j.dorsal, posicion: j.posicion },
+                goles: j.goles, partidos: j.partidos
+            }));
+    }
+
+    /*
+     * GET /api/lesiones?equipo={id}&activa=true
+     * Solo estado y fecha estimada de vuelta: SIN diagnóstico (son datos de salud de menores).
+     */
+    function lesiones() {
+        return [
+            { id: 1, jugador: { id: 2, nombre_completo: 'Iván Roldán Echevarría' }, equipo_id: 1,
+              fecha_inicio: '2026-10-20', fecha_estimada_vuelta: '2026-11-12', activa: true },
+            { id: 2, jugador: { id: 5, nombre_completo: 'Álex Mier Cabal' }, equipo_id: 1,
+              fecha_inicio: '2026-10-23', fecha_estimada_vuelta: '2026-11-06', activa: true }
         ];
     }
 
@@ -181,5 +207,5 @@
         }
     }
 
-    global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, partidos, clasificacion, jugador, noticias, inicio };
+    global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio };
 })(window);
