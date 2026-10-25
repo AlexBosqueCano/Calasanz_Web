@@ -118,10 +118,12 @@
         let datos = null;
         try { datos = await respuesta.json(); } catch (e) { /* cuerpo vacío o no JSON */ }
 
-        // Un "200 OK" que trae una página HTML no es nuestra API: es un servidor estático,
-        // un túnel o un proxy que contesta con su propia página. Lo tratamos como "sin servidor"
-        // en lugar de dejar que el código falle más adelante con datos == null.
-        if (respuesta.ok && datos === null && (respuesta.headers.get('content-type') || '').includes('text/html')) {
+        // Un "200 OK" SIN JSON válido no es nuestra API (nuestra API siempre contesta JSON, o 204 sin
+        // cuerpo, que ya hemos tratado arriba). Es un servidor de ficheros, un túnel, un proxy o una app
+        // como Koder que contesta "OK" a cualquier ruta con una página HTML, texto o un cuerpo vacío.
+        // Lo tratamos como "sin servidor" (status 0) en lugar de dejar que el código falle más adelante
+        // con "null is not an object" al hacer datos.usuario o datos.items.
+        if (respuesta.ok && datos === null) {
             throw new ApiError(0, 'respuesta_invalida', MENSAJES_POR_STATUS[0]);
         }
 
