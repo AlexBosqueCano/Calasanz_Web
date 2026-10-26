@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Panel del entrenador</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body data-roles="ENTRENADOR,COORDINADOR,DESARROLLADOR">
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos hero-compacto">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>ÁREA TÉCNICA</span>
+                    </div>
+                    <h1 class="display-title titulo-hero titulo-hero-pequeno">Panel del entrenador</h1>
+                    <p class="lead-text lead-sin-margen">Partidos de la liga, actas oficiales y crónicas de tu equipo.</p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <!-- Equipo con el que se trabaja: de él salen la liga, la plantilla y los partidos -->
+                <div class="field-group pe-selector-equipo">
+                    <label for="pe-equipo">Equipo</label>
+                    <select id="pe-equipo"><option>Cargando…</option></select>
+                    <span class="acta-etiqueta" id="pe-liga"></span>
+                </div>
+
+                <!-- Mensajes generales (errores de carga, avisos) -->
+                <div id="pe-mensajes"></div>
+                <p id="pe-feedback" class="feedback" role="status" hidden></p>
+
+                <div class="tabs-nav" role="tablist" aria-label="Secciones del panel del entrenador">
+                    <button type="button" class="filter-pill pe-tab active" role="tab" id="pe-tab-partidos" data-target="pe-partidos" aria-controls="pe-partidos" aria-selected="true">Partidos</button>
+                    <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-acta" data-target="pe-acta" aria-controls="pe-acta" aria-selected="false" tabindex="-1">Acta</button>
+                    <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-cronicas" data-target="pe-cronicas" aria-controls="pe-cronicas" aria-selected="false" tabindex="-1">Crónicas</button>
+                </div>
+
+                <!-- ============ PESTAÑA 1: PARTIDOS ============ -->
+                <div id="pe-partidos" class="tab-pane active" role="tabpanel" aria-labelledby="pe-tab-partidos">
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>PARTIDO</span><span id="pe-modo-partido">Nuevo</span></div>
+                                <h2 class="titulo-tarjeta">Crear o editar partido</h2>
+                                <p class="acta-etiqueta">Puedes crear también partidos entre rivales de tu liga para mantener la clasificación al día.</p>
+                                <form id="pe-form-partido" novalidate>
+                                    <div class="field-group">
+                                        <label for="pe-local">Local</label>
+                                        <select id="pe-local" required></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-visitante">Visitante</label>
+                                        <select id="pe-visitante" required></select>
+                                    </div>
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="pe-jornada">Jornada</label>
+                                            <input type="number" id="pe-jornada" class="clean-input" min="1" max="99" inputmode="numeric" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pe-fecha">Fecha</label>
+                                            <input type="date" id="pe-fecha" class="clean-input" required>
+                                        </div>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-lugar">Lugar (opcional)</label>
+                                        <input type="text" id="pe-lugar" class="clean-input" maxlength="150" autocomplete="off">
+                                    </div>
+                                    <p id="pe-feedback-partido" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar partido</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pe-cancelar-partido" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="table-responsive">
+                                <table class="modern-table">
+                                    <caption class="solo-lectores">Partidos de la liga</caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Jor.</th>
+                                            <th scope="col">Encuentro</th>
+                                            <th scope="col">Fecha</th>
+                                            <th scope="col">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pe-tabla-partidos"></tbody>
+                                </table>
+                            </div>
+
+                            <!-- Resultado de un partido entre rivales (se muestra al pulsar "Registrar resultado") -->
+                            <form id="pe-form-resultado" class="news-card pe-resultado" novalidate hidden>
+                                <h3 id="pe-resultado-titulo" class="titulo-tarjeta"></h3>
+                                <div class="grid-2-cols">
+                                    <div class="field-group">
+                                        <label for="pe-res-local" id="pe-res-local-etq">Goles local</label>
+                                        <input type="number" id="pe-res-local" class="clean-input" min="0" max="99" inputmode="numeric" required>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-res-visitante" id="pe-res-visitante-etq">Goles visitante</label>
+                                        <input type="number" id="pe-res-visitante" class="clean-input" min="0" max="99" inputmode="numeric" required>
+                                    </div>
+                                </div>
+                                <div class="fila-botones">
+                                    <button type="submit" class="btn-green">Guardar resultado</button>
+                                    <button type="button" id="pe-cancelar-resultado" class="btn-outline">Cancelar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ PESTAÑA 2: ACTA ============ -->
+                <div id="pe-acta" class="tab-pane" role="tabpanel" aria-labelledby="pe-tab-acta" hidden>
+                    <div class="news-card tarjeta-ancha">
+                        <div class="news-card-meta"><span>CIERRE DE JORNADA</span><span id="pe-acta-estado"></span></div>
+                        <h2 class="titulo-tarjeta">Acta oficial del partido</h2>
+
+                        <div class="field-group">
+                            <label for="pe-acta-partido">Partido de tu equipo</label>
+                            <select id="pe-acta-partido"></select>
+                        </div>
+
+                        <form id="pe-form-acta" novalidate hidden>
+                            <!-- Marcador calculado a partir de los eventos -->
+                            <p class="pe-marcador" id="pe-acta-marcador" aria-live="polite"></p>
+
+                            <h3 class="acta-block-title">Árbitros y delegados (opcional)</h3>
+                            <div class="grid-2-cols">
+                                <div class="field-group"><label for="pe-arb-principal">Árbitro principal</label><input type="text" id="pe-arb-principal" class="clean-input" maxlength="100" autocomplete="off"></div>
+                                <div class="field-group"><label for="pe-arb-as1">Árbitro asistente 1</label><input type="text" id="pe-arb-as1" class="clean-input" maxlength="100" autocomplete="off"></div>
+                                <div class="field-group"><label for="pe-arb-as2">Árbitro asistente 2</label><input type="text" id="pe-arb-as2" class="clean-input" maxlength="100" autocomplete="off"></div>
+                                <div class="field-group"><label for="pe-del-campo">Delegado de campo</label><input type="text" id="pe-del-campo" class="clean-input" maxlength="100" autocomplete="off"></div>
+                                <div class="field-group"><label for="pe-del-equipo">Delegado de equipo</label><input type="text" id="pe-del-equipo" class="clean-input" maxlength="100" autocomplete="off"></div>
+                            </div>
+
+                            <h3 class="acta-block-title">Alineación</h3>
+                            <p class="acta-etiqueta">Marca quién juega de inicio (máximo 11) y quién está en el banquillo.</p>
+                            <div class="table-responsive">
+                                <table class="modern-table tabla-compacta">
+                                    <caption class="solo-lectores">Alineación del equipo</caption>
+                                    <thead><tr><th scope="col">Dorsal</th><th scope="col">Jugador</th><th scope="col">Convocatoria</th></tr></thead>
+                                    <tbody id="pe-alineacion"></tbody>
+                                </table>
+                            </div>
+
+                            <h3 class="acta-block-title">Eventos del partido</h3>
+                            <p class="acta-etiqueta">Goles, goles del rival, tarjetas y sustituciones con su minuto. El marcador y los minutos jugados se calculan solos.</p>
+                            <div id="pe-eventos"></div>
+                            <button type="button" id="pe-anadir-evento" class="btn-outline">Añadir evento</button>
+
+                            <div id="pe-errores-acta" class="mensaje mensaje-error" role="alert" hidden></div>
+                            <p id="pe-feedback-acta" class="feedback" role="status" hidden></p>
+                            <div class="fila-botones">
+                                <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar acta</span> <span aria-hidden="true">→</span></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ============ PESTAÑA 3: CRÓNICAS ============ -->
+                <div id="pe-cronicas" class="tab-pane" role="tabpanel" aria-labelledby="pe-tab-cronicas" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>CRÓNICA</span><span id="pe-modo-cronica">Nueva</span></div>
+                                <h2 class="titulo-tarjeta">Escribir crónica</h2>
+                                <p class="acta-etiqueta">Es un texto público que aparece en Noticias. No es lo mismo que tus apuntes privados.</p>
+                                <form id="pe-form-cronica" novalidate>
+                                    <div class="field-group">
+                                        <label for="pe-cr-partido">Partido jugado</label>
+                                        <select id="pe-cr-partido" required></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-cr-titulo">Título (3-120 caracteres)</label>
+                                        <input type="text" id="pe-cr-titulo" class="clean-input" minlength="3" maxlength="120" autocomplete="off" required>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-cr-texto">Texto (50-3000 caracteres)</label>
+                                        <textarea id="pe-cr-texto" class="clean-input" rows="8" minlength="50" maxlength="3000" required></textarea>
+                                        <span class="acta-etiqueta" id="pe-cr-contador" aria-live="off"></span>
+                                    </div>
+                                    <p id="pe-feedback-cronica" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Publicar crónica</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pe-cancelar-cronica" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="titulo-seccion section-title">Crónicas publicadas</h2>
+                            <div id="pe-lista-cronicas"><p class="texto-vacio">Cargando crónicas…</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="acta-util.js"></script>
+    <script src="panel-entrenador.js"></script>
+</body>
+</html>

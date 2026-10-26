@@ -29,7 +29,7 @@
     const PANEL_POR_ROL = {
         ESTANDAR: null,
         JUGADOR: null,
-        ENTRENADOR: 'admin-plantilla.html',
+        ENTRENADOR: 'panel-entrenador.html',
         COORDINADOR: 'admin-plantilla.html',
         DESARROLLADOR: 'admin-plantilla.html'
     };
