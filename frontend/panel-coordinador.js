@@ -1,7 +1,7 @@
 /*
  * panel-coordinador.js — Panel de coordinación (panel-coordinador.html)
  * ======================================================================
- * Cuatro pestañas:
+ * Cuatro pestañas (la de lesiones vive en lesiones-ui.js, compartida con el entrenador):
  *   1. Solicitudes       → aprobar o rechazar peticiones de acceso (jugador / entrenador).
  *   2. Jugadores         → alta, edición y baja (lógica) de jugadores de cada plantilla.
  *   3. Noticias y eventos→ crear, editar y borrar publicaciones.
@@ -33,55 +33,14 @@
     let jugadorEnEdicion = null;
     let noticias = [];
     let noticiaEnEdicion = null;
-    let lesiones = [];
-    let plantillaLesiones = [];  // plantilla del equipo elegido en la pestaña Lesiones
-    let lesionEnEdicion = null;
+    let lesiones = null;         // pestaña Lesiones (lesiones-ui.js)
     let solicitudARechazar = null;
     let pestanas = null;
 
     // ------------------------------------------------------------------
-    // Utilidades
+    // Utilidades (compartidas con los demás paneles: panel-util.js)
     // ------------------------------------------------------------------
-    const comoLista = (r) => Array.isArray(r) ? r : ((r && r.items) || []);
-    const avisoDemo = () => Sesion.enModoDemo() ? ' (modo demostración: no se ha enviado al servidor)' : '';
-
-    /* Envía a la API salvo en modo demostración. */
-    async function enviar(metodo, ruta, cuerpo) {
-        if (Sesion.enModoDemo()) return null;
-        return Api[metodo](ruta, cuerpo);
-    }
-
-    /* Escribe un mensaje en una zona <p class="feedback"> y lo anuncia. tipo = 'ok' | 'error' */
-    function mensaje(idZona, texto, tipo) {
-        const zona = $(idZona);
-        zona.textContent = texto;
-        zona.className = 'feedback feedback-' + tipo;
-        zona.hidden = false;
-        Api.anunciar(texto, tipo === 'error');
-    }
-    function limpiar(idZona) { const z = $(idZona); z.textContent = ''; z.hidden = true; }
-
-    /* Texto de error con los detalles de validación del servidor (422). */
-    function textoError(error) {
-        const detalle = (error.detalles || []).map(d => d.mensaje).join(' ');
-        return detalle ? `${error.message} ${detalle}` : (error.message || 'Ha ocurrido un error.');
-    }
-
-    function rellenarSelect(select, opciones, seleccionado) {
-        select.textContent = '';
-        opciones.forEach(o => select.appendChild(el('option', { texto: o.texto, atributos: { value: String(o.valor) } })));
-        if (seleccionado !== undefined && seleccionado !== null) select.value = String(seleccionado);
-    }
-
-    /* Botón pequeño con aria-label (sin él, un lector de pantalla oiría "Editar, Editar, Editar…"). */
-    function boton(texto, etiqueta, alPulsar, peligro) {
-        const b = el('button', { texto, clase: 'btn-outline btn-pequeno' + (peligro ? ' btn-peligro' : ''),
-                                  atributos: { type: 'button', 'aria-label': etiqueta } });
-        b.addEventListener('click', alPulsar);
-        return b;
-    }
-    const filaVacia = (cuerpo, texto, columnas) => cuerpo.appendChild(
-        el('tr', { hijos: [el('td', { texto, clase: 'celda-mensaje', atributos: { colspan: String(columnas) } })] }));
+    const { comoLista, avisoDemo, enviar, mensaje, limpiar, textoError, rellenarSelect, boton, filaVacia } = PanelUtil;
 
     // ==================================================================
     // PESTAÑA 1: SOLICITUDES
@@ -371,113 +330,6 @@
     }
 
     // ==================================================================
-    // PESTAÑA 4: LESIONES
-    // ==================================================================
-    async function cargarLesiones() {
-        const equipoId = $('pc-l-equipo').value;
-        try {
-            plantillaLesiones = comoLista(await Demo.obtener(`/equipos/${equipoId}/plantilla`, null, Demo.plantilla));
-            lesiones = comoLista(await Demo.obtener('/lesiones', { equipo: equipoId, activa: 'true' }, Demo.lesiones));
-        } catch (error) {
-            plantillaLesiones = []; lesiones = [];
-            mensaje('pc-feedback-lesion', textoError(error), 'error');
-        }
-        rellenarSelect($('pc-l-jugador'), plantillaLesiones.map(j => ({ valor: j.id, texto: `${j.dorsal ?? '-'} ${nombreCompleto(j)}` })));
-        pintarLesiones();
-    }
-
-    function pintarLesiones() {
-        const cuerpo = $('pc-tabla-lesiones');
-        cuerpo.textContent = '';
-        if (!lesiones.length) { filaVacia(cuerpo, 'No hay lesiones activas en este equipo.', 4); return; }
-        lesiones.forEach(l => {
-            const nombre = l.jugador.nombre_completo;
-            cuerpo.appendChild(el('tr', { hijos: [
-                el('td', { hijos: [el('strong', { texto: nombre })] }),
-                el('td', { texto: Api.formatearFecha(l.fecha_inicio) }),
-                el('td', { texto: Api.formatearFecha(l.fecha_estimada_vuelta) }),
-                el('td', { clase: 'celda-acciones', hijos: [
-                    boton('Editar', 'Editar la lesión de ' + nombre, () => empezarEdicionLesion(l)),
-                    boton('Dar de alta', nombre + ' se ha recuperado', () => darDeAlta(l)),
-                    boton('Eliminar', 'Eliminar la lesión de ' + nombre, () => eliminarLesion(l), true)
-                ]})
-            ]}));
-        });
-    }
-
-    function empezarEdicionLesion(l) {
-        lesionEnEdicion = l;
-        $('pc-l-jugador').value = String(l.jugador.id);
-        $('pc-l-jugador').disabled = true;     // la lesión no cambia de jugador
-        $('pc-l-inicio').value = l.fecha_inicio;
-        $('pc-l-vuelta').value = l.fecha_estimada_vuelta;
-        $('pc-modo-lesion').textContent = 'Editando';
-        $('pc-cancelar-lesion').hidden = false;
-        $('pc-l-vuelta').focus();
-    }
-
-    function terminarEdicionLesion() {
-        lesionEnEdicion = null;
-        $('pc-l-jugador').disabled = false;
-        $('pc-l-inicio').value = ''; $('pc-l-vuelta').value = '';
-        $('pc-modo-lesion').textContent = 'Nueva';
-        $('pc-cancelar-lesion').hidden = true;
-    }
-
-    async function guardarLesion(evento) {
-        evento.preventDefault();
-        limpiar('pc-feedback-lesion');
-        const inicio = $('pc-l-inicio').value, vuelta = $('pc-l-vuelta').value;
-        const jugadorId = Number($('pc-l-jugador').value);
-        if (!jugadorId) return mensaje('pc-feedback-lesion', 'Elige el jugador.', 'error');
-        if (!inicio || !vuelta) return mensaje('pc-feedback-lesion', 'Indica la fecha de inicio y la de vuelta estimada.', 'error');
-        if (vuelta < inicio) return mensaje('pc-feedback-lesion', 'La vuelta estimada no puede ser anterior al inicio.', 'error');
-        if (!lesionEnEdicion && lesiones.some(l => l.jugador.id === jugadorId)) {
-            return mensaje('pc-feedback-lesion', 'Ese jugador ya tiene una lesión activa. Edítala o dale de alta primero.', 'error');
-        }
-        try {
-            if (lesionEnEdicion) {
-                await enviar('patch', `/lesiones/${lesionEnEdicion.id}`, { fecha_inicio: inicio, fecha_estimada_vuelta: vuelta });
-                Object.assign(lesionEnEdicion, { fecha_inicio: inicio, fecha_estimada_vuelta: vuelta });
-            } else {
-                const creada = await enviar('post', '/lesiones', { jugador_id: jugadorId, fecha_inicio: inicio, fecha_estimada_vuelta: vuelta });
-                const j = plantillaLesiones.find(x => x.id === jugadorId);
-                lesiones.push(creada || { id: Date.now(), jugador: { id: j.id, nombre_completo: nombreCompleto(j) },
-                    equipo_id: Number($('pc-l-equipo').value), fecha_inicio: inicio, fecha_estimada_vuelta: vuelta, activa: true });
-            }
-            terminarEdicionLesion();
-            pintarLesiones();
-            mensaje('pc-feedback-lesion', 'Lesión guardada.' + avisoDemo(), 'ok');
-        } catch (error) {
-            mensaje('pc-feedback-lesion', textoError(error), 'error');
-        }
-    }
-
-    async function darDeAlta(l) {
-        try {
-            await enviar('patch', `/lesiones/${l.id}`, { activa: false });
-            lesiones = lesiones.filter(x => x.id !== l.id);
-            pintarLesiones();
-            mensaje('pc-feedback-lesion', `${l.jugador.nombre_completo} vuelve a estar disponible.` + avisoDemo(), 'ok');
-        } catch (error) {
-            mensaje('pc-feedback-lesion', textoError(error), 'error');
-        }
-    }
-
-    async function eliminarLesion(l) {
-        if (!window.confirm(`¿Seguro que quieres eliminar la lesión de ${l.jugador.nombre_completo}?`)) return;
-        try {
-            await enviar('delete', `/lesiones/${l.id}`);
-            lesiones = lesiones.filter(x => x.id !== l.id);
-            if (lesionEnEdicion === l) terminarEdicionLesion();
-            pintarLesiones();
-            mensaje('pc-feedback-lesion', 'Lesión eliminada.' + avisoDemo(), 'ok');
-        } catch (error) {
-            mensaje('pc-feedback-lesion', textoError(error), 'error');
-        }
-    }
-
-    // ==================================================================
     // Arranque (cuando layout.js ya comprobó la sesión y los permisos)
     // ==================================================================
     async function iniciar() {
@@ -493,9 +345,9 @@
         $('pc-form-noticia').addEventListener('submit', guardarNoticia);
         $('pc-cancelar-noticia').addEventListener('click', terminarEdicionNoticia);
         $('pc-n-tipo').addEventListener('change', ajustarTipoNoticia);
-        $('pc-form-lesion').addEventListener('submit', guardarLesion);
-        $('pc-cancelar-lesion').addEventListener('click', terminarEdicionLesion);
-        $('pc-l-equipo').addEventListener('change', () => { terminarEdicionLesion(); cargarLesiones(); });
+        // Coordinador y desarrollador sí pueden borrar lesiones
+        lesiones = Lesiones.iniciar({ prefijo: 'pc', equipoId: () => Number($('pc-l-equipo').value), puedeBorrar: true });
+        $('pc-l-equipo').addEventListener('change', () => { lesiones.cancelar(); lesiones.cargar(); });
         ajustarTipoNoticia();
 
         try {
@@ -507,7 +359,7 @@
             Api.mostrarError($('pc-mensajes'), error);
         }
         // Las cuatro pestañas cargan a la vez; un fallo en una no impide ver las demás
-        await Promise.all([cargarSolicitudes(), cargarJugadores(), cargarNoticias(), cargarLesiones()]);
+        await Promise.all([cargarSolicitudes(), cargarJugadores(), cargarNoticias(), lesiones.cargar()]);
     }
 
     document.addEventListener('layout:listo', iniciar);

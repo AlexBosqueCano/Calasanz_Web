@@ -246,6 +246,20 @@
         };
     }
 
+    /* GET /api/equipos/{id}/apuntes  → privados del entrenador */
+    function apuntes() {
+        return [{ id: 1, equipo_id: 1, rival_id: 11, partido_id: null,
+                  texto: 'Presiona alto; el lateral derecho se queda atrás. Atacar por esa banda.',
+                  autor_id: 7, creado_en: '2026-10-16T18:30:00+02:00' }];
+    }
+
+    /* GET /api/solicitudes/mias  → solicitudes del usuario actual */
+    function misSolicitudes() {
+        return [{ id: 3, rol_solicitado: 'JUGADOR', jugador: { id: 3, nombre_completo: 'Daniel Orbe Santos' }, equipo: null,
+                  mensaje: 'Soy Daniel Orbe.', estado: 'rechazada', comentario_resolucion: 'Ese jugador ya tiene una cuenta vinculada.',
+                  creada_en: '2026-10-20T10:00:00+02:00', resuelta_en: '2026-10-21T09:00:00+02:00' }];
+    }
+
     /* GET /api/noticias */
     function noticias() {
         return {
@@ -299,5 +313,5 @@
     }
 
     global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio,
-                   equiposLiga, partidosLiga, partido, cronicas, solicitudes };
+                   equiposLiga, partidosLiga, partido, cronicas, solicitudes, apuntes, misSolicitudes };
 })(window);

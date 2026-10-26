@@ -50,6 +50,8 @@
                     <button type="button" class="filter-pill pe-tab active" role="tab" id="pe-tab-partidos" data-target="pe-partidos" aria-controls="pe-partidos" aria-selected="true">Partidos</button>
                     <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-acta" data-target="pe-acta" aria-controls="pe-acta" aria-selected="false" tabindex="-1">Acta</button>
                     <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-cronicas" data-target="pe-cronicas" aria-controls="pe-cronicas" aria-selected="false" tabindex="-1">Crónicas</button>
+                    <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-lesiones" data-target="pe-lesiones" aria-controls="pe-lesiones" aria-selected="false" tabindex="-1">Lesiones</button>
+                    <button type="button" class="filter-pill pe-tab" role="tab" id="pe-tab-apuntes" data-target="pe-apuntes" aria-controls="pe-apuntes" aria-selected="false" tabindex="-1">Apuntes</button>
                 </div>
 
                 <!-- ============ PESTAÑA 1: PARTIDOS ============ -->
@@ -215,6 +217,91 @@
                         </div>
                     </div>
                 </div>
+                <!-- ============ PESTAÑA 4: LESIONES ============ -->
+                <div id="pe-lesiones" class="tab-pane" role="tabpanel" aria-labelledby="pe-tab-lesiones" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>LESIÓN</span><span id="pe-modo-lesion">Nueva</span></div>
+                                <h2 class="titulo-tarjeta">Registrar lesión</h2>
+                                <p class="acta-etiqueta">Solo se guarda el estado y la fecha estimada de vuelta. No escribas diagnósticos: son datos de salud de menores.</p>
+                                <form id="pe-form-lesion" novalidate>
+                                    <div class="field-group">
+                                        <label for="pe-l-jugador">Jugador</label>
+                                        <select id="pe-l-jugador" required></select>
+                                    </div>
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="pe-l-inicio">Fecha de inicio</label>
+                                            <input type="date" id="pe-l-inicio" class="clean-input" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pe-l-vuelta">Vuelta estimada</label>
+                                            <input type="date" id="pe-l-vuelta" class="clean-input" required>
+                                        </div>
+                                    </div>
+                                    <p id="pe-feedback-lesion" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar lesión</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pe-cancelar-lesion" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <caption class="solo-lectores">Lesiones activas del equipo</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Jugador</th>
+                                        <th scope="col">Desde</th>
+                                        <th scope="col">Vuelta est.</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pe-tabla-lesiones"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ PESTAÑA 5: APUNTES (privados) ============ -->
+                <div id="pe-apuntes" class="tab-pane" role="tabpanel" aria-labelledby="pe-tab-apuntes" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>APUNTE</span><span id="pe-modo-apunte">Nuevo</span></div>
+                                <h2 class="titulo-tarjeta">Escribir apunte</h2>
+                                <p class="acta-etiqueta">Es privado: solo lo ves tú. Útil para anotar cómo juega un rival o qué mejorar de un partido.</p>
+                                <form id="pe-form-apunte" novalidate>
+                                    <div class="field-group">
+                                        <label for="pe-ap-rival">Rival (opcional)</label>
+                                        <select id="pe-ap-rival"></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-ap-partido">Partido (opcional)</label>
+                                        <select id="pe-ap-partido"></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pe-ap-texto">Apunte (máximo 2000 caracteres)</label>
+                                        <textarea id="pe-ap-texto" class="clean-input" rows="6" maxlength="2000" required></textarea>
+                                    </div>
+                                    <p id="pe-feedback-apunte" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar apunte</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pe-cancelar-apunte" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 class="titulo-seccion section-title">Tus apuntes</h2>
+                            <div id="pe-lista-apuntes"><p class="texto-vacio">Cargando apuntes…</p></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
     </main>
@@ -227,7 +314,9 @@
     <script src="layout.js"></script>
     <script src="datos-demo.js"></script>
     <script src="acta-util.js"></script>
+    <script src="panel-util.js"></script>
     <script src="pestanas.js"></script>
+    <script src="lesiones-ui.js"></script>
     <script src="panel-entrenador.js"></script>
 </body>
 </html>

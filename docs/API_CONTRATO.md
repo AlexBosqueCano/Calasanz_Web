@@ -275,7 +275,7 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 | POST | `/api/apuntes` `{ equipo_id, rival_id?, partido_id?, texto }` | ENTRENADOR del equipo, DEV | 201 · 403 · 422 |
 | PATCH / DELETE | `/api/apuntes/{id}` | su autor, DEV | 200/204 · 403 · 404 |
 | GET | `/api/lesiones?equipo=&activa=true` | autenticado | 200 array |
-| POST | `/api/lesiones` | ENTRENADOR del equipo, COORD, DEV | 201 · 403 · 409 (el jugador ya tiene una lesión activa) · 422 |
+| POST | `/api/lesiones` `{ jugador_id, fecha_inicio, fecha_estimada_vuelta }` | ENTRENADOR del equipo, COORD, DEV | 201 · 403 · 409 (el jugador ya tiene una lesión activa) · 422 |
 | PATCH | `/api/lesiones/{id}` | ENTRENADOR del equipo, COORD, DEV | 200 · 403 · 404 · 422 |
 | DELETE | `/api/lesiones/{id}` | COORD, DEV | 204 · 403 · 404 |
 | GET | `/api/noticias?tipo=&estado_evento=&page=` | autenticado | 200 paginado (más recientes primero) |
@@ -350,6 +350,9 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - `ENTRENADOR`: exige `equipo_id` de un equipo propio sin entrenador asignado.
 - Aprobar es una única transacción: cambia el rol, crea el vínculo y cierra la solicitud. Rechazar exige `comentario`.
 - Una solicitud ya resuelta no se puede volver a resolver (`409`).
+
+**Apuntes**
+- `texto` 1–2 000 caracteres; `rival_id` y `partido_id` opcionales (el rival debe ser de la liga del equipo). Solo los ve el entrenador del equipo (y el desarrollador), nunca el coordinador. `PATCH` solo cambia el `texto`.
 
 **Lesiones**
 - `fecha_estimada_vuelta` ≥ `fecha_inicio`; un jugador no puede tener dos lesiones activas a la vez.
