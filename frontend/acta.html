@@ -8,21 +8,19 @@
 </head>
 <body data-requiere-sesion>
     <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
-    <!-- DATOS DE EJEMPLO: todos los nombres de esta acta son inventados. Se conectará con GET /api/partidos/{id} (tarea B6/B8). -->
     <header></header>
 
     <main class="main-flex">
-        <!-- CABECERA EDITORIAL FIGMA -->
         <section class="page-hero-equipos hero-compacto">
             <div class="container equipos-hero-inner">
                 <div>
-                    <a href="equipo.html?id=1" class="link-arrow enlace-volver"><span aria-hidden="true">←</span> Volver al equipo</a>
+                    <a href="equipos.html" id="acta-volver" class="link-arrow enlace-volver"><span aria-hidden="true">←</span> Volver al equipo</a>
                     <div class="kicker">
                         <span class="kicker-line"></span>
                         <span>FICHA OFICIAL DE ENCUENTRO</span>
                     </div>
                     <h1 class="display-title titulo-hero titulo-hero-pequeno">Acta del Partido</h1>
-                    <p class="lead-text lead-sin-margen">Alineaciones, equipo arbitral, cronología de goles, sustituciones y amonestaciones.</p>
+                    <p class="lead-text lead-sin-margen">Alineación, equipo arbitral, cronología de goles, sustituciones y amonestaciones.</p>
                 </div>
 
                 <div class="bars-graphic" aria-hidden="true">
@@ -36,268 +34,66 @@
             </div>
         </section>
 
-        <!-- CUERPO DEL ACTA (ESTRUCTURA 3 COLUMNAS RFCF) -->
         <section class="equipos-band">
             <div class="container">
-                <!-- Barra superior de competición y fecha -->
-                <div class="acta-meta-bar">
-                    <div class="acta-competicion-badge">
-                        <span>PRIMERA REGIONAL</span>
-                    </div>
-                    <div>
-                        <strong>Temporada 2026-2027</strong> · Jornada 7 · 17-10-2026 · 19:00 h
-                    </div>
-                </div>
+                <!-- Aquí aparecen los errores de carga -->
+                <div id="acta-mensajes"></div>
 
-                <div class="acta-grid">
-                    <!-- ================= COLUMNA 1: ARRIAGA LEDO, IVÁN, GOLES Y ESTADIO ================= -->
-                    <div class="acta-col-card">
-                        <div class="acta-scoreboard">
-                            <div class="acta-score-team">
-                                <span>C.D. CALASANZ</span>
-                                <img src="escudo.jpg" alt="Escudo CD Calasanz">
-                            </div>
-                            <div class="acta-score-numbers">4 - 2</div>
-                            <div class="acta-score-team">
-                                <span>MARINA NORTE C.F.</span>
-                                <div class="rival-shield-placeholder" aria-hidden="true">MN</div>
-                            </div>
-                        </div>
-
-                        <!-- Árbitros -->
-                        <div class="acta-block">
-                            <div class="acta-block-title">Árbitros</div>
-                            <div class="acta-rows">
-                                <div class="acta-row">
-                                    <div>
-                                        <span class="acta-etiqueta">ÁRBITRO PRINCIPAL</span>
-                                        <strong class="acta-player-name">BELDA MORO, NICO</strong>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div>
-                                        <span class="acta-etiqueta">ÁRBITRO ASISTENTE</span>
-                                        <strong class="acta-player-name">CANAL REGO, HUGO</strong>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div>
-                                        <span class="acta-etiqueta">ÁRBITRO ASISTENTE</span>
-                                        <strong class="acta-player-name">DURÁN SOTO, LEO</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Goles -->
-                        <div class="acta-block">
-                            <div class="acta-block-title">Goles</div>
-                            <div class="acta-rows">
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 1 - 0</span>
-                                        <span class="acta-player-name">(8') VILLAR PARDO, MARCOS</span>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 1 - 1</span>
-                                        <span class="acta-player-name">(19') ESCUDERO PINTO, MATEO</span>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 2 - 1</span>
-                                        <span class="acta-player-name">(22') ORBE SANTOS, DANIEL</span>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 2 - 2</span>
-                                        <span class="acta-player-name">(53') ESCUDERO PINTO, MATEO</span>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 3 - 2</span>
-                                        <span class="acta-player-name">(73') MIER CABAL, ÁLEX</span>
-                                    </div>
-                                </div>
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="acta-goal-badge">⚽ 4 - 2</span>
-                                        <span class="acta-player-name">(90') ORBE SANTOS, DANIEL</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Estadio -->
-                        <div class="acta-block acta-block-centrado">
-                            <div class="acta-block-title acta-titulo-izq">Estadio</div>
-                            <p class="acta-estadio">Complejo Municipal Ruth Beitia / Juan Hormaechea</p>
-                            <!-- Campo de fútbol verde en perspectiva igual que en el acta -->
-                            <svg class="acta-campo-svg" width="160" height="80" viewBox="0 0 180 90" aria-hidden="true">
-                                <polygon points="30,15 150,15 175,75 5,75" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
-                                <line x1="90" y1="15" x2="90" y2="75" stroke="#ffffff" stroke-width="1.5"/>
-                                <ellipse cx="90" cy="45" rx="18" ry="10" fill="none" stroke="#ffffff" stroke-width="1.5"/>
-                            </svg>
-                            <span class="acta-etiqueta">Ciudad: Santander</span>
-                        </div>
+                <!-- acta.js rellena todo lo que hay dentro de #acta-contenido (GET /api/partidos/{id}) -->
+                <div id="acta-contenido" hidden>
+                    <div class="acta-meta-bar">
+                        <div class="acta-competicion-badge"><span id="acta-competicion"></span></div>
+                        <div id="acta-fecha"></div>
                     </div>
 
-                    <!-- ================= COLUMNA 2: EQUIPO LOCAL (C.D. CALASANZ) ================= -->
-                    <div class="acta-col-card">
-                        <div class="acta-team-header">
-                            <span>⚽ C.D. CALASANZ</span>
-                        </div>
+                    <div class="acta-grid acta-grid-2">
+                        <!-- COLUMNA 1: marcador, árbitros, goles -->
+                        <div class="acta-col-card">
+                            <div class="acta-scoreboard" id="acta-marcador"></div>
 
-                        <div class="acta-block">
-                            <div class="acta-block-title">Titulares</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">1</span><span class="acta-player-name">FARIÑA CRUZ, BIEL</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">3</span><span class="acta-player-name">GALLO ROIZ, ADRI</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">4</span><span class="acta-player-name">HERRÁN LUJÁN, ÓSCAR</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">5</span><span class="acta-player-name">IBÁÑEZ NIETO, PABLO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">6</span><span class="acta-player-name">ORBE SANTOS, DANIEL</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">7</span><span class="acta-player-name">JARA BUSTO, RUBÉN</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">8</span><span class="acta-player-name">LAGO MIRANDA, TOMÁS</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">9</span><a href="jugador.html?id=4" class="acta-player-name enlace-subrayado">VILLAR PARDO, MARCOS</a></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">10</span><span class="acta-player-name">MIER CABAL, ÁLEX</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">11</span><span class="acta-player-name">MONTES ARCE, ERIC</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">19</span><span class="acta-player-name">NOVOA PRADO, SAÚL</span></div></div>
+                            <div class="acta-block" id="acta-bloque-lugar" hidden>
+                                <div class="acta-block-title acta-titulo-izq">Lugar</div>
+                                <p class="acta-estadio" id="acta-lugar"></p>
                             </div>
-                        </div>
 
-                        <div class="acta-block">
-                            <div class="acta-block-title">Suplentes</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">13</span><span class="acta-player-name">OLMO FRAGA, DAVID</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">2</span><span class="acta-player-name">PAZ ZORRILLA, JAVI</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">14</span><span class="acta-player-name">QUIRÓS BAÑOS, LUIS</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">15</span><span class="acta-player-name">RAMOS TEJA, MARIO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">16</span><span class="acta-player-name">SALAS OVIEDO, ALBERTO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">23</span><span class="acta-player-name">TORRE LOSA, GONZALO</span></div></div>
+                            <div class="acta-block" id="acta-bloque-arbitros" hidden>
+                                <div class="acta-block-title">Árbitros</div>
+                                <div class="acta-rows" id="acta-arbitros"></div>
+                            </div>
+
+                            <div class="acta-block" id="acta-bloque-goles" hidden>
+                                <div class="acta-block-title">Goles</div>
+                                <div class="acta-rows" id="acta-goles"></div>
+                            </div>
+
+                            <div class="acta-block" id="acta-bloque-cronica" hidden>
+                                <a class="link-arrow" id="acta-enlace-cronica" href="noticias.html"><span>Leer la crónica del partido </span><span aria-hidden="true">→</span></a>
                             </div>
                         </div>
 
-                        <div class="acta-block">
-                            <div class="acta-block-title">Cuerpo Técnico</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><span><strong>DEL. Campo:</strong> UREÑA VEGA, PAU</span></div>
-                                <div class="acta-row"><span><strong>DEL. Equipo:</strong> UREÑA VEGA, PAU</span></div>
-                                <div class="acta-row"><span><strong>Entrenador:</strong> VALLE CORTÉS, SERGIO</span></div>
-                            </div>
-                        </div>
+                        <!-- COLUMNA 2: nuestro equipo (del rival solo se guarda marcador y goles) -->
+                        <div class="acta-col-card" id="acta-equipo-propio" hidden>
+                            <div class="acta-team-header"><span id="acta-nombre-propio"></span></div>
 
-                        <div class="acta-block">
-                            <div class="acta-block-title">Sustituciones</div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>14</strong> QUIRÓS BAÑOS, LUIS</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>7</strong> (45') JARA BUSTO, RUBÉN</span><span class="sub-out">→ Sale</span></div>
+                            <div class="acta-block">
+                                <div class="acta-block-title">Titulares</div>
+                                <div class="acta-rows" id="acta-titulares"></div>
                             </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>23</strong> TORRE LOSA, GONZALO</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>5</strong> (64') IBÁÑEZ NIETO, PABLO</span><span class="sub-out">→ Sale</span></div>
+                            <div class="acta-block">
+                                <div class="acta-block-title">Suplentes</div>
+                                <div class="acta-rows" id="acta-suplentes"></div>
                             </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>15</strong> RAMOS TEJA, MARIO</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>9</strong> (68') VILLAR PARDO, MARCOS</span><span class="sub-out">→ Sale</span></div>
+                            <div class="acta-block" id="acta-bloque-delegados" hidden>
+                                <div class="acta-block-title">Cuerpo Técnico</div>
+                                <div class="acta-rows" id="acta-delegados"></div>
                             </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>2</strong> PAZ ZORRILLA, JAVI</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>11</strong> (87') MONTES ARCE, ERIC</span><span class="sub-out">→ Sale</span></div>
+                            <div class="acta-block" id="acta-bloque-sustituciones" hidden>
+                                <div class="acta-block-title">Sustituciones</div>
+                                <div id="acta-sustituciones"></div>
                             </div>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Tarjetas</div>
-                            <div class="acta-rows">
-                                <div class="acta-row">
-                                    <div class="acta-row-left">
-                                        <span class="card-yellow" title="Tarjeta Amarilla"></span>
-                                        <span class="acta-player-name">(22') NOVOA PRADO, SAÚL</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ================= COLUMNA 3: EQUIPO VISITANTE (MARINA NORTE C.F.) ================= -->
-                    <div class="acta-col-card">
-                        <div class="acta-team-header">
-                            <span>⚽ MARINA NORTE C.F.</span>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Titulares</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">1</span><span class="acta-player-name">YAGÜE ROBLES, DIEGO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">3</span><span class="acta-player-name">ZABALA FUERTES, NACHO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">5</span><span class="acta-player-name">ARANA MESA, ROI</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">6</span><span class="acta-player-name">BRAVO SOLÍS, ANDRÉS</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">7</span><span class="acta-player-name">CEA NAVAS, CÉSAR</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">10</span><span class="acta-player-name">ESCUDERO PINTO, MATEO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">12</span><span class="acta-player-name">DOMÍNGUEZ PAZ, ENZO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">15</span><span class="acta-player-name">ELIZALDE MORO, GAEL</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">16</span><span class="acta-player-name">FALCÓN REY, IKER</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">19</span><span class="acta-player-name">GAGO LIARTE, JON</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">21</span><span class="acta-player-name">ARRIAGA LEDO, IVÁN</span></div></div>
-                            </div>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Suplentes</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">8</span><span class="acta-player-name">BELDA MORO, NICO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">9</span><span class="acta-player-name">CANAL REGO, HUGO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">11</span><span class="acta-player-name">DURÁN SOTO, LEO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">14</span><span class="acta-player-name">ESCUDERO PINTO, MATEO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">17</span><span class="acta-player-name">FARIÑA CRUZ, BIEL</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">20</span><span class="acta-player-name">GALLO ROIZ, ADRI</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="acta-dorsal">22</span><span class="acta-player-name">HERRÁN LUJÁN, ÓSCAR</span></div></div>
-                            </div>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Cuerpo Técnico</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><span><strong>DEL. Equipo:</strong> IBÁÑEZ NIETO, PABLO</span></div>
-                                <div class="acta-row"><span><strong>Entrenador:</strong> JARA BUSTO, RUBÉN</span></div>
-                            </div>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Sustituciones</div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>11</strong> DURÁN SOTO, LEO</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>19</strong> (45') GAGO LIARTE, JON</span><span class="sub-out">→ Sale</span></div>
-                            </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>9</strong> CANAL REGO, HUGO</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>16</strong> (71') FALCÓN REY, IKER</span><span class="sub-out">→ Sale</span></div>
-                            </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>17</strong> FARIÑA CRUZ, BIEL</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>15</strong> (77') ELIZALDE MORO, GAEL</span><span class="sub-out">→ Sale</span></div>
-                            </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>8</strong> BELDA MORO, NICO</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>21</strong> (77') ARRIAGA LEDO, IVÁN</span><span class="sub-out">→ Sale</span></div>
-                            </div>
-                            <div class="acta-sub-pair">
-                                <div class="acta-sub-line"><span><strong>22</strong> HERRÁN LUJÁN, ÓSCAR</span><span class="sub-in">← Entra</span></div>
-                                <div class="acta-sub-line"><span><strong>6</strong> (80') BRAVO SOLÍS, ANDRÉS</span><span class="sub-out">→ Sale</span></div>
-                            </div>
-                        </div>
-
-                        <div class="acta-block">
-                            <div class="acta-block-title">Tarjetas</div>
-                            <div class="acta-rows">
-                                <div class="acta-row"><div class="acta-row-left"><span class="card-yellow"></span><span class="acta-player-name">(42') GAGO LIARTE, JON</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="card-yellow"></span><span class="acta-player-name">(66') ZABALA FUERTES, NACHO</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="card-yellow"></span><span class="acta-player-name">(68') ARANA MESA, ROI</span></div></div>
-                                <div class="acta-row"><div class="acta-row-left"><span class="card-yellow"></span><span class="acta-player-name">(89') FALCÓN REY, IKER</span></div></div>
+                            <div class="acta-block" id="acta-bloque-tarjetas" hidden>
+                                <div class="acta-block-title">Tarjetas</div>
+                                <div class="acta-rows" id="acta-tarjetas"></div>
                             </div>
                         </div>
                     </div>
@@ -312,5 +108,8 @@
     <script src="api.js"></script>
     <script src="session.js"></script>
     <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="acta-util.js"></script>
+    <script src="acta.js"></script>
 </body>
 </html>

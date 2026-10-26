@@ -1,10 +1,9 @@
 /*
  * admin.js — Panel de gestión (admin-plantilla.html)
  * ===================================================
- * Dos pestañas:
- *   1. Gestión de plantilla: alta, edición y baja de jugadores.
- *   2. Registrar acta de partido.
- * Acceso: COORDINADOR, ENTRENADOR y DESARROLLADOR (lo exige <body data-roles="...">).
+ * Gestión de plantilla: alta, edición y baja de jugadores.
+ * (Las actas, partidos y crónicas están en panel-entrenador.html.)
+ * Acceso: COORDINADOR y DESARROLLADOR (los entrenadores no dan de alta jugadores) (lo exige <body data-roles="...">).
  * Recordatorio: la comprobación de permisos REAL la hace el servidor; esto es comodidad.
  *
  * ENDPOINTS (docs/API_CONTRATO.md §4)
@@ -13,7 +12,6 @@
  *   POST   /api/jugadores                      → alta
  *   PATCH  /api/jugadores/{id}                 → edición
  *   DELETE /api/jugadores/{id}                 → baja lógica (el jugador deja de estar activo)
- *   PUT    /api/partidos/{id}/acta             → acta (pendiente: necesita el listado de partidos)
  *
  * MODO DEMOSTRACIÓN
  *   Si el servidor no responde, la plantilla de ejemplo se edita SOLO en memoria (se pierde
@@ -229,24 +227,7 @@
                 sig.focus();
             });
         });
-        // Un enlace con #acta abre directamente la segunda pestaña
-        activarPestana(window.location.hash === '#acta' ? 'tab-crear-acta' : 'tab-crud-plantilla');
-    }
-
-    // ------------------------------------------------------------------
-    // Formulario de acta
-    // ------------------------------------------------------------------
-    function iniciarActa() {
-        $('form-acta').addEventListener('submit', (e) => {
-            e.preventDefault();
-            // PENDIENTE (B8): el acta completa necesita elegir un partido y listar jugadores
-            // (PUT /api/partidos/{id}/acta). De momento solo comprobamos los datos y avisamos.
-            const aviso = $('acta-feedback');
-            aviso.textContent = 'El guardado de actas se conectará con el servidor en la siguiente fase. Por ahora no se ha enviado nada.';
-            aviso.className = 'feedback feedback-aviso';
-            aviso.hidden = false;
-            Api.anunciar(aviso.textContent);
-        });
+        activarPestana('tab-crud-plantilla');
     }
 
     // ------------------------------------------------------------------
@@ -255,7 +236,6 @@
     document.addEventListener('layout:listo', async () => {
         iniciarPestanas();
         iniciarFormulario();
-        iniciarActa();
         await cargarEquipos();
         await cargarPlantilla();
     });

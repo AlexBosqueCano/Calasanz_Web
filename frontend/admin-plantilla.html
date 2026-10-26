@@ -6,7 +6,7 @@
     <title>CD. Calasanz Santander / Panel de gestión</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
-<body data-roles="COORDINADOR,ENTRENADOR,DESARROLLADOR">
+<body data-roles="COORDINADOR,DESARROLLADOR">
     <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
     <header></header>
 
@@ -19,7 +19,7 @@
                         <span>ÁREA TÉCNICA Y COORDINACIÓN</span>
                     </div>
                     <h1 class="display-title titulo-hero titulo-hero-pequeno">Panel de gestión deportiva</h1>
-                    <p class="lead-text lead-sin-margen">Administración de plantillas, resultados semanales y cierre de actas oficiales.</p>
+                    <p class="lead-text lead-sin-margen">Alta, edición y baja de jugadores de cada plantilla.</p>
                 </div>
 
                 <div class="bars-graphic" aria-hidden="true">
@@ -37,7 +37,6 @@
             <div class="container">
                 <div class="tabs-nav" role="tablist" aria-label="Secciones del panel">
                     <button type="button" class="filter-pill admin-tab active" role="tab" id="admin-tab-1" data-target="tab-crud-plantilla" aria-controls="tab-crud-plantilla" aria-selected="true">Gestión de plantilla</button>
-                    <button type="button" class="filter-pill admin-tab" role="tab" id="admin-tab-2" data-target="tab-crear-acta" aria-controls="tab-crear-acta" aria-selected="false" tabindex="-1">Registrar acta de partido</button>
                 </div>
 
                 <!-- PESTAÑA 1: ALTA, EDICIÓN Y BAJA DE JUGADORES -->
@@ -120,56 +119,8 @@
                     </div>
                 </div>
 
-                <!-- PESTAÑA 2: REGISTRAR ACTA -->
-                <div id="tab-crear-acta" class="tab-pane" role="tabpanel" aria-labelledby="admin-tab-2" hidden>
-                    <div class="news-card tarjeta-ancha">
-                        <div class="news-card-meta">
-                            <span>CIERRE DE JORNADA</span>
-                            <span>Solo entrenador del equipo</span>
-                        </div>
-                        <h2 class="titulo-tarjeta">Registrar resultado y acta oficial</h2>
-
-                        <form id="form-acta" novalidate>
-                            <div class="grid-acta-1">
-                                <div class="field-group">
-                                    <label for="acta-rival">Equipo rival</label>
-                                    <input type="text" id="acta-rival" class="clean-input" required>
-                                </div>
-                                <div class="field-group">
-                                    <label for="acta-goles-local">Goles C.D. Calasanz</label>
-                                    <input type="number" id="acta-goles-local" class="clean-input" min="0" max="99" required>
-                                </div>
-                                <div class="field-group">
-                                    <label for="acta-goles-rival">Goles del rival</label>
-                                    <input type="number" id="acta-goles-rival" class="clean-input" min="0" max="99" required>
-                                </div>
-                            </div>
-
-                            <div class="grid-2-cols">
-                                <div class="field-group">
-                                    <label for="acta-arbitro">Árbitro principal</label>
-                                    <input type="text" id="acta-arbitro" class="clean-input" required>
-                                </div>
-                                <div class="field-group">
-                                    <label for="acta-campo">Campo</label>
-                                    <input type="text" id="acta-campo" class="clean-input" required>
-                                </div>
-                            </div>
-
-                            <div class="field-group">
-                                <label for="acta-goleadores">Goleadores del C.D. Calasanz (minuto y jugador)</label>
-                                <textarea id="acta-goleadores" rows="3" placeholder="Ejemplo: (8') Apellido, Nombre | (22') Apellido, Nombre"></textarea>
-                            </div>
-
-                            <p id="acta-feedback" class="feedback" role="status" hidden></p>
-
-                            <div class="fila-botones">
-                                <button type="submit" class="btn-green"><span class="btn-texto">Guardar y publicar acta</span> <span aria-hidden="true">→</span></button>
-                                <a href="acta.html?id=1" class="btn-outline">Ver un acta de ejemplo <span aria-hidden="true">→</span></a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                <!-- Las actas, partidos y crónicas se gestionan ahora en el panel del entrenador -->
+                <p class="acta-etiqueta">¿Buscas las actas? Ahora están en el <a href="panel-entrenador.html" class="enlace-subrayado">panel del entrenador</a>.</p>
             </div>
         </section>
     </main>

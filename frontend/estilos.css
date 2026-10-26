@@ -1549,3 +1549,21 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 
 /* "Volver al inicio" en login/registro/contacto: en su propia línea, encima del título */
 .enlace-volver-auth { display: flex; width: fit-content; }
+
+/* ===== Acta con dos columnas (marcador + nuestro equipo): del rival no se guarda alineación ===== */
+.acta-grid-2 { grid-template-columns: 330px 1fr; }
+@media (max-width: 960px) { .acta-grid-2 { grid-template-columns: 1fr; } }
+.acta-goal-badge { white-space: nowrap; }
+
+/* ===== Panel del entrenador ===== */
+.pe-selector-equipo { max-width: 420px; margin-bottom: 1rem; }
+.boton-pequeno { padding: 0.35rem 0.75rem; font-size: 0.8rem; min-height: 36px; }
+.pe-marcador { font-size: 1.4rem; font-weight: 800; margin: 0.5rem 0 1rem; }
+.pe-resultado { margin-top: 1rem; }
+/* Cada evento del acta: una fila de campos que se parte en varias líneas en pantallas estrechas */
+.pe-evento { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: flex-end; padding: 0.75rem; margin-bottom: 0.5rem; background: var(--bg-soft); border-radius: 8px; border-left: 3px solid var(--green-primary); }
+.pe-evento-campo { margin: 0; flex: 1 1 130px; min-width: 110px; }
+.pe-evento-campo[hidden] { display: none; }
+@media (max-width: 600px) { .pe-evento-campo { flex: 1 1 100%; } }
+.news-card[data-tipo="cronica"] .news-card-texto { white-space: pre-line; }
+.tabla-compacta select { min-width: 7.5rem; padding: 0.3rem 0.5rem; }

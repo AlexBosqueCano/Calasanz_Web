@@ -14,7 +14,7 @@
     const { el } = Api;
 
     // Nombre visible de cada tipo
-    const ETIQUETA_TIPO = { noticia: 'NOTICIA', evento: 'EVENTO' };
+    const ETIQUETA_TIPO = { noticia: 'NOTICIA', evento: 'EVENTO', cronica: 'CRÓNICA' };
 
     function crearTarjeta(n) {
         const fecha = n.tipo === 'evento' && n.fecha_evento ? n.fecha_evento : n.publicada_en;
@@ -37,6 +37,24 @@
         return el('article', { clase: 'news-card', atributos: { 'data-tipo': n.tipo }, hijos });
     }
 
+    /*
+     * Las crónicas (GET /api/cronicas) las escriben los entrenadores y se enseñan aquí junto a las
+     * noticias. Las convertimos al mismo formato que una noticia para pintarlas con la misma tarjeta.
+     * Si la petición de crónicas falla, las noticias se siguen viendo (no es un error grave).
+     */
+    async function cargarCronicas() {
+        try {
+            const r = await Demo.obtener('/cronicas', null, Demo.cronicas);
+            const lista = Array.isArray(r) ? r : (r.items || []);
+            return lista.map(c => ({
+                id: 'c' + c.id, tipo: 'cronica', titulo: c.titulo, cuerpo: c.texto, publicada_en: c.creada_en,
+                enlace: 'acta.html?id=' + encodeURIComponent(c.partido.id), texto_enlace: 'Consultar el acta del partido'
+            }));
+        } catch (error) {
+            return [];
+        }
+    }
+
     async function iniciar() {
         const lista = document.getElementById('lista-noticias');
         const contador = document.getElementById('contador-noticias');
@@ -44,7 +62,9 @@
 
         try {
             const datos = await Demo.obtener('/noticias', null, Demo.noticias);
-            const noticias = datos.items || [];
+            // Noticias + crónicas, de la más reciente a la más antigua
+            const noticias = (datos.items || []).concat(await cargarCronicas())
+                .sort((a, b) => String(b.publicada_en).localeCompare(String(a.publicada_en)));
 
             lista.textContent = '';
             if (!noticias.length) {
