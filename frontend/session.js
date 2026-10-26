@@ -30,8 +30,8 @@
         ESTANDAR: null,
         JUGADOR: null,
         ENTRENADOR: 'panel-entrenador.html',
-        COORDINADOR: 'admin-plantilla.html',
-        DESARROLLADOR: 'admin-plantilla.html'
+        COORDINADOR: 'panel-coordinador.html',
+        DESARROLLADOR: 'panel-coordinador.html'
     };
 
     // Cómo se llama cada rol cuando se lo enseñamos a una persona

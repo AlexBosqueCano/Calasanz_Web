@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Panel de coordinación</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body data-roles="COORDINADOR,DESARROLLADOR">
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos hero-compacto">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>COORDINACIÓN</span>
+                    </div>
+                    <h1 class="display-title titulo-hero titulo-hero-pequeno">Panel de coordinación</h1>
+                    <p class="lead-text lead-sin-margen">Solicitudes de acceso, plantillas, noticias, eventos y lesiones del club.</p>
+                    <p><a href="panel-entrenador.html" class="link-arrow">Partidos, actas y crónicas <span aria-hidden="true">→</span></a></p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <div id="pc-mensajes"></div>
+                <p id="pc-feedback" class="feedback" role="status" hidden></p>
+
+                <div class="tabs-nav" role="tablist" aria-label="Secciones del panel de coordinación">
+                    <button type="button" class="filter-pill pc-tab active" role="tab" id="pc-tab-solicitudes" data-target="pc-solicitudes" aria-controls="pc-solicitudes" aria-selected="true">Solicitudes</button>
+                    <button type="button" class="filter-pill pc-tab" role="tab" id="pc-tab-jugadores" data-target="pc-jugadores" aria-controls="pc-jugadores" aria-selected="false" tabindex="-1">Jugadores</button>
+                    <button type="button" class="filter-pill pc-tab" role="tab" id="pc-tab-noticias" data-target="pc-noticias" aria-controls="pc-noticias" aria-selected="false" tabindex="-1">Noticias y eventos</button>
+                    <button type="button" class="filter-pill pc-tab" role="tab" id="pc-tab-lesiones" data-target="pc-lesiones" aria-controls="pc-lesiones" aria-selected="false" tabindex="-1">Lesiones</button>
+                </div>
+
+                <!-- ============ PESTAÑA 1: SOLICITUDES ============ -->
+                <div id="pc-solicitudes" class="tab-pane active" role="tabpanel" aria-labelledby="pc-tab-solicitudes">
+                    <h2 class="titulo-seccion section-title">Solicitudes pendientes</h2>
+                    <div class="table-responsive">
+                        <table class="modern-table">
+                            <caption class="solo-lectores">Solicitudes de acceso pendientes</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Usuario</th>
+                                    <th scope="col">Solicita</th>
+                                    <th scope="col">Mensaje</th>
+                                    <th scope="col">Fecha</th>
+                                    <th scope="col">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pc-tabla-solicitudes"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Aparece al pulsar "Rechazar": el motivo es obligatorio -->
+                    <form id="pc-form-rechazo" class="news-card pe-resultado" novalidate hidden>
+                        <h3 id="pc-rechazo-titulo" class="titulo-tarjeta"></h3>
+                        <div class="field-group">
+                            <label for="pc-rechazo-motivo">Motivo del rechazo (obligatorio)</label>
+                            <textarea id="pc-rechazo-motivo" class="clean-input" rows="3" maxlength="500" required></textarea>
+                        </div>
+                        <div class="fila-botones">
+                            <button type="submit" class="btn-green">Rechazar solicitud</button>
+                            <button type="button" id="pc-cancelar-rechazo" class="btn-outline">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ============ PESTAÑA 2: JUGADORES ============ -->
+                <div id="pc-jugadores" class="tab-pane" role="tabpanel" aria-labelledby="pc-tab-jugadores" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>JUGADOR</span><span id="pc-modo-jugador">Alta nueva</span></div>
+                                <h2 class="titulo-tarjeta">Añadir o editar jugador</h2>
+                                <form id="pc-form-jugador" novalidate>
+                                    <div class="field-group">
+                                        <label for="pc-j-equipo">Equipo</label>
+                                        <select id="pc-j-equipo" required><option>Cargando…</option></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pc-j-nombre">Nombre</label>
+                                        <input type="text" id="pc-j-nombre" class="clean-input" maxlength="50" autocomplete="off" required>
+                                    </div>
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="pc-j-ap1">Primer apellido</label>
+                                            <input type="text" id="pc-j-ap1" class="clean-input" maxlength="100" autocomplete="off" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pc-j-ap2">Segundo apellido (opcional)</label>
+                                            <input type="text" id="pc-j-ap2" class="clean-input" maxlength="100" autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="grid-dorsal">
+                                        <div class="field-group">
+                                            <label for="pc-j-dorsal">Dorsal (1-99)</label>
+                                            <input type="number" id="pc-j-dorsal" class="clean-input" min="1" max="99" inputmode="numeric" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pc-j-posicion">Posición</label>
+                                            <select id="pc-j-posicion" required>
+                                                <option value="Portero">Portero</option>
+                                                <option value="Defensa">Defensa</option>
+                                                <option value="Centrocampista" selected>Centrocampista</option>
+                                                <option value="Delantero">Delantero</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="pc-j-estatura">Estatura en metros (opcional)</label>
+                                            <input type="number" id="pc-j-estatura" class="clean-input" min="1" max="2.3" step="0.01" inputmode="decimal">
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pc-j-peso">Peso en kg (opcional)</label>
+                                            <input type="number" id="pc-j-peso" class="clean-input" min="20" max="200" step="0.1" inputmode="decimal">
+                                        </div>
+                                    </div>
+                                    <p id="pc-feedback-jugador" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar jugador</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pc-cancelar-jugador" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <caption class="solo-lectores">Jugadores del equipo seleccionado</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Dorsal</th>
+                                        <th scope="col">Jugador</th>
+                                        <th scope="col">Posición</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pc-tabla-jugadores"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ PESTAÑA 3: NOTICIAS Y EVENTOS ============ -->
+                <div id="pc-noticias" class="tab-pane" role="tabpanel" aria-labelledby="pc-tab-noticias" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>PUBLICACIÓN</span><span id="pc-modo-noticia">Nueva</span></div>
+                                <h2 class="titulo-tarjeta">Crear o editar noticia o evento</h2>
+                                <form id="pc-form-noticia" novalidate>
+                                    <div class="field-group">
+                                        <label for="pc-n-tipo">Tipo</label>
+                                        <select id="pc-n-tipo">
+                                            <option value="noticia">Noticia</option>
+                                            <option value="evento">Evento</option>
+                                        </select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pc-n-titulo">Título (1-150 caracteres)</label>
+                                        <input type="text" id="pc-n-titulo" class="clean-input" maxlength="150" autocomplete="off" required>
+                                    </div>
+                                    <div class="field-group" id="pc-n-grupo-fecha" hidden>
+                                        <label for="pc-n-fecha">Fecha del evento</label>
+                                        <input type="date" id="pc-n-fecha" class="clean-input">
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pc-n-cuerpo">Texto (máximo 10 000 caracteres)</label>
+                                        <textarea id="pc-n-cuerpo" class="clean-input" rows="7" maxlength="10000" required></textarea>
+                                    </div>
+                                    <p id="pc-feedback-noticia" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Publicar</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pc-cancelar-noticia" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <caption class="solo-lectores">Noticias y eventos publicados</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Título</th>
+                                        <th scope="col">Tipo</th>
+                                        <th scope="col">Fecha</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pc-tabla-noticias"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============ PESTAÑA 4: LESIONES ============ -->
+                <div id="pc-lesiones" class="tab-pane" role="tabpanel" aria-labelledby="pc-tab-lesiones" hidden>
+                    <div class="admin-grid-2">
+                        <div class="news-card">
+                            <div>
+                                <div class="news-card-meta"><span>LESIÓN</span><span id="pc-modo-lesion">Nueva</span></div>
+                                <h2 class="titulo-tarjeta">Registrar lesión</h2>
+                                <p class="acta-etiqueta">Solo se guarda el estado y la fecha estimada de vuelta. No escribas diagnósticos: son datos de salud de menores.</p>
+                                <form id="pc-form-lesion" novalidate>
+                                    <div class="field-group">
+                                        <label for="pc-l-equipo">Equipo</label>
+                                        <select id="pc-l-equipo"><option>Cargando…</option></select>
+                                    </div>
+                                    <div class="field-group">
+                                        <label for="pc-l-jugador">Jugador</label>
+                                        <select id="pc-l-jugador" required></select>
+                                    </div>
+                                    <div class="grid-2-cols">
+                                        <div class="field-group">
+                                            <label for="pc-l-inicio">Fecha de inicio</label>
+                                            <input type="date" id="pc-l-inicio" class="clean-input" required>
+                                        </div>
+                                        <div class="field-group">
+                                            <label for="pc-l-vuelta">Vuelta estimada</label>
+                                            <input type="date" id="pc-l-vuelta" class="clean-input" required>
+                                        </div>
+                                    </div>
+                                    <p id="pc-feedback-lesion" class="feedback" role="status" hidden></p>
+                                    <div class="fila-botones">
+                                        <button type="submit" class="btn-green boton-ancho"><span class="btn-texto">Guardar lesión</span> <span aria-hidden="true">→</span></button>
+                                        <button type="button" id="pc-cancelar-lesion" class="btn-outline" hidden>Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="modern-table">
+                                <caption class="solo-lectores">Lesiones activas del equipo</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Jugador</th>
+                                        <th scope="col">Desde</th>
+                                        <th scope="col">Vuelta est.</th>
+                                        <th scope="col">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pc-tabla-lesiones"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="pestanas.js"></script>
+    <script src="panel-coordinador.js"></script>
+</body>
+</html>

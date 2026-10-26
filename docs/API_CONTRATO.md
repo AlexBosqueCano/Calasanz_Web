@@ -193,7 +193,8 @@ Es texto plano: se muestra siempre con `textContent`, nunca como HTML. Hay como 
 
 **Solicitud de acceso**
 ```json
-{ "id": 5, "usuario_id": 12, "rol_solicitado": "JUGADOR", "jugador_id": 3, "equipo_id": null,
+{ "id": 5, "usuario": { "id": 12, "username": "cgarcia" }, "rol_solicitado": "JUGADOR",
+  "jugador": { "id": 3, "nombre_completo": "Carlos García Fernández" }, "equipo": null,
   "mensaje": "Soy Carlos García, del Juvenil A.", "estado": "pendiente",
   "comentario_resolucion": null, "creada_en": "2026-10-28T09:00:00+01:00", "resuelta_en": null }
 ```

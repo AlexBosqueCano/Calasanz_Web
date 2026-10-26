@@ -48,6 +48,7 @@
     let cronicaEnEdicion = null;   // crónica que se está editando (o null)
     let partidoActa = null;        // partido cuyo acta está abierta
     let resultadoDe = null;        // partido entre rivales cuyo resultado se está escribiendo
+    let pestanas = null;           // controlador de las pestañas (pestanas.js)
     const actasDemo = {};          // actas guardadas en memoria (solo modo demostración)
     let siguienteIdDemo = 100;
 
@@ -440,7 +441,7 @@
     }
 
     async function abrirActa(id) {
-        activarPestana('pe-acta');
+        pestanas.activar('pe-acta');
         pintarSelectorActa(id);
         await cargarActa(id);
     }
@@ -657,43 +658,11 @@
     }
 
     // ==================================================================
-    // Pestañas (patrón ARIA: flechas, Inicio y Fin)
-    // ==================================================================
-    function activarPestana(destino) {
-        document.querySelectorAll('.pe-tab').forEach(b => {
-            const esta = b.dataset.target === destino;
-            b.classList.toggle('active', esta);
-            b.setAttribute('aria-selected', String(esta));
-            b.setAttribute('tabindex', esta ? '0' : '-1');
-        });
-        document.querySelectorAll('#pe-partidos, #pe-acta, #pe-cronicas').forEach(p => {
-            const es = p.id === destino;
-            p.classList.toggle('active', es);
-            p.hidden = !es;
-        });
-    }
-
-    function iniciarPestanas() {
-        const botones = [...document.querySelectorAll('.pe-tab')];
-        botones.forEach((b, i) => {
-            b.addEventListener('click', () => activarPestana(b.dataset.target));
-            b.addEventListener('keydown', (e) => {
-                const teclas = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: botones.length - 1 };
-                if (!(e.key in teclas)) return;
-                e.preventDefault();
-                const sig = botones[(teclas[e.key] + botones.length) % botones.length];
-                activarPestana(sig.dataset.target); sig.focus();
-            });
-        });
-        const hash = window.location.hash;
-        activarPestana(hash === '#acta' ? 'pe-acta' : hash === '#cronicas' ? 'pe-cronicas' : 'pe-partidos');
-    }
-
-    // ==================================================================
     // Arranque
     // ==================================================================
     async function iniciar() {
-        iniciarPestanas();
+        pestanas = Pestanas.iniciar({ botones: '.pe-tab', paneles: ['pe-partidos', 'pe-acta', 'pe-cronicas'],
+            porHash: { '#acta': 'pe-acta', '#cronicas': 'pe-cronicas' }, inicial: 'pe-partidos' });
         $('pe-form-partido').addEventListener('submit', guardarPartido);
         $('pe-cancelar-partido').addEventListener('click', terminarEdicionPartido);
         $('pe-form-resultado').addEventListener('submit', guardarResultado);
