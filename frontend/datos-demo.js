@@ -155,6 +155,81 @@
         };
     }
 
+    // ------------------------------------------------------------------
+    // Liga, actas y crónicas (panel del entrenador y acta.html)
+    // ------------------------------------------------------------------
+
+    /* GET /api/equipos?competicion=...  → equipos de la misma liga, propios y rivales */
+    function equiposLiga() {
+        return [
+            { id: 1, nombre: 'C.D. Calasanz', es_propio: true, competicion: 'Liga Nacional Juvenil' },
+            { id: 11, nombre: 'Marina Norte C.F.', es_propio: false, competicion: 'Liga Nacional Juvenil' },
+            { id: 12, nombre: 'Peña Alta', es_propio: false, competicion: 'Liga Nacional Juvenil' },
+            { id: 13, nombre: 'Ribera B', es_propio: false, competicion: 'Liga Nacional Juvenil' },
+            { id: 14, nombre: 'Textil Norte', es_propio: false, competicion: 'Liga Nacional Juvenil' },
+            { id: 15, nombre: 'Racing Cantabria B', es_propio: false, competicion: 'Liga Nacional Juvenil' }
+        ];
+    }
+
+    /* GET /api/partidos?competicion=...  → todos los partidos de la liga (propios y entre rivales) */
+    function partidosLiga() {
+        return partidos().concat([
+            { id: 6, jornada: 7, fecha: '2026-10-17', estado: 'finalizado', lugar: 'Campo de Peña Alta',
+              local: { id: 12, nombre: 'Peña Alta' }, visitante: { id: 14, nombre: 'Textil Norte' },
+              resultado_local: 2, resultado_visitante: 2 },
+            // Fecha ya pasada y sin resultado: el entrenador puede registrarlo
+            { id: 7, jornada: 8, fecha: '2026-10-25', estado: 'programado', lugar: null,
+              local: { id: 15, nombre: 'Racing Cantabria B' }, visitante: { id: 11, nombre: 'Marina Norte C.F.' },
+              resultado_local: null, resultado_visitante: null }
+        ]).map(p => ({
+            ...p,
+            // es_propio indica de qué lado está nuestro club (para el escudo y para saber qué alineación mostrar)
+            local: { ...p.local, es_propio: p.local.id === 1 },
+            visitante: { ...p.visitante, es_propio: p.visitante.id === 1 },
+            cronica_id: p.id === 1 ? 1 : null
+        }));
+    }
+
+    /* GET /api/partidos/{id}  → partido + acta (si existe). Los eventos llevan ids; los nombres están en la alineación. */
+    function partido(id) {
+        const p = partidosLiga().find(x => String(x.id) === String(id));
+        if (!p) throw new Api.ApiError(404, 'no_encontrado', 'No se ha encontrado el partido.');
+        if (String(p.id) !== '1') return { ...p, acta: null };
+        const al = (n, estado) => {
+            const j = JUGADORES.find(x => x.id === n);
+            return { jugador_id: j.id, estado, nombre: j.nombre, ap1: j.ap1, ap2: j.ap2, dorsal: j.dorsal, posicion: j.posicion };
+        };
+        return { ...p, temporada: '2026-2027', competicion: 'Liga Nacional Juvenil', duracion: 90, hora: '19:00',
+            acta: {
+                arbitros: { principal: 'Belda Moro, Nico', asistentes: ['Canal Rego, Hugo', 'Durán Soto, Leo'] },
+                cuerpo_tecnico: { delegado_campo: 'Gil Prado, Sara', delegado_equipo: 'Lastra Vega, Tomás' },
+                alineacion: [al(1, 'titular'), al(2, 'titular'), al(3, 'titular'), al(4, 'titular'), al(6, 'titular'), al(5, 'suplente')],
+                eventos: [
+                    { tipo: 'gol', minuto: 8, jugador_id: 4, asistente_id: 3 },
+                    { tipo: 'gol_rival', minuto: 19, autor: 'Escudero Pinto, Mateo' },
+                    { tipo: 'gol', minuto: 22, jugador_id: 3 },
+                    { tipo: 'tarjeta', minuto: 40, jugador_id: 2, color: 'amarilla' },
+                    { tipo: 'gol_rival', minuto: 53, autor: 'Escudero Pinto, Mateo' },
+                    { tipo: 'gol', minuto: 61, jugador_id: 6, asistente_id: 4 },
+                    { tipo: 'sustitucion', minuto: 68, sale_id: 6, entra_id: 5 },
+                    { tipo: 'gol', minuto: 75, jugador_id: 5 }
+                ]
+            } };
+    }
+
+    /* GET /api/cronicas  → paginado, más recientes primero */
+    function cronicas() {
+        const p = partidosLiga()[0];
+        return {
+            items: [{ id: 1, partido: { id: p.id, jornada: p.jornada, fecha: p.fecha, local: p.local, visitante: p.visitante,
+                                       resultado_local: p.resultado_local, resultado_visitante: p.resultado_visitante },
+                      titulo: 'Victoria de prestigio ante el Marina Norte',
+                      texto: 'Los goles tempraneros de Marcos y Daniel pusieron el partido de cara. En la segunda parte, el equipo supo sufrir y cerró el 4-2 con dos tantos más.',
+                      autor: { id: 7, username: 'entrenador1' }, creada_en: '2026-10-18T10:00:00+02:00', actualizada_en: null }],
+            page: 1, por_pagina: 20, total: 1
+        };
+    }
+
     /* GET /api/noticias */
     function noticias() {
         return {
@@ -207,5 +282,6 @@
         }
     }
 
-    global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio };
+    global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio,
+                   equiposLiga, partidosLiga, partido, cronicas };
 })(window);

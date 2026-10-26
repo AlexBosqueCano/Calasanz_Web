@@ -110,7 +110,7 @@ La **duración** de un partido (`categoria.duracion`, en minutos totales) la fij
   "resultado_local": null, "resultado_visitante": null, "ganador_id": null,
   "estado": "programado", "evento": null, "lugar": null, "cronica_id": null }
 ```
-`estado` es `programado` hasta que se envía el acta (o el resultado) y `finalizado` después.
+`local` y `visitante` incluyen `es_propio` (de qué lado juega el club). `estado` es `programado` hasta que se envía el acta (o el resultado) y `finalizado` después.
 
 Hay dos tipos de partido, según los equipos:
 - **Propio**: local o visitante es un equipo propio. Lleva **acta completa** (alineación, árbitros, eventos con minuto).
@@ -229,7 +229,7 @@ Cuerpo de registro: `{ "username", "email", "password" }`. Cuerpo de login: `{ "
 | Método | Ruta | Quién | Respuestas |
 |---|---|---|---|
 | GET | `/api/temporadas` · `/api/categorias` | autenticado | 200 array |
-| GET | `/api/equipos?categoria=&propios=true` | autenticado | 200 array |
+| GET | `/api/equipos?categoria=&propios=true&competicion=` | autenticado | 200 array |
 | GET | `/api/equipos/{id}` | autenticado | 200 · 404 |
 | GET | `/api/equipos/{id}/plantilla` | autenticado | 200 array de jugadores activos |
 | GET | `/api/equipos/{id}/clasificacion?temporada=` | autenticado | 200 array `{ posicion, equipo, pj, g, e, p, gf, gc, dg, puntos }` (3-1-0), con los equipos de la misma competición |
@@ -258,7 +258,7 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 
 | Método | Ruta | Quién | Respuestas |
 |---|---|---|---|
-| GET | `/api/partidos?temporada=&equipo=&desde=&hasta=&estado=` | autenticado | 200 paginado |
+| GET | `/api/partidos?temporada=&equipo=&competicion=&desde=&hasta=&estado=` | autenticado | 200 paginado |
 | GET | `/api/partidos/{id}` | autenticado | 200 (incluye acta si existe) · 404 |
 | POST | `/api/partidos` `{ temporada_id, jornada, fecha, local_id, visitante_id, lugar?, evento? }` | ENTRENADOR de su liga, COORD, DEV | 201 · 403 · 422 |
 | PATCH | `/api/partidos/{id}` | ENTRENADOR de su liga, COORD, DEV | 200 · 403 · 404 · 409 (ya tiene acta y se cambia algo que la invalida) · 422 |

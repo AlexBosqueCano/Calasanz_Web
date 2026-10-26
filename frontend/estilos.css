@@ -1549,3 +1549,8 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 
 /* "Volver al inicio" en login/registro/contacto: en su propia línea, encima del título */
 .enlace-volver-auth { display: flex; width: fit-content; }
+
+/* ===== Acta con dos columnas (marcador + nuestro equipo): del rival no se guarda alineación ===== */
+.acta-grid-2 { grid-template-columns: 330px 1fr; }
+@media (max-width: 960px) { .acta-grid-2 { grid-template-columns: 1fr; } }
+.acta-goal-badge { white-space: nowrap; }
