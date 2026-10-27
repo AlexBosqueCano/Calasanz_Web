@@ -8,7 +8,7 @@
  *                Si va bien, guarda el token CSRF y redirige a la página que se pidió
  *                (o al inicio).
  *   2. Registro: envía usuario, email y contraseña a POST /api/auth/registro.
- *                Si va bien, hace login automático.
+ *                Si va bien, inicia sesión automáticamente y entra en la web.
  *
  * ¿Por qué validamos aquí si el servidor ya valida?
  *   El cliente valida SOLO para dar una respuesta rápida al usuario (UX).
@@ -250,8 +250,16 @@
                     email: form.elements.email.value.trim(),
                     password: form.elements.password.value
                 });
-                // 3) Cuenta creada: llevamos al login con un aviso de éxito
-                window.location.href = 'login.html?motivo=registrado';
+                // 3) Cuenta creada: iniciamos sesión con los mismos datos y entramos directamente
+                try {
+                    const datos = await Api.post('/auth/login', { username: form.elements.username.value.trim(), password: form.elements.password.value });
+                    Api.setCsrfToken(datos.csrf_token);
+                    await Sesion.cargar(true);
+                    window.location.href = 'index.html';
+                } catch (errorLogin) {
+                    // Si el inicio automático falla, la cuenta ya existe: pasamos al login con un aviso
+                    window.location.href = 'login.html?motivo=registrado';
+                }
             } catch (error) {
                 // 409 = usuario o email ya existen; 422 = datos inválidos; 429 = demasiados registros
                 mostrarErrorServidor(form, zona, error);

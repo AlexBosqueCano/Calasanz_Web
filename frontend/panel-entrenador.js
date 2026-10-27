@@ -747,7 +747,7 @@
     // ==================================================================
     async function iniciar() {
         // Los apuntes son privados del entrenador (y del desarrollador): al coordinador no se le enseñan
-        const verApuntes = Sesion.enModoDemo() || Sesion.tieneRol('ENTRENADOR', 'DESARROLLADOR');
+        const verApuntes = Sesion.tieneRol('ENTRENADOR', 'DESARROLLADOR');
         if (!verApuntes) { $('pe-tab-apuntes').remove(); $('pe-apuntes').remove(); }
         const paneles = ['pe-partidos', 'pe-acta', 'pe-cronicas', 'pe-lesiones'].concat(verApuntes ? ['pe-apuntes'] : []);
         pestanas = Pestanas.iniciar({ botones: '.pe-tab', paneles,

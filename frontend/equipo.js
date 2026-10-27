@@ -204,7 +204,7 @@
             enlace = el('a', { clase: 'link-arrow', atributos: { href: 'acta.html?id=' + encodeURIComponent(p.id) }, hijos: [
                 document.createTextNode('Ver acta oficial del partido '), flecha()
             ]});
-        } else if (Sesion.tieneRol('ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR') || Sesion.enModoDemo()) {
+        } else if (Sesion.tieneRol('ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR')) {
             enlace = el('a', { clase: 'link-arrow', atributos: { href: 'panel-entrenador.html?partido=' + encodeURIComponent(p.id) + '#acta' }, hijos: [
                 document.createTextNode('Registrar acta '), flecha()
             ]});

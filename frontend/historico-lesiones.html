@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Histórico de lesiones</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos hero-compacto">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span>SALUD DEPORTIVA</span>
+                    </div>
+                    <h1 class="display-title titulo-hero titulo-hero-pequeno">Histórico de lesiones</h1>
+                    <p class="lead-text lead-sin-margen" id="hl-lead">Lesiones activas y ya recuperadas.</p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <!-- Solo para entrenador, coordinador y desarrollador: el jugador ve las suyas -->
+                <div class="field-group pe-selector-equipo" id="hl-grupo-equipo" hidden>
+                    <label for="hl-equipo">Equipo</label>
+                    <select id="hl-equipo"></select>
+                </div>
+
+                <div id="hl-mensajes"></div>
+
+                <div class="table-responsive">
+                    <table class="modern-table">
+                        <caption class="solo-lectores">Histórico de lesiones</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" id="hl-col-jugador">Jugador</th>
+                                <th scope="col">Desde</th>
+                                <th scope="col">Vuelta estimada</th>
+                                <th scope="col">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hl-tabla"></tbody>
+                    </table>
+                </div>
+                <p class="acta-etiqueta">Por privacidad solo se guarda el estado y las fechas, nunca el diagnóstico.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="panel-util.js"></script>
+    <script src="historico-lesiones.js"></script>
+</body>
+</html>

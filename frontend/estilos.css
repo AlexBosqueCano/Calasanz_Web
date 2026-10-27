@@ -175,24 +175,6 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     gap: 1.25rem;
 }
 
-.btn-theme-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-light);
-    background: var(--surface);
-    color: var(--text-body);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.btn-theme-icon:hover {
-    border-color: var(--green-primary);
-    color: var(--green-primary);
-}
-
 .link-register-header {
     font-size: 0.9rem;
     font-weight: 500;
@@ -1405,12 +1387,6 @@ html.dark-mode .error-campo { color: #ffb4ab; }
 [aria-invalid="true"] { border-color: #b3261e !important; }
 .ayuda-campo { display: block; font-size: 0.82rem; color: var(--text-body); margin-top: 0.35rem; }
 
-/* Cabecera: nombre del usuario y enlace al panel */
-.usuario-activo { font-size: 0.85rem; font-weight: 600; color: var(--text-body); }
-@media (max-width: 768px) {
-    .usuario-activo { display: none; }                /* en móvil no cabe: se ve en el panel */
-    .link-panel-header { display: inline; }           /* el enlace al panel SÍ debe verse */
-}
 
 /* Estructura de páginas (sustituye a los antiguos style="...") */
 .main-flex { display: flex; flex-direction: column; flex: 1; }
@@ -1567,3 +1543,31 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 @media (max-width: 600px) { .pe-evento-campo { flex: 1 1 100%; } }
 .news-card[data-tipo="cronica"] .news-card-texto { white-space: pre-line; }
 .tabla-compacta select { min-width: 7.5rem; padding: 0.3rem 0.5rem; }
+
+/* ===== Menú de la cuenta (inicial del usuario, arriba a la derecha) ===== */
+.cuenta { position: relative; }
+.cuenta-boton {
+    width: 40px; height: 40px; border-radius: 50%; border: 2px solid transparent;
+    background: #197a3a; color: #ffffff; font-weight: 800; font-size: 1rem; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.cuenta-boton:hover, .cuenta-boton[aria-expanded="true"] { background: var(--forest-dark); }
+.cuenta-panel {
+    position: absolute; right: 0; top: calc(100% + 0.5rem); z-index: 60;
+    width: min(300px, calc(100vw - 2rem)); background: var(--surface); color: var(--text-body);
+    border: 1px solid var(--border-light); border-radius: var(--radius-sm);
+    box-shadow: 0 12px 32px rgba(17, 34, 23, 0.18); padding: 0.5rem 0;
+}
+.cuenta-cabecera { display: flex; flex-direction: column; padding: 0.5rem 1rem 0.75rem; border-bottom: 1px solid var(--border-light); }
+.cuenta-cabecera span { font-size: 0.8rem; color: var(--text-muted); }
+.cuenta-lista { list-style: none; margin: 0; padding: 0.25rem 0; }
+.cuenta-opcion {
+    display: block; width: 100%; text-align: left; box-sizing: border-box; padding: 0.7rem 1rem; min-height: 44px;
+    background: none; border: none; font: inherit; font-size: 0.92rem; font-weight: 600; color: var(--text-body); cursor: pointer;
+}
+.cuenta-opcion:hover { background: var(--bg-soft); color: var(--green-primary); }
+.cuenta-salir { color: #b3261e; border-top: 1px solid var(--border-light); }
+html.dark-mode .cuenta-salir { color: #ffb4ab; }
+.cuenta-demo { padding: 0.75rem 1rem 0.5rem; border-top: 1px solid var(--border-light); font-size: 0.8rem; }
+.cuenta-demo label { display: block; font-weight: 700; margin-bottom: 0.35rem; }
+.cuenta-demo select { width: 100%; }

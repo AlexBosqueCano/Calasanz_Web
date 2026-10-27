@@ -123,6 +123,19 @@
         ];
     }
 
+    /*
+     * GET /api/lesiones?equipo=...  o  ?jugador=...   (SIN `activa`: devuelve también las ya recuperadas)
+     * `fecha_alta` es la fecha real de vuelta (null mientras la lesión sigue activa).
+     */
+    function historicoLesiones() {
+        return lesiones().map(l => ({ ...l, fecha_alta: null })).concat([
+            { id: 3, jugador: { id: 4, nombre_completo: 'Marcos Villar Pardo' }, equipo_id: 1,
+              fecha_inicio: '2026-09-12', fecha_estimada_vuelta: '2026-09-26', fecha_alta: '2026-09-29', activa: false },
+            { id: 4, jugador: { id: 3, nombre_completo: 'Daniel Orbe Santos' }, equipo_id: 1,
+              fecha_inicio: '2026-08-30', fecha_estimada_vuelta: '2026-09-10', fecha_alta: '2026-09-08', activa: false }
+        ]);
+    }
+
     /* GET /api/equipos/{id}/clasificacion */
     function clasificacion() {
         return [
@@ -315,5 +328,5 @@
     }
 
     global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio,
-                   equiposLiga, partidosLiga, partido, cronicas, solicitudes, apuntes, misSolicitudes };
+                   equiposLiga, partidosLiga, partido, cronicas, solicitudes, apuntes, misSolicitudes, historicoLesiones };
 })(window);

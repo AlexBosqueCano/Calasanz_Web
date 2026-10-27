@@ -12,7 +12,8 @@
  *     <script src="loQueHagaLaPagina.js"></script>
  *
  * ATRIBUTOS QUE UNA PÁGINA PUEDE PONER EN <body>:
- *     data-requiere-sesion                      → hay que haber iniciado sesión
+ *     (nada)                                    → hay que haber iniciado sesión (TODAS las páginas lo exigen)
+ *     data-publica                              → página abierta sin sesión (solo login y registro)
  *     data-roles="COORDINADOR,ENTRENADOR"       → además, tener uno de esos roles
  *
  * AVISO A LAS DEMÁS PÁGINAS:
@@ -26,10 +27,6 @@
     const { el } = Api;   // Api.el() crea elementos HTML de forma segura (usa textContent)
 
     // ------------------------------------------------------------------
-    // 1. ICONOS (SVG fijos del propio código; no contienen datos de usuarios)
-    // ------------------------------------------------------------------
-    const ICONO_SOL = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>';
-    const ICONO_LUNA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
 
     // ------------------------------------------------------------------
     // 2. TEMA CLARO / OSCURO
@@ -56,14 +53,6 @@
 
     // Lo aplicamos YA (antes de pintar la cabecera) para evitar un parpadeo blanco
     aplicarTema(esTemaOscuro());
-
-    /* Actualiza el botón de tema: icono, etiqueta y estado (aria-pressed). */
-    function pintarBotonTema(boton) {
-        const oscuro = document.documentElement.classList.contains('dark-mode');
-        boton.innerHTML = oscuro ? ICONO_LUNA : ICONO_SOL;   // iconos fijos: es seguro
-        boton.setAttribute('aria-pressed', String(oscuro));
-        boton.setAttribute('aria-label', oscuro ? 'Activar tema claro' : 'Activar tema oscuro');
-    }
 
     // ------------------------------------------------------------------
     // 3. ELEMENTOS AUXILIARES DE ACCESIBILIDAD
@@ -132,53 +121,136 @@
             ]})
         ]});
 
-        // Botón de tema
-        const botonTema = el('button', { clase: 'btn-theme-icon', atributos: { type: 'button', id: 'btn-tema' } });
-        pintarBotonTema(botonTema);
+        // Zona de la cuenta (inicial del usuario + menú, o enlaces de acceso): se rellena en
+        // pintarZonaSesion() cuando sabemos quién es el usuario. El cambio de tema está dentro de ese menú.
+        const acciones = el('div', { clase: 'header-actions', atributos: { id: 'zona-sesion' } });
+
+        cabecera.appendChild(saltar);
+        // En login y registro no hay menú: todavía no se puede navegar sin cuenta
+        const publica = document.body.hasAttribute('data-publica');
+        cabecera.appendChild(el('div', { clase: 'header-inner', hijos: publica ? [marca, acciones] : [marca, menu, acciones] }));
+    }
+
+    /*
+     * MENÚ DE LA CUENTA
+     * -----------------
+     * Botón redondo con la inicial del usuario. Al pulsarlo se abre un panel con sus opciones.
+     * Patrón accesible "desplegable": el botón lleva aria-expanded y aria-controls; Escape lo cierra
+     * y devuelve el foco al botón; también se cierra al hacer clic fuera o al salir con Tab.
+     * Los datos del usuario (su nombre) se escriben con textContent: nunca como HTML.
+     */
+    function opcionesCuenta(usuario) {
+        const rol = usuario.rol;
+        const o = [];
+        // Cada opción: { texto, href }  (o { texto, accion } para botones)
+        if (rol === 'JUGADOR') {
+            o.push({ texto: 'Mi panel', href: 'panel-jugador.html' });
+            if (usuario.jugador_id) o.push({ texto: 'Mis estadísticas', href: 'jugador.html?id=' + encodeURIComponent(usuario.jugador_id) });
+            if (usuario.equipo_id) o.push({ texto: 'Mi equipo', href: 'equipo.html?id=' + encodeURIComponent(usuario.equipo_id) });
+            o.push({ texto: 'Histórico de lesiones', href: 'historico-lesiones.html' });
+        } else if (rol === 'ENTRENADOR') {
+            // "Mi equipo" reúne todo lo del entrenador: partidos, actas, crónicas, lesiones y apuntes
+            o.push({ texto: 'Mi equipo', href: 'panel-entrenador.html' });
+            if (usuario.equipo_id) o.push({ texto: 'Ver la web de mi equipo', href: 'equipo.html?id=' + encodeURIComponent(usuario.equipo_id) });
+            o.push({ texto: 'Histórico de lesiones', href: 'historico-lesiones.html' });
+        } else if (rol === 'COORDINADOR' || rol === 'DESARROLLADOR') {
+            o.push({ texto: 'Gestión del club', href: 'panel-coordinador.html' });
+            o.push({ texto: 'Partidos, actas y crónicas', href: 'panel-entrenador.html' });
+            o.push({ texto: 'Histórico de lesiones', href: 'historico-lesiones.html' });
+        } else {
+            // ESTANDAR: aún no está vinculado al club
+            o.push({ texto: 'Solicitar acceso como jugador o entrenador', href: 'solicitud.html' });
+        }
+        o.push({ texto: 'Mi cuenta', href: 'mi-cuenta.html' });
+        o.push({ texto: 'Cambiar contraseña', href: 'mi-cuenta.html#password' });
+        return o;
+    }
+
+    function construirMenuCuenta(usuario) {
+        const inicial = (usuario.username || '?').charAt(0).toUpperCase();
+        const boton = el('button', { clase: 'cuenta-boton', atributos: {
+            type: 'button', id: 'cuenta-boton', 'aria-expanded': 'false', 'aria-controls': 'cuenta-panel',
+            'aria-label': 'Mi cuenta: ' + usuario.username
+        }, hijos: [el('span', { texto: inicial, atributos: { 'aria-hidden': 'true' } })] });
+
+        const lista = el('ul', { clase: 'cuenta-lista' });
+        opcionesCuenta(usuario).forEach(op => {
+            lista.appendChild(el('li', { hijos: [el('a', { texto: op.texto, clase: 'cuenta-opcion', atributos: { href: op.href } })] }));
+        });
+
+        // Cambiar tema (claro / oscuro): el botón dice a qué tema se pasa
+        const botonTema = el('button', { clase: 'cuenta-opcion', atributos: { type: 'button' } });
+        const pintarTema = () => {
+            const oscuro = document.documentElement.classList.contains('dark-mode');
+            botonTema.textContent = oscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
+        };
+        pintarTema();
         botonTema.addEventListener('click', () => {
             const oscuro = !document.documentElement.classList.contains('dark-mode');
             try { localStorage.setItem(CLAVE_TEMA, oscuro ? 'dark' : 'light'); } catch (e) { /* sin almacenamiento */ }
             aplicarTema(oscuro);
-            pintarBotonTema(botonTema);
+            pintarTema();
             Api.anunciar(oscuro ? 'Tema oscuro activado.' : 'Tema claro activado.');
         });
+        lista.appendChild(el('li', { hijos: [botonTema] }));
 
-        // Zona de sesión: se rellena en pintarZonaSesion() cuando sabemos quién es el usuario
-        const acciones = el('div', { clase: 'header-actions', atributos: { id: 'zona-sesion' }, hijos: [botonTema] });
+        const salir = el('button', { texto: 'Cerrar sesión', clase: 'cuenta-opcion cuenta-salir', atributos: { type: 'button' } });
+        salir.addEventListener('click', () => Sesion.logout());
+        lista.appendChild(el('li', { hijos: [salir] }));
 
-        cabecera.appendChild(saltar);
-        cabecera.appendChild(el('div', { clase: 'header-inner', hijos: [marca, menu, acciones] }));
+        const hijosPanel = [
+            el('div', { clase: 'cuenta-cabecera', hijos: [
+                el('strong', { texto: usuario.username }),
+                el('span', { texto: Sesion.etiquetaRol(usuario.rol) })
+            ]}),
+            lista
+        ];
+
+        // Solo en modo demostración: elegir con qué rol se ve la web (para probar cada versión)
+        if (Sesion.enModoDemo()) {
+            const selector = el('select', { atributos: { id: 'cuenta-rol-demo' } });
+            Sesion.ROLES.forEach(r => selector.appendChild(el('option', { texto: Sesion.etiquetaRol(r), atributos: { value: r } })));
+            selector.value = usuario.rol;
+            selector.addEventListener('change', () => {
+                Sesion.establecerRolDemo(selector.value);
+                // Al cambiar de rol la página actual puede no estar permitida: volvemos al inicio
+                window.location.href = 'index.html';
+            });
+            hijosPanel.push(el('div', { clase: 'cuenta-demo', hijos: [
+                el('label', { texto: 'Modo demostración: ver como', atributos: { for: 'cuenta-rol-demo' } }), selector
+            ]}));
+        }
+
+        const panel = el('div', { clase: 'cuenta-panel', atributos: { id: 'cuenta-panel', hidden: '', role: 'group', 'aria-label': 'Opciones de la cuenta' }, hijos: hijosPanel });
+        const caja = el('div', { clase: 'cuenta', hijos: [boton, panel] });
+
+        function abrir(abierto) {
+            panel.hidden = !abierto;
+            boton.setAttribute('aria-expanded', String(abierto));
+        }
+        boton.addEventListener('click', () => abrir(panel.hidden));
+        caja.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && !panel.hidden) { abrir(false); boton.focus(); }
+        });
+        // Si el foco sale del menú (Tab) o se hace clic fuera, se cierra
+        caja.addEventListener('focusout', (e) => { if (!panel.hidden && !caja.contains(e.relatedTarget)) abrir(false); });
+        document.addEventListener('click', (e) => { if (!panel.hidden && !caja.contains(e.target)) abrir(false); });
+        return caja;
     }
 
-    /*
-     * Rellena la parte derecha de la cabecera según haya sesión o no.
-     * Los datos del usuario (su nombre) se escriben con textContent: nunca como HTML.
-     */
+    /* Rellena la parte derecha de la cabecera: menú de la cuenta, o (en login/registro) el enlace a la otra página. */
     function pintarZonaSesion() {
         const zona = document.getElementById('zona-sesion');
         if (!zona) return;
-        // Quitamos lo anterior, salvo el botón de tema (el primer hijo)
-        while (zona.children.length > 1) zona.removeChild(zona.lastChild);
+        zona.textContent = '';
 
         const usuario = Sesion.actual();
         if (usuario) {
-            const panel = Sesion.panelUrl();
-            if (panel) {
-                zona.appendChild(el('a', {
-                    texto: 'Mi panel', clase: 'link-register-header link-panel-header',
-                    atributos: { href: panel }
-                }));
-            }
-            // El nombre y el rol van como texto para lectores de pantalla y visible en pantallas anchas
-            zona.appendChild(el('span', {
-                texto: usuario.username + ' · ' + Sesion.etiquetaRol(usuario.rol), clase: 'usuario-activo'
-            }));
-            const salir = el('button', { texto: 'Cerrar sesión', clase: 'btn-login-header', atributos: { type: 'button' } });
-            salir.addEventListener('click', () => Sesion.logout());
-            zona.appendChild(salir);
-        } else {
-            zona.appendChild(el('a', { texto: 'Registrarse', clase: 'link-register-header', atributos: { href: 'registro.html' } }));
-            zona.appendChild(el('a', { texto: 'Iniciar sesión', clase: 'btn-login-header', atributos: { href: 'login.html' } }));
+            zona.appendChild(construirMenuCuenta(usuario));
+        } else if (document.body.hasAttribute('data-publica')) {
+            const pagina = window.location.pathname.split('/').pop();
+            if (pagina === 'registro.html') zona.appendChild(el('a', { texto: 'Iniciar sesión', clase: 'btn-login-header', atributos: { href: 'login.html' } }));
+            else zona.appendChild(el('a', { texto: 'Crear cuenta', clase: 'btn-login-header', atributos: { href: 'registro.html' } }));
         }
     }
 
@@ -190,10 +262,10 @@
         pie.textContent = '';
         pie.appendChild(el('div', { clase: 'footer-inner', hijos: [
             el('span', { texto: '© ' + new Date().getFullYear() + ' CD. Calasanz Santander', clase: 'footer-copy' }),
-            el('div', { clase: 'footer-links', hijos: [
+            // En login y registro no se enseñan enlaces: el resto de la web exige haber iniciado sesión
+            el('div', { clase: 'footer-links', hijos: document.body.hasAttribute('data-publica') ? [] : [
                 enlaceFlecha('Noticias', 'noticias.html'),
-                enlaceFlecha('Contacto', 'contacto.html'),
-                enlaceFlecha('Registrarse', 'registro.html')
+                enlaceFlecha('Contacto', 'contacto.html')
             ]}),
             el('span', { texto: 'VERDE Y BLANCO. SIEMPRE.', clase: 'footer-motto' })
         ]}));
@@ -256,9 +328,10 @@
         if (main && !main.id) main.id = 'main-content';
         if (main) main.setAttribute('tabindex', '-1');   // para que "Saltar al contenido" pueda enfocarlo
 
-        // ¿Esta página exige sesión o un rol concreto?
+        // ¿Esta página exige un rol concreto?
         const roles = (body.dataset.roles || '').split(',').map(s => s.trim()).filter(Boolean);
-        const exige = body.hasAttribute('data-requiere-sesion') || roles.length > 0;
+        // Toda la web exige sesión salvo login y registro (marcadas con data-publica)
+        const exige = !body.hasAttribute('data-publica');
         if (exige) body.classList.add('comprobando-sesion');   // oculta el contenido hasta saber si hay permiso
 
         crearZonasDeAvisos();
