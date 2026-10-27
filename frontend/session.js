@@ -49,8 +49,8 @@
 
     // ---- Usuario de demostración ----
     // Sin servidor no hay nadie con sesión iniciada. Para poder enseñar (y probar en el móvil) la web
-    // completa, en modo demostración usamos un usuario inventado (por defecto, desarrollador). Para
-    // probar otro rol se abre cualquier página con ?rol=JUGADOR (o ENTRENADOR, COORDINADOR, ESTANDAR).
+    // completa, en modo demostración usamos un usuario inventado (por defecto, desarrollador). El rol se
+    // elige en la pantalla de inicio de sesión o abriendo cualquier página con ?rol=JUGADOR (ENTRENADOR...).
     // También se simula el inicio y el cierre de sesión: al entrar por primera vez se ve el login
     // (igual que con el servidor real) y, al "iniciar sesión", se entra con el usuario de ejemplo.
     const CLAVE_ROL_DEMO = 'calasanz_rol_demo';
@@ -69,7 +69,9 @@
         return ROLES.includes(rol) ? rol : 'DESARROLLADOR';
     }
     function sesionDemoActiva() { leerRolPedido(); return leerDemo(CLAVE_SESION_DEMO) === '1'; }
-    function iniciarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, '1'); }
+    function establecerRolDemo(rol) { if (ROLES.includes(rol)) escribirDemo(CLAVE_ROL_DEMO, rol); }
+    /* Inicia la sesión de demostración (opcionalmente con el rol elegido en el login). */
+    function iniciarSesionDemo(rol) { establecerRolDemo(rol); escribirDemo(CLAVE_SESION_DEMO, '1'); }
     function cerrarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, null); }
     function usuarioDemo() {
         const rol = rolDemo();

@@ -190,8 +190,16 @@
             }));
         }
 
+        // Solo en modo demostración: se puede elegir con qué rol se entra, para ver todas las opciones de la web
+        let selectorRol = null;
         if (Sesion.enModoDemo()) {
             zona.appendChild(el('p', { texto: 'Modo demostración: puedes entrar con cualquier usuario y contraseña.', clase: 'mensaje mensaje-aviso', atributos: { role: 'status' } }));
+            selectorRol = el('select', { atributos: { id: 'demo-rol' } });
+            Sesion.ROLES.forEach(r => selectorRol.appendChild(el('option', { texto: Sesion.etiquetaRol(r), atributos: { value: r } })));
+            selectorRol.value = 'DESARROLLADOR';
+            boton.parentNode.insertBefore(el('div', { clase: 'field-group', hijos: [
+                el('label', { texto: 'Entrar como (solo demostración)', atributos: { for: 'demo-rol' } }), selectorRol
+            ]}), boton);
         }
 
         form.addEventListener('submit', async (evento) => {
@@ -210,7 +218,7 @@
 
             // Sin servidor (modo demostración) no se puede comprobar nada: entramos con el usuario de ejemplo
             if (Sesion.enModoDemo()) {
-                Sesion.iniciarSesionDemo();
+                Sesion.iniciarSesionDemo(selectorRol ? selectorRol.value : undefined);
                 window.location.href = Sesion.destinoTrasLogin();
                 return;
             }
@@ -255,7 +263,7 @@
 
             // Sin servidor (modo demostración): no se crea nada; entramos con el usuario de ejemplo
             if (Sesion.enModoDemo()) {
-                Sesion.iniciarSesionDemo();
+                Sesion.iniciarSesionDemo('ESTANDAR');   // una cuenta recién creada es siempre de usuario estándar
                 window.location.href = 'index.html';
                 return;
             }
