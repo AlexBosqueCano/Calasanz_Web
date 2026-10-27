@@ -437,7 +437,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     text-transform: none;
 }
 
-.news-card h3 {
+.news-card h2, .news-card h3 {
     font-size: 1.3rem;
     font-weight: 800;
     line-height: 1.3;
@@ -606,7 +606,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     margin-bottom: 0.2rem;
 }
 
-.team-card-info h3 {
+.team-card-info h2, .team-card-info h3 {
     font-size: 1.35rem;
     font-weight: 800;
     color: var(--text-dark);
@@ -1190,8 +1190,10 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
     padding: 2px 0;
 }
 
-.sub-in { color: #16a34a; font-weight: 800; }
-.sub-out { color: #dc2626; font-weight: 800; }
+.sub-in { color: #15803d; font-weight: 800; }
+.sub-out { color: #b91c1c; font-weight: 800; }
+html.dark-mode .sub-in { color: #4ade80; }
+html.dark-mode .sub-out { color: #f87171; }
 
 .card-yellow {
     display: inline-block;
@@ -1572,3 +1574,12 @@ html.dark-mode .cuenta-salir { color: #ffb4ab; }
 /* Los hijos de una rejilla no pueden ser más anchos que su columna: sin esto, una tabla ancha dentro de un
    <div> ensanchaba la columna y la página se cortaba por la derecha sin poder deslizarla (móvil). */
 .admin-grid-2 > *, .acta-grid > * { min-width: 0; }
+
+
+/* =========================================================
+   B9. Tamaño táctil mínimo (≈44px, WCAG 2.5.5) en controles pequeños
+   ========================================================= */
+.filter-pill, .tabs-nav .tab-btn, .boton-pequeno, .btn-pequeno { min-height: 44px; }
+.link-arrow { min-height: 44px; }
+.btn-eye { min-width: 44px; min-height: 44px; justify-content: center; right: 0; }
+.acta-player-name { display: inline-block; min-height: 24px; }

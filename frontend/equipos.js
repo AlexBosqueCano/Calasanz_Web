@@ -28,7 +28,7 @@
         // "competicion" no está aún en el contrato de API: se muestra solo si existe
         const info = [
             el('span', { texto: categoria.toUpperCase(), clase: 'team-cat-tag' }),
-            el('h3', { texto: equipo.nombre })
+            el('h2', { texto: equipo.nombre })
         ];
         if (equipo.competicion) info.push(el('p', { texto: equipo.competicion }));
         info.push(enlace);

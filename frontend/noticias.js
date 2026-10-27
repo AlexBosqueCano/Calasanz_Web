@@ -23,7 +23,7 @@
             el('span', { texto: Api.formatearFecha(fecha) })
         ]});
 
-        const contenido = el('div', { hijos: [meta, el('h3', { texto: n.titulo }), el('p', { texto: n.cuerpo, clase: 'news-card-texto' })] });
+        const contenido = el('div', { hijos: [meta, el('h2', { texto: n.titulo }), el('p', { texto: n.cuerpo, clase: 'news-card-texto' })] });
         const hijos = [contenido];
 
         // "enlace" y "texto_enlace" no están en el contrato (solo existen en los datos de ejemplo):
