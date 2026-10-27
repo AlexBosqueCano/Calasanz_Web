@@ -1568,3 +1568,7 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 .cuenta-opcion:hover { background: var(--bg-soft); color: var(--green-primary); }
 .cuenta-salir { color: #b3261e; border-top: 1px solid var(--border-light); }
 html.dark-mode .cuenta-salir { color: #ffb4ab; }
+
+/* Los hijos de una rejilla no pueden ser más anchos que su columna: sin esto, una tabla ancha dentro de un
+   <div> ensanchaba la columna y la página se cortaba por la derecha sin poder deslizarla (móvil). */
+.admin-grid-2 > *, .acta-grid > * { min-width: 0; }
