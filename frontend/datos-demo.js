@@ -41,11 +41,11 @@
           partidos: 8, minutos: 720, goles: 0, asistencias: 0, amarillas: 0, rojas: 0, titular: 8 },
         { id: 2, nombre: 'Iván', ap1: 'Roldán', ap2: 'Echevarría', posicion: 'Defensa', dorsal: 4,
           partidos: 8, minutos: 695, goles: 1, asistencias: 0, amarillas: 2, rojas: 0, titular: 8 },
-        { id: 3, nombre: 'Daniel', ap1: 'Orbe', ap2: 'Santos', posicion: 'Mediocentro', dorsal: 6,
+        { id: 3, nombre: 'Daniel', ap1: 'Orbe', ap2: 'Santos', posicion: 'Centrocampista', dorsal: 6,
           partidos: 8, minutos: 710, goles: 3, asistencias: 2, amarillas: 1, rojas: 0, titular: 8 },
-        { id: 4, nombre: 'Marcos', ap1: 'Villar', ap2: 'Pardo', posicion: 'Mediocentro', dorsal: 8,
+        { id: 4, nombre: 'Marcos', ap1: 'Villar', ap2: 'Pardo', posicion: 'Centrocampista', dorsal: 8,
           partidos: 8, minutos: 685, goles: 3, asistencias: 5, amarillas: 1, rojas: 0, titular: 7 },
-        { id: 5, nombre: 'Álex', ap1: 'Mier', ap2: 'Cabal', posicion: 'Mediapunta', dorsal: 10,
+        { id: 5, nombre: 'Álex', ap1: 'Mier', ap2: 'Cabal', posicion: 'Centrocampista', dorsal: 10,
           partidos: 7, minutos: 590, goles: 4, asistencias: 3, amarillas: 0, rojas: 0, titular: 6 },
         { id: 6, nombre: 'Samuel', ap1: 'Ruiz', ap2: 'Camino', posicion: 'Delantero', dorsal: 11,
           partidos: 8, minutos: 660, goles: 5, asistencias: 2, amarillas: 1, rojas: 0, titular: 8 }
@@ -141,6 +141,8 @@
         return {
             id: j.id, nombre: j.nombre, ap1: j.ap1, ap2: j.ap2, posicion: j.posicion, dorsal: j.dorsal,
             equipo: { id: 1, nombre: 'Juvenil A' },
+            // Solo los ve el propio jugador (en el servidor los filtra el permiso)
+            estatura: 1.76, peso: 68,
             estadisticas: {
                 partidos_jugados: j.partidos, titular: j.titular, suplente: j.partidos - j.titular,
                 minutos_totales: j.minutos, goles_totales: j.goles, asistencias_totales: j.asistencias,
@@ -230,6 +232,36 @@
         };
     }
 
+    /* GET /api/solicitudes?estado=pendiente  → paginado. Los objetos usuario/jugador/equipo son un añadido
+       pedido a Mateo para poder enseñar nombres y no solo ids. */
+    function solicitudes() {
+        return {
+            items: [
+                { id: 5, usuario: { id: 12, username: 'familia_ejemplo' }, rol_solicitado: 'JUGADOR',
+                  jugador: { id: 3, nombre_completo: 'Daniel Orbe Santos' }, equipo: null,
+                  mensaje: 'Soy Daniel Orbe, del Juvenil A.', estado: 'pendiente', creada_en: '2026-10-24T09:00:00+02:00' },
+                { id: 6, usuario: { id: 15, username: 'seguidor_ejemplo' }, rol_solicitado: 'ENTRENADOR',
+                  jugador: null, equipo: { id: 3, nombre: 'Cadete A' },
+                  mensaje: 'Entreno al Cadete A esta temporada.', estado: 'pendiente', creada_en: '2026-10-25T18:30:00+02:00' }
+            ],
+            page: 1, por_pagina: 20, total: 2
+        };
+    }
+
+    /* GET /api/equipos/{id}/apuntes  → privados del entrenador */
+    function apuntes() {
+        return [{ id: 1, equipo_id: 1, rival_id: 11, partido_id: null,
+                  texto: 'Presiona alto; el lateral derecho se queda atrás. Atacar por esa banda.',
+                  autor_id: 7, creado_en: '2026-10-16T18:30:00+02:00' }];
+    }
+
+    /* GET /api/solicitudes/mias  → solicitudes del usuario actual */
+    function misSolicitudes() {
+        return [{ id: 3, rol_solicitado: 'JUGADOR', jugador: { id: 3, nombre_completo: 'Daniel Orbe Santos' }, equipo: null,
+                  mensaje: 'Soy Daniel Orbe.', estado: 'rechazada', comentario_resolucion: 'Ese jugador ya tiene una cuenta vinculada.',
+                  creada_en: '2026-10-20T10:00:00+02:00', resuelta_en: '2026-10-21T09:00:00+02:00' }];
+    }
+
     /* GET /api/noticias */
     function noticias() {
         return {
@@ -283,5 +315,5 @@
     }
 
     global.Demo = { obtener, equipos, equipo, plantilla, estadisticas, goleadores, lesiones, partidos, clasificacion, jugador, noticias, inicio,
-                   equiposLiga, partidosLiga, partido, cronicas };
+                   equiposLiga, partidosLiga, partido, cronicas, solicitudes, apuntes, misSolicitudes };
 })(window);

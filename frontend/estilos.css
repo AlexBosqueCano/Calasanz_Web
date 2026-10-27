@@ -1399,7 +1399,7 @@ html.dark-mode .feedback-aviso { background: #3a2e0a; color: #ffe08a; }
 html.dark-mode .banner-demo { background: #3a2e0a; color: #ffe08a; }
 html.dark-mode .banner-error { background: #3b1717; color: #ffb4ab; }
 
-/* Errores de campo (auth.js, admin.js) */
+/* Errores de campo (auth.js, panel-coordinador.js) */
 .error-campo { display: block; color: #b3261e; font-size: 0.85rem; font-weight: 700; margin-top: 0.35rem; }
 html.dark-mode .error-campo { color: #ffb4ab; }
 [aria-invalid="true"] { border-color: #b3261e !important; }

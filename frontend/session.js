@@ -24,14 +24,14 @@
     // Los 5 roles del contrato (docs/API_CONTRATO.md §2)
     const ROLES = ['ESTANDAR', 'JUGADOR', 'ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR'];
 
-    // A qué "panel" va cada rol. null = ese rol aún no tiene panel propio.
-    // Cuando se creen más paneles (tarea B8) solo hay que cambiar esta tabla.
+    // A qué "panel" va cada rol (enlace "Mi panel" de la cabecera y destino tras iniciar sesión).
+    // El usuario ESTANDAR va a la página donde pide acceso como jugador o entrenador.
     const PANEL_POR_ROL = {
-        ESTANDAR: null,
-        JUGADOR: null,
+        ESTANDAR: 'solicitud.html',
+        JUGADOR: 'panel-jugador.html',
         ENTRENADOR: 'panel-entrenador.html',
-        COORDINADOR: 'admin-plantilla.html',
-        DESARROLLADOR: 'admin-plantilla.html'
+        COORDINADOR: 'panel-coordinador.html',
+        DESARROLLADOR: 'panel-coordinador.html'
     };
 
     // Cómo se llama cada rol cuando se lo enseñamos a una persona
