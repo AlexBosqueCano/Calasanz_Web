@@ -46,6 +46,38 @@
     // ---- Estado interno (solo vive mientras la página está abierta) ----
     let usuario = null;      // objeto usuario del servidor, o null si no hay sesión
     let modoDemo = false;    // true si el servidor no está disponible
+
+    // ---- Usuario de demostración ----
+    // Sin servidor no hay nadie con sesión iniciada. Para poder enseñar (y probar en el móvil) la web
+    // completa, en modo demostración usamos un usuario inventado (por defecto, desarrollador). El rol se
+    // elige en la pantalla de inicio de sesión o abriendo cualquier página con ?rol=JUGADOR (ENTRENADOR...).
+    // También se simula el inicio y el cierre de sesión: al entrar por primera vez se ve el login
+    // (igual que con el servidor real) y, al "iniciar sesión", se entra con el usuario de ejemplo.
+    const CLAVE_ROL_DEMO = 'calasanz_rol_demo';
+    const CLAVE_SESION_DEMO = 'calasanz_demo_sesion';
+    function leerDemo(clave) { try { return sessionStorage.getItem(clave); } catch (e) { return null; } }
+    function escribirDemo(clave, valor) {
+        try { if (valor === null) sessionStorage.removeItem(clave); else sessionStorage.setItem(clave, valor); } catch (e) { /* sin almacenamiento */ }
+    }
+    /* Atajo de pruebas: abrir cualquier página con ?rol=JUGADOR inicia la sesión de demostración con ese rol. */
+    function leerRolPedido() {
+        const pedido = new URLSearchParams(window.location.search).get('rol');
+        if (pedido && ROLES.includes(pedido)) { escribirDemo(CLAVE_ROL_DEMO, pedido); escribirDemo(CLAVE_SESION_DEMO, '1'); }
+    }
+    function rolDemo() {
+        const rol = leerDemo(CLAVE_ROL_DEMO);
+        return ROLES.includes(rol) ? rol : 'DESARROLLADOR';
+    }
+    function sesionDemoActiva() { leerRolPedido(); return leerDemo(CLAVE_SESION_DEMO) === '1'; }
+    function establecerRolDemo(rol) { if (ROLES.includes(rol)) escribirDemo(CLAVE_ROL_DEMO, rol); }
+    /* Inicia la sesión de demostración (opcionalmente con el rol elegido en el login). */
+    function iniciarSesionDemo(rol) { establecerRolDemo(rol); escribirDemo(CLAVE_SESION_DEMO, '1'); }
+    function cerrarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, null); }
+    function usuarioDemo() {
+        const rol = rolDemo();
+        return { id: 0, username: 'demo', email: 'demo@ejemplo.com', rol, activo: true,
+                 jugador_id: rol === 'JUGADOR' ? 4 : null, equipo_id: 1 };
+    }
     let promesa = null;      // para no preguntar al servidor varias veces a la vez
     let servidorInalcanzable = false;   // true si ni siquiera hemos podido hablar con el servidor
 
@@ -81,6 +113,7 @@
                 if (e instanceof Api.ApiError && SERVIDOR_NO_DISPONIBLE.includes(e.status)) {
                     // El backend no está disponible (ver SERVIDOR_NO_DISPONIBLE): modo demostración
                     modoDemo = true;
+                    usuario = sesionDemoActiva() ? usuarioDemo() : null;
                     // Con 404 hay servidor y puede que otras rutas sí existan (backend a medias).
                     // Con el resto no hemos podido hablar con él: no tiene sentido insistir.
                     servidorInalcanzable = e.status !== 404;
@@ -127,13 +160,12 @@
     /*
      * Exige sesión y, opcionalmente, uno de los roles indicados.
      * Devuelve true si se puede continuar; false si estamos redirigiendo.
-     *   - Modo demostración → se deja pasar (solo hay datos de ejemplo).
+     *   - Modo demostración → hay un usuario de ejemplo con el rol elegido (ver usuarioDemo).
      *   - Sin sesión        → al login.
      *   - Rol insuficiente  → al inicio con un aviso.
      */
     async function requerir(roles) {
         await cargar();
-        if (modoDemo) return true;
         if (!usuario) { irALogin('sesion'); return false; }
         if (roles && roles.length && !roles.includes(usuario.rol)) {
             window.location.replace('index.html?aviso=sin_permiso');
@@ -150,6 +182,7 @@
             // Aunque falle (servidor caído), limpiamos el estado local igualmente
         }
         usuario = null;
+        cerrarSesionDemo();
         Api.setCsrfToken(null);
         window.location.href = 'login.html?motivo=logout';
     }
@@ -161,6 +194,6 @@
 
     global.Sesion = {
         ROLES, cargar, actual, estaIdentificado, enModoDemo, servidorNoResponde, tieneRol,
-        requerir, logout, panelUrl, etiquetaRol, destinoTrasLogin
+        requerir, logout, panelUrl, etiquetaRol, destinoTrasLogin, iniciarSesionDemo
     };
 })(window);

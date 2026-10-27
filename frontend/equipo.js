@@ -91,7 +91,7 @@
                     ]}),
                     el('div', { clase: 'team-card-info', hijos: [
                         el('span', { texto: j.posicion || '', clase: 'team-cat-tag' }),
-                        el('h3', { texto: nombreCompleto(j) }),
+                        el('h2', { texto: nombreCompleto(j) }),
                         // Dorsal en texto para lectores de pantalla (el círculo visual va con aria-hidden)
                         el('p', { texto: j.dorsal ? 'Dorsal ' + j.dorsal : 'Sin dorsal' }),
                         el('a', { clase: 'link-arrow', atributos: { href: 'jugador.html?id=' + encodeURIComponent(j.id) }, hijos: [
@@ -204,13 +204,13 @@
             enlace = el('a', { clase: 'link-arrow', atributos: { href: 'acta.html?id=' + encodeURIComponent(p.id) }, hijos: [
                 document.createTextNode('Ver acta oficial del partido '), flecha()
             ]});
-        } else if (Sesion.tieneRol('ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR') || Sesion.enModoDemo()) {
+        } else if (Sesion.tieneRol('ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR')) {
             enlace = el('a', { clase: 'link-arrow', atributos: { href: 'panel-entrenador.html?partido=' + encodeURIComponent(p.id) + '#acta' }, hijos: [
                 document.createTextNode('Registrar acta '), flecha()
             ]});
         }
 
-        const hijos = [el('div', { clase: 'news-card-meta', hijos: meta }), el('h3', { texto: titulo })];
+        const hijos = [el('div', { clase: 'news-card-meta', hijos: meta }), el('h2', { texto: titulo })];
         if (enlace) hijos.push(enlace);
         return el('article', { clase: 'news-card', hijos });
     }

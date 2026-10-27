@@ -8,7 +8,7 @@
  *                Si va bien, guarda el token CSRF y redirige a la página que se pidió
  *                (o al inicio).
  *   2. Registro: envía usuario, email y contraseña a POST /api/auth/registro.
- *                Si va bien, hace login automático.
+ *                Si va bien, inicia sesión automáticamente y entra en la web.
  *
  * ¿Por qué validamos aquí si el servidor ya valida?
  *   El cliente valida SOLO para dar una respuesta rápida al usuario (UX).
@@ -190,6 +190,18 @@
             }));
         }
 
+        // Solo en modo demostración: se puede elegir con qué rol se entra, para ver todas las opciones de la web
+        let selectorRol = null;
+        if (Sesion.enModoDemo()) {
+            zona.appendChild(el('p', { texto: 'Modo demostración: puedes entrar con cualquier usuario y contraseña.', clase: 'mensaje mensaje-aviso', atributos: { role: 'status' } }));
+            selectorRol = el('select', { atributos: { id: 'demo-rol' } });
+            Sesion.ROLES.forEach(r => selectorRol.appendChild(el('option', { texto: Sesion.etiquetaRol(r), atributos: { value: r } })));
+            selectorRol.value = 'DESARROLLADOR';
+            boton.parentNode.insertBefore(el('div', { clase: 'field-group', hijos: [
+                el('label', { texto: 'Entrar como (solo demostración)', atributos: { for: 'demo-rol' } }), selectorRol
+            ]}), boton);
+        }
+
         form.addEventListener('submit', async (evento) => {
             // preventDefault: evita que el navegador recargue la página al enviar
             evento.preventDefault();
@@ -203,6 +215,13 @@
             if (!username) { errorEnCampo(form.elements.username, 'Escribe tu nombre de usuario.'); hayError = true; }
             if (!password) { errorEnCampo(form.elements.password, 'Escribe tu contraseña.'); hayError = true; }
             if (hayError) { form.querySelector('[aria-invalid="true"]').focus(); return; }
+
+            // Sin servidor (modo demostración) no se puede comprobar nada: entramos con el usuario de ejemplo
+            if (Sesion.enModoDemo()) {
+                Sesion.iniciarSesionDemo(selectorRol ? selectorRol.value : undefined);
+                window.location.href = Sesion.destinoTrasLogin();
+                return;
+            }
 
             esperando(boton, true, 'Iniciar sesión');
             try {
@@ -242,6 +261,13 @@
             // 1) Validación rápida en el cliente
             if (!validarCampos(form, ['username', 'email', 'password', 'password2'])) return;
 
+            // Sin servidor (modo demostración): no se crea nada; entramos con el usuario de ejemplo
+            if (Sesion.enModoDemo()) {
+                Sesion.iniciarSesionDemo('ESTANDAR');   // una cuenta recién creada es siempre de usuario estándar
+                window.location.href = 'index.html';
+                return;
+            }
+
             esperando(boton, true, 'Crear cuenta');
             try {
                 // 2) Enviamos al servidor. OJO: password2 NO se envía, solo sirve en el cliente.
@@ -250,8 +276,16 @@
                     email: form.elements.email.value.trim(),
                     password: form.elements.password.value
                 });
-                // 3) Cuenta creada: llevamos al login con un aviso de éxito
-                window.location.href = 'login.html?motivo=registrado';
+                // 3) Cuenta creada: iniciamos sesión con los mismos datos y entramos directamente
+                try {
+                    const datos = await Api.post('/auth/login', { username: form.elements.username.value.trim(), password: form.elements.password.value });
+                    Api.setCsrfToken(datos.csrf_token);
+                    await Sesion.cargar(true);
+                    window.location.href = 'index.html';
+                } catch (errorLogin) {
+                    // Si el inicio automático falla, la cuenta ya existe: pasamos al login con un aviso
+                    window.location.href = 'login.html?motivo=registrado';
+                }
             } catch (error) {
                 // 409 = usuario o email ya existen; 422 = datos inválidos; 429 = demasiados registros
                 mostrarErrorServidor(form, zona, error);

@@ -57,6 +57,7 @@ Un entrenador está vinculado a su equipo (`equipo.id_entrenador`) y un jugador 
 | Escribir crónicas de partidos propios ya jugados | no | no | solo su equipo | sí | sí |
 | Editar o borrar una crónica | no | no | solo las suyas | sí | sí |
 | Apuntes de rival/partido | no | no | solo su equipo | no | sí |
+| Ver el histórico de lesiones (incluidas las ya recuperadas) | no | solo las suyas | solo las de su equipo | sí | sí |
 | Registrar y editar lesiones | no | no | solo su equipo | sí | sí |
 | Borrar lesiones | no | no | no | sí | sí |
 | Crear, editar y borrar noticias/eventos | no | no | no | sí | sí |
@@ -181,7 +182,7 @@ Es texto plano: se muestra siempre con `textContent`, nunca como HTML. Hay como 
 **Lesión** (a propósito sin diagnóstico: son datos de salud de menores; solo estado y fecha estimada de vuelta)
 ```json
 { "id": 4, "jugador": { "id": 3, "nombre_completo": "Carlos García Fernández" },
-  "equipo_id": 1, "fecha_inicio": "2026-10-30", "fecha_estimada_vuelta": "2026-11-20", "activa": true }
+  "equipo_id": 1, "fecha_inicio": "2026-10-30", "fecha_estimada_vuelta": "2026-11-20", "fecha_alta": null, "activa": true }
 ```
 
 **Apunte del entrenador**
@@ -207,6 +208,7 @@ Es texto plano: se muestra siempre con `textContent`, nunca como HTML. Hay como 
 |---|---|---|---|
 | GET | `/api/salud` | público | 200 `{ "estado": "ok" }` (para Docker y CI) |
 | POST | `/api/auth/registro` | público | 201 usuario (rol `ESTANDAR`) · 409 usuario/email ya existe · 422 · 429 |
+| POST | `/api/auth/cambiar-password` `{ password_actual, password_nueva }` | autenticado | 204 · 403 (contraseña actual incorrecta) · 422 (nueva con menos de 10 o más de 128 caracteres, o igual al `username` o a la actual) · 429 |
 | POST | `/api/auth/login` | público | 200 `{ usuario, csrf_token }` · 401 «Usuario o contraseña incorrectos» (mensaje genérico) · 422 · 429 |
 | POST | `/api/auth/logout` | autenticado | 204 |
 | GET | `/api/auth/yo` | autenticado | 200 `{ usuario, csrf_token }` · 401 |
@@ -274,7 +276,7 @@ Cuerpo de alta: `{ "nombre", "ap1", "ap2"?, "posicion", "dorsal"?, "equipo_id", 
 | GET | `/api/equipos/{id}/apuntes` | ENTRENADOR del equipo, DEV | 200 array · 403 |
 | POST | `/api/apuntes` `{ equipo_id, rival_id?, partido_id?, texto }` | ENTRENADOR del equipo, DEV | 201 · 403 · 422 |
 | PATCH / DELETE | `/api/apuntes/{id}` | su autor, DEV | 200/204 · 403 · 404 |
-| GET | `/api/lesiones?equipo=&activa=true` | autenticado | 200 array |
+| GET | `/api/lesiones?equipo=&jugador=&activa=` | autenticado | 200 array |
 | POST | `/api/lesiones` `{ jugador_id, fecha_inicio, fecha_estimada_vuelta }` | ENTRENADOR del equipo, COORD, DEV | 201 · 403 · 409 (el jugador ya tiene una lesión activa) · 422 |
 | PATCH | `/api/lesiones/{id}` | ENTRENADOR del equipo, COORD, DEV | 200 · 403 · 404 · 422 |
 | DELETE | `/api/lesiones/{id}` | COORD, DEV | 204 · 403 · 404 |
@@ -356,6 +358,7 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - `texto` 1–2 000 caracteres; `rival_id` y `partido_id` opcionales (el rival debe ser de la liga del equipo). Solo los ve el entrenador del equipo (y el desarrollador), nunca el coordinador. `PATCH` solo cambia el `texto`.
 
 **Lesiones**
+- `GET /api/lesiones` sin `activa` devuelve también las ya recuperadas (histórico); `jugador=` filtra por jugador. El histórico está restringido: un jugador solo ve las suyas y un entrenador solo las de su equipo (`403` en otro caso); coordinador y desarrollador, todas. Con `activa=true` (lista de lesionados de la página del equipo) lo puede pedir cualquier usuario autenticado. `fecha_alta` es la fecha real de recuperación (`null` mientras `activa`); se rellena al pasar `activa` a `false`.
 - `fecha_estimada_vuelta` ≥ `fecha_inicio`; un jugador no puede tener dos lesiones activas a la vez.
 
 **Noticias**
