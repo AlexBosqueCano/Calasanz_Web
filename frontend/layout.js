@@ -161,7 +161,6 @@
             // ESTANDAR: aún no está vinculado al club
             o.push({ texto: 'Solicitar acceso como jugador o entrenador', href: 'solicitud.html' });
         }
-        o.push({ texto: 'Mi cuenta', href: 'mi-cuenta.html' });
         o.push({ texto: 'Cambiar contraseña', href: 'mi-cuenta.html#password' });
         return o;
     }
@@ -205,21 +204,6 @@
             ]}),
             lista
         ];
-
-        // Solo en modo demostración: elegir con qué rol se ve la web (para probar cada versión)
-        if (Sesion.enModoDemo()) {
-            const selector = el('select', { atributos: { id: 'cuenta-rol-demo' } });
-            Sesion.ROLES.forEach(r => selector.appendChild(el('option', { texto: Sesion.etiquetaRol(r), atributos: { value: r } })));
-            selector.value = usuario.rol;
-            selector.addEventListener('change', () => {
-                Sesion.establecerRolDemo(selector.value);
-                // Al cambiar de rol la página actual puede no estar permitida: volvemos al inicio
-                window.location.href = 'index.html';
-            });
-            hijosPanel.push(el('div', { clase: 'cuenta-demo', hijos: [
-                el('label', { texto: 'Modo demostración: ver como', atributos: { for: 'cuenta-rol-demo' } }), selector
-            ]}));
-        }
 
         const panel = el('div', { clase: 'cuenta-panel', atributos: { id: 'cuenta-panel', hidden: '', role: 'group', 'aria-label': 'Opciones de la cuenta' }, hijos: hijosPanel });
         const caja = el('div', { clase: 'cuenta', hijos: [boton, panel] });

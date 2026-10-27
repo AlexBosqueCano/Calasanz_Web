@@ -190,6 +190,10 @@
             }));
         }
 
+        if (Sesion.enModoDemo()) {
+            zona.appendChild(el('p', { texto: 'Modo demostración: puedes entrar con cualquier usuario y contraseña.', clase: 'mensaje mensaje-aviso', atributos: { role: 'status' } }));
+        }
+
         form.addEventListener('submit', async (evento) => {
             // preventDefault: evita que el navegador recargue la página al enviar
             evento.preventDefault();
@@ -203,6 +207,13 @@
             if (!username) { errorEnCampo(form.elements.username, 'Escribe tu nombre de usuario.'); hayError = true; }
             if (!password) { errorEnCampo(form.elements.password, 'Escribe tu contraseña.'); hayError = true; }
             if (hayError) { form.querySelector('[aria-invalid="true"]').focus(); return; }
+
+            // Sin servidor (modo demostración) no se puede comprobar nada: entramos con el usuario de ejemplo
+            if (Sesion.enModoDemo()) {
+                Sesion.iniciarSesionDemo();
+                window.location.href = Sesion.destinoTrasLogin();
+                return;
+            }
 
             esperando(boton, true, 'Iniciar sesión');
             try {
@@ -241,6 +252,13 @@
 
             // 1) Validación rápida en el cliente
             if (!validarCampos(form, ['username', 'email', 'password', 'password2'])) return;
+
+            // Sin servidor (modo demostración): no se crea nada; entramos con el usuario de ejemplo
+            if (Sesion.enModoDemo()) {
+                Sesion.iniciarSesionDemo();
+                window.location.href = 'index.html';
+                return;
+            }
 
             esperando(boton, true, 'Crear cuenta');
             try {

@@ -769,6 +769,9 @@
 
         try {
             equipos = comoLista(await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos));
+            // Un entrenador solo trabaja con SU equipo (el servidor también lo exige); coordinador y desarrollador, con todos
+            const yo = Sesion.actual();
+            if (yo && yo.rol === 'ENTRENADOR' && yo.equipo_id) equipos = equipos.filter(e => e.id === yo.equipo_id);
             if (!equipos.length) {
                 $('pe-equipo').textContent = '';
                 Api.mostrarError($('pe-mensajes'), new Api.ApiError(404, 'sin_equipo', 'No tienes ningún equipo asignado.'));

@@ -57,6 +57,7 @@ Un entrenador está vinculado a su equipo (`equipo.id_entrenador`) y un jugador 
 | Escribir crónicas de partidos propios ya jugados | no | no | solo su equipo | sí | sí |
 | Editar o borrar una crónica | no | no | solo las suyas | sí | sí |
 | Apuntes de rival/partido | no | no | solo su equipo | no | sí |
+| Ver el histórico de lesiones (incluidas las ya recuperadas) | no | solo las suyas | solo las de su equipo | sí | sí |
 | Registrar y editar lesiones | no | no | solo su equipo | sí | sí |
 | Borrar lesiones | no | no | no | sí | sí |
 | Crear, editar y borrar noticias/eventos | no | no | no | sí | sí |
@@ -357,7 +358,7 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - `texto` 1–2 000 caracteres; `rival_id` y `partido_id` opcionales (el rival debe ser de la liga del equipo). Solo los ve el entrenador del equipo (y el desarrollador), nunca el coordinador. `PATCH` solo cambia el `texto`.
 
 **Lesiones**
-- `GET /api/lesiones` sin `activa` devuelve también las ya recuperadas (histórico); `jugador=` filtra por jugador. `fecha_alta` es la fecha real de recuperación (`null` mientras `activa`); se rellena al pasar `activa` a `false`.
+- `GET /api/lesiones` sin `activa` devuelve también las ya recuperadas (histórico); `jugador=` filtra por jugador. El histórico está restringido: un jugador solo ve las suyas y un entrenador solo las de su equipo (`403` en otro caso); coordinador y desarrollador, todas. Con `activa=true` (lista de lesionados de la página del equipo) lo puede pedir cualquier usuario autenticado. `fecha_alta` es la fecha real de recuperación (`null` mientras `activa`); se rellena al pasar `activa` a `false`.
 - `fecha_estimada_vuelta` ≥ `fecha_inicio`; un jugador no puede tener dos lesiones activas a la vez.
 
 **Noticias**

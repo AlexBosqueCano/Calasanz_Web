@@ -49,22 +49,28 @@
 
     // ---- Usuario de demostración ----
     // Sin servidor no hay nadie con sesión iniciada. Para poder enseñar (y probar en el móvil) la web
-    // completa, en modo demostración usamos un usuario inventado cuyo rol se puede cambiar desde el
-    // menú de la cuenta (o con ?rol=JUGADOR en la dirección). Se recuerda solo durante la visita.
+    // completa, en modo demostración usamos un usuario inventado (por defecto, desarrollador). Para
+    // probar otro rol se abre cualquier página con ?rol=JUGADOR (o ENTRENADOR, COORDINADOR, ESTANDAR).
+    // También se simula el inicio y el cierre de sesión: al entrar por primera vez se ve el login
+    // (igual que con el servidor real) y, al "iniciar sesión", se entra con el usuario de ejemplo.
     const CLAVE_ROL_DEMO = 'calasanz_rol_demo';
+    const CLAVE_SESION_DEMO = 'calasanz_demo_sesion';
+    function leerDemo(clave) { try { return sessionStorage.getItem(clave); } catch (e) { return null; } }
+    function escribirDemo(clave, valor) {
+        try { if (valor === null) sessionStorage.removeItem(clave); else sessionStorage.setItem(clave, valor); } catch (e) { /* sin almacenamiento */ }
+    }
+    /* Atajo de pruebas: abrir cualquier página con ?rol=JUGADOR inicia la sesión de demostración con ese rol. */
+    function leerRolPedido() {
+        const pedido = new URLSearchParams(window.location.search).get('rol');
+        if (pedido && ROLES.includes(pedido)) { escribirDemo(CLAVE_ROL_DEMO, pedido); escribirDemo(CLAVE_SESION_DEMO, '1'); }
+    }
     function rolDemo() {
-        let rol = null;
-        try {
-            const pedido = new URLSearchParams(window.location.search).get('rol');
-            if (pedido && ROLES.includes(pedido)) sessionStorage.setItem(CLAVE_ROL_DEMO, pedido);
-            rol = sessionStorage.getItem(CLAVE_ROL_DEMO);
-        } catch (e) { /* sin almacenamiento: nos quedamos con el rol por defecto */ }
+        const rol = leerDemo(CLAVE_ROL_DEMO);
         return ROLES.includes(rol) ? rol : 'DESARROLLADOR';
     }
-    function establecerRolDemo(rol) {
-        if (!ROLES.includes(rol)) return;
-        try { sessionStorage.setItem(CLAVE_ROL_DEMO, rol); } catch (e) { /* sin almacenamiento */ }
-    }
+    function sesionDemoActiva() { leerRolPedido(); return leerDemo(CLAVE_SESION_DEMO) === '1'; }
+    function iniciarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, '1'); }
+    function cerrarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, null); }
     function usuarioDemo() {
         const rol = rolDemo();
         return { id: 0, username: 'demo', email: 'demo@ejemplo.com', rol, activo: true,
@@ -105,7 +111,7 @@
                 if (e instanceof Api.ApiError && SERVIDOR_NO_DISPONIBLE.includes(e.status)) {
                     // El backend no está disponible (ver SERVIDOR_NO_DISPONIBLE): modo demostración
                     modoDemo = true;
-                    usuario = usuarioDemo();
+                    usuario = sesionDemoActiva() ? usuarioDemo() : null;
                     // Con 404 hay servidor y puede que otras rutas sí existan (backend a medias).
                     // Con el resto no hemos podido hablar con él: no tiene sentido insistir.
                     servidorInalcanzable = e.status !== 404;
@@ -174,6 +180,7 @@
             // Aunque falle (servidor caído), limpiamos el estado local igualmente
         }
         usuario = null;
+        cerrarSesionDemo();
         Api.setCsrfToken(null);
         window.location.href = 'login.html?motivo=logout';
     }
@@ -185,6 +192,6 @@
 
     global.Sesion = {
         ROLES, cargar, actual, estaIdentificado, enModoDemo, servidorNoResponde, tieneRol,
-        requerir, logout, panelUrl, etiquetaRol, destinoTrasLogin, establecerRolDemo
+        requerir, logout, panelUrl, etiquetaRol, destinoTrasLogin, iniciarSesionDemo
     };
 })(window);

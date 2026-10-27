@@ -2,7 +2,8 @@
  * historico-lesiones.js — Histórico de lesiones (historico-lesiones.html)
  * ========================================================================
  *   JUGADOR                              → sus propias lesiones: GET /api/lesiones?jugador={id}
- *   ENTRENADOR / COORDINADOR / DESARROLLADOR → las de un equipo: GET /api/lesiones?equipo={id}
+ *   ENTRENADOR                           → las de SU equipo: GET /api/lesiones?equipo={id}
+ *   COORDINADOR / DESARROLLADOR          → las de cualquier equipo propio
  * Sin el filtro `activa` el servidor devuelve también las ya recuperadas (docs/API_CONTRATO.md §4).
  * Solo se enseñan estado y fechas: no existe diagnóstico (son datos de salud de menores).
  *
@@ -52,7 +53,9 @@
                 pintar(mias, false);
             } else if (usuario && ['ENTRENADOR', 'COORDINADOR', 'DESARROLLADOR'].includes(usuario.rol)) {
                 $('hl-lead').textContent = 'Lesiones activas y ya recuperadas del equipo.';
-                const equipos = U.comoLista(await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos));
+                let equipos = U.comoLista(await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos));
+                // Un entrenador solo ve el histórico de los jugadores de SU equipo (el servidor también lo exige)
+                if (usuario.rol === 'ENTRENADOR' && usuario.equipo_id) equipos = equipos.filter(e => e.id === usuario.equipo_id);
                 U.rellenarSelect($('hl-equipo'), equipos.map(e => ({ valor: e.id, texto: e.nombre })));
                 $('hl-grupo-equipo').hidden = false;
                 $('hl-equipo').addEventListener('change', cargarEquipo);
