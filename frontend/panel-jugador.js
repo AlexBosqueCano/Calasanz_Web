@@ -16,26 +16,38 @@
 (function () {
     'use strict';
 
+    // Atajos a api.js: `el` construye elementos del DOM de forma segura.
     const { el, nombreCompleto } = Api;
+    // Atajo para document.getElementById.
     const $ = (id) => document.getElementById(id);
 
+    /**
+     * Rellena las cajitas de estadísticas (partidos, minutos, goles, asistencias, tarjetas).
+     * @param {object|undefined} s totales del jugador; undefined si aún no ha jugado.
+     */
     function pintarEstadisticas(s) {
+        // Si no hay estadísticas (404), mostramos ceros en lugar de romper la página.
         s = s || {};
+        // `??` usa 0 solo cuando el valor es null o undefined (un 0 real se respeta).
         $('pj-pj').textContent = String(s.partidos_jugados ?? 0);
         $('pj-pj-sub').textContent = s.titular !== undefined ? `(${s.titular} titular)` : '';
         $('pj-min').textContent = (s.minutos_totales ?? 0) + "'";
         $('pj-goles').textContent = String(s.goles_totales ?? 0);
         $('pj-asist').textContent = String(s.asistencias_totales ?? 0);
+        // Las tarjetas se dibujan con un helper de api.js (iconos amarillo/rojo con texto accesible).
         const caja = $('pj-tarjetas');
         caja.textContent = '';
         caja.appendChild(Api.tarjetasResumen(s.amarillas_totales, s.rojas_totales));
     }
 
+    // Muestra como máximo los 3 próximos partidos programados de su equipo.
     function pintarProximos(partidos) {
         const caja = $('pj-proximos');
         caja.textContent = '';
+        // Filtramos los programados, ordenamos por fecha (texto ISO, comparable) y nos quedamos con 3.
         const futuros = partidos.filter(p => p.estado === 'programado').sort((a, b) => a.fecha.localeCompare(b.fecha)).slice(0, 3);
         if (!futuros.length) { caja.appendChild(el('p', { texto: 'No hay partidos programados.', clase: 'texto-vacio' })); return; }
+        // Una tarjeta por partido: jornada, lugar (o fecha) y los dos equipos.
         futuros.forEach(p => {
             caja.appendChild(el('article', { clase: 'news-card', hijos: [
                 el('div', { clase: 'news-card-meta', hijos: [el('span', { texto: `JORNADA ${p.jornada}` }), el('span', { texto: p.lugar || Api.formatearFecha(p.fecha) })] }),
@@ -45,21 +57,28 @@
         });
     }
 
+    // Punto de entrada: averigua qué ficha de jugador es la del usuario y carga todo su resumen.
     async function iniciar() {
+        // Usuario de la sesión (viene de /api/auth/yo). Su `jugador_id` lo asigna coordinación al aprobar la solicitud.
         const usuario = Sesion.actual();
         // En modo demostración no hay usuario: enseñamos la ficha de ejemplo n.º 4
         const id = usuario && usuario.jugador_id ? usuario.jugador_id : (Sesion.enModoDemo() ? 4 : null);
+        // Cuenta JUGADOR sin ficha vinculada: explicamos qué hacer en vez de dejar la pantalla vacía.
         if (!id) {
             $('pj-nombre').textContent = 'Sin ficha vinculada';
             Api.mostrarError($('pj-mensajes'), new Api.ApiError(404, 'sin_ficha', 'Tu cuenta todavía no está vinculada a una ficha de jugador. Pídelo a coordinación.'));
             return;
         }
         try {
+            // Datos del jugador. El servidor solo envía estatura y peso si el que pregunta es el propio jugador.
             const j = await Demo.obtener(`/jugadores/${id}`, null, () => Demo.jugador(id));
             $('pj-nombre').textContent = nombreCompleto(j);
+            // Título de la pestaña del navegador personalizado con el nombre.
             document.title = `Mi panel - ${nombreCompleto(j)} - CD. Calasanz Santander`;
+            // Línea pequeña sobre el nombre: posición y dorsal (si los hay).
             $('pj-kicker').textContent = [j.posicion, j.dorsal ? 'Dorsal #' + j.dorsal : null].filter(Boolean).join(' · ').toUpperCase() || 'MI PANEL';
             $('pj-equipo').textContent = j.equipo ? j.equipo.nombre + ' · C.D. Calasanz' : 'C.D. Calasanz';
+            // Enlace a su ficha pública; encodeURIComponent evita que el id rompa la URL.
             $('pj-ficha').href = 'jugador.html?id=' + encodeURIComponent(j.id);
 
             // Datos físicos: solo si el servidor los manda
@@ -73,16 +92,19 @@
             let stats = j.estadisticas;
             if (!stats) {
                 try { stats = await Api.get(`/jugadores/${id}/estadisticas`); }
+                // Un 404 aquí es normal (aún no ha jugado); cualquier otro error sí se propaga al catch general.
                 catch (error) { if (!(error instanceof Api.ApiError) || error.status !== 404) throw error; }
             }
             pintarEstadisticas(stats);
 
+            // Con equipo, pedimos a la vez próximos partidos y lesiones activas (Promise.all = en paralelo).
             if (j.equipo) {
                 const [partidos, lesiones] = await Promise.all([
                     Demo.obtener(`/equipos/${j.equipo.id}/partidos`, { estado: 'programado' }, Demo.partidos),
                     Demo.obtener('/lesiones', { equipo: j.equipo.id, activa: 'true' }, Demo.lesiones)
                 ]);
                 pintarProximos(Array.isArray(partidos) ? partidos : (partidos.items || []));
+                // Buscamos si entre las lesiones activas del equipo hay alguna de este jugador.
                 const mia = (Array.isArray(lesiones) ? lesiones : (lesiones.items || [])).find(l => l.jugador.id === j.id);
                 if (mia) {
                     $('pj-lesion').textContent = `Tienes una lesión activa. Vuelta estimada: ${Api.formatearFecha(mia.fecha_estimada_vuelta)}.`;
@@ -90,10 +112,12 @@
                 }
             }
         } catch (error) {
+            // Cualquier fallo de carga: lo contamos al usuario con un mensaje visible.
             $('pj-nombre').textContent = 'No se pudo cargar tu panel';
             Api.mostrarError($('pj-mensajes'), error);
         }
     }
 
+    // layout.js dispara este evento cuando ya ha comprobado la sesión y pintado cabecera/pie.
     document.addEventListener('layout:listo', iniciar);
 })();

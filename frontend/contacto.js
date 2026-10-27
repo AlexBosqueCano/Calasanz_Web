@@ -11,8 +11,10 @@
 (function () {
     'use strict';
 
+    // Dirección a la que se redacta el correo (el contrato no tiene endpoint de contacto).
     const CORREO_CLUB = 'info@cdcalasanz.es';
 
+    // Elementos de la página; si no existe el formulario (otra página), el script termina sin hacer nada.
     const form = document.getElementById('form-contacto');
     const aviso = document.getElementById('contacto-feedback');
     const alternativa = document.getElementById('contacto-alternativa');
@@ -21,8 +23,10 @@
     form.addEventListener('submit', (e) => {
         e.preventDefault();   // evita recargar la página
 
+        // Validación nativa del HTML (required, type=email, minlength...): muestra el aviso del navegador.
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
+        // trim() quita espacios sobrantes. Estos textos solo van a la URL mailto y al <textarea>, nunca a innerHTML.
         const nombre = form.elements.nombre.value.trim();
         const email = form.elements.email.value.trim();
         const motivo = form.elements.motivo.selectedOptions[0].textContent;

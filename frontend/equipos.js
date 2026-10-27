@@ -69,11 +69,13 @@
         });
     }
 
+    // Pide los equipos, pinta las tarjetas y monta los filtros. Si algo falla, muestra el error en la lista.
     async function iniciar() {
         const lista = document.getElementById('lista-equipos');
         const contador = document.getElementById('contador-equipos');
 
         try {
+            // Demo.obtener usa la API real y, solo si el servidor no responde, datos de ejemplo.
             const equipos = await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos);
 
             lista.textContent = '';
@@ -110,5 +112,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();

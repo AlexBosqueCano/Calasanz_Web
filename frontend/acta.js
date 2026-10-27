@@ -15,7 +15,9 @@
 (function () {
     'use strict';
 
+    // `el` (api.js) crea elementos del DOM con textContent: nunca interpreta HTML de los datos.
     const { el } = Api;
+    // Atajo para document.getElementById.
     const $ = (id) => document.getElementById(id);
 
     /* Vacía un contenedor para volver a pintarlo. */
@@ -36,9 +38,12 @@
         return el('div', { clase: 'rival-shield-placeholder', texto: iniciales, atributos: { 'aria-hidden': 'true' } });
     }
 
+    // Dibuja la cabecera: equipo local, marcador (o "vs" si no se ha jugado) y equipo visitante.
     function pintarMarcador(p) {
         const caja = vaciar('acta-marcador');
+        // Un lado del marcador: nombre en mayúsculas y escudo.
         const lado = (equipo) => el('div', { clase: 'acta-score-team', hijos: [el('span', { texto: equipo.nombre.toUpperCase() }), escudo(equipo)] });
+        // resultado null/undefined = partido sin jugar. Ojo: un 0 es un resultado válido.
         const jugado = p.resultado_local !== null && p.resultado_local !== undefined;
         caja.appendChild(lado(p.local));
         caja.appendChild(el('div', { clase: 'acta-score-numbers',
@@ -48,10 +53,17 @@
     }
 
     /* Cronología de goles con el marcador parcial, de nuestro equipo y del rival. */
+    /**
+     * @param {object} p        partido completo
+     * @param {object} acta     acta del partido (alineación, eventos...)
+     * @param {object} jugadores índice {jugador_id: datos} para traducir ids a nombres
+     */
     function pintarGoles(p, acta, jugadores) {
+        // ActaUtil.ordenar devuelve los eventos por minuto; nos quedamos con los goles (nuestros y del rival).
         const goles = ActaUtil.ordenar(acta.eventos).filter(e => e.tipo === 'gol' || e.tipo === 'gol_rival');
         $('acta-bloque-goles').hidden = !goles.length;
         const caja = vaciar('acta-goles');
+        // Contadores para escribir el marcador parcial tras cada gol.
         let propio = 0, rival = 0;
         goles.forEach(g => {
             if (g.tipo === 'gol') propio++; else rival++;
@@ -74,11 +86,14 @@
     }
 
     /* Fila de un jugador: dorsal, nombre (enlace a su ficha), minutos y, si procede, goles y tarjetas. */
+    // `a` = entrada de la alineación; `st` = estadísticas calculadas de ese jugador (ActaUtil).
     function filaJugador(a, st) {
+        // Etiquetas opcionales a la derecha: minutos, goles, goles recibidos (porteros) y tarjetas.
         const extras = [];
         if (st.entro) extras.push(el('span', { texto: `${st.minutos}'`, clase: 'acta-etiqueta' }));
         if (st.goles) extras.push(el('span', { texto: `⚽ ${st.goles}`, clase: 'acta-etiqueta' }));
         if (st.golesRecibidos) extras.push(el('span', { texto: `recibidos ${st.golesRecibidos}`, clase: 'acta-etiqueta' }));
+        // Dos amarillas = roja; evitamos enseñar tres iconos para un mismo jugador.
         for (let i = 0; i < Math.min(st.amarillas, 1 + (st.rojas && st.amarillas === 2 ? 1 : 0)); i++) extras.push(Api.tarjeta('amarilla', undefined, 'Amarilla'));
         if (st.rojas && st.amarillas < 2) extras.push(Api.tarjeta('roja', undefined, 'Roja'));
         return el('div', { clase: 'acta-row', hijos: [
@@ -91,6 +106,8 @@
         ]});
     }
 
+    // Dibuja titulares, suplentes, delegados, sustituciones y tarjetas de NUESTRO equipo.
+    // Devuelve el índice de jugadores para que pintarGoles lo reutilice.
     function pintarEquipoPropio(p, acta) {
         const propio = p.local.es_propio ? p.local : p.visitante;
         $('acta-nombre-propio').textContent = propio.nombre.toUpperCase();
@@ -98,9 +115,11 @@
         // Índice por id para encontrar rápido los datos de cada jugador
         const jugadores = {};
         acta.alineacion.forEach(a => { jugadores[a.jugador_id] = a; });
+        // Minutos, goles y tarjetas se calculan a partir de los eventos (fuente única de verdad).
         const stats = ActaUtil.estadisticas(acta.alineacion, acta.eventos, p.duracion);
 
         const titulares = vaciar('acta-titulares'), suplentes = vaciar('acta-suplentes');
+        // slice() copia el array para no alterar el original al ordenar por dorsal.
         acta.alineacion.slice().sort((a, b) => (a.dorsal || 0) - (b.dorsal || 0)).forEach(a => {
             (a.estado === 'titular' ? titulares : suplentes).appendChild(filaJugador(a, stats[a.jugador_id]));
         });
@@ -113,6 +132,7 @@
         if (ct.delegado_equipo) delegados.appendChild(filaEtiqueta('DEL. EQUIPO', ct.delegado_equipo));
         $('acta-bloque-delegados').hidden = !delegados.children.length;
 
+        // (Cada sustitución se pinta como dos líneas: quién entra y quién sale.)
         // Sustituciones: pareja "entra / sale" con su minuto
         const subs = ActaUtil.ordenar(acta.eventos).filter(e => e.tipo === 'sustitucion');
         $('acta-bloque-sustituciones').hidden = !subs.length;
@@ -147,6 +167,7 @@
         return jugadores;
     }
 
+    // Pinta toda la página a partir del partido recibido del servidor.
     function pintar(p) {
         document.title = `${p.local.nombre} - ${p.visitante.nombre} - Acta - CD. Calasanz Santander`;
         $('acta-competicion').textContent = (p.competicion || 'Competición').toUpperCase();
@@ -170,6 +191,7 @@
         $('acta-bloque-cronica').hidden = !p.cronica_id;
         if (p.cronica_id) $('acta-enlace-cronica').href = 'noticias.html?cronica=' + encodeURIComponent(p.cronica_id) + '#cronicas';
 
+        // `acta` es null si el partido está pendiente o es entre rivales (solo se guarda el resultado).
         const acta = p.acta;
         if (!acta) {
             // Sin acta: partido pendiente, o partido entre rivales (solo resultado)
@@ -194,8 +216,10 @@
         pintarGoles(p, acta, jugadores);
     }
 
+    // Lee el id de la URL (?id=N), lo valida y pide el partido.
     async function iniciar() {
         const id = new URLSearchParams(window.location.search).get('id');
+        // Solo dígitos: evitamos meter en la ruta de la API cualquier texto raro.
         if (!id || !/^\d+$/.test(id)) {
             Api.mostrarError($('acta-mensajes'), new Api.ApiError(404, 'no_encontrado', 'No se ha indicado un partido válido.'));
             return;
@@ -209,5 +233,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();
