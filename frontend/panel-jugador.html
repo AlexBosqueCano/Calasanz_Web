@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CD. Calasanz Santander / Mi panel de jugador</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+<body data-roles="JUGADOR">
+    <!-- layout.js rellena la cabecera y el pie (menú, sesión, tema) -->
+    <header></header>
+
+    <main class="main-flex">
+        <section class="page-hero-equipos hero-compacto">
+            <div class="container equipos-hero-inner">
+                <div>
+                    <div class="kicker">
+                        <span class="kicker-line"></span>
+                        <span id="pj-kicker">MI PANEL</span>
+                    </div>
+                    <h1 class="display-title titulo-hero titulo-hero-pequeno" id="pj-nombre">Cargando…</h1>
+                    <p class="lead-text lead-sin-margen" id="pj-equipo"></p>
+                    <p><a id="pj-ficha" href="equipos.html" class="link-arrow">Ver mi ficha completa <span aria-hidden="true">→</span></a></p>
+                </div>
+
+                <div class="bars-graphic" aria-hidden="true">
+                    <div class="bar-1"></div>
+                    <div class="bar-2"></div>
+                    <div class="bar-3"></div>
+                    <div class="bar-4"></div>
+                    <div class="bar-5"></div>
+                    <div class="bar-gold"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="equipos-band">
+            <div class="container">
+                <div id="pj-mensajes"></div>
+
+                <!-- Aviso de lesión activa (pj.js lo enseña solo si la hay) -->
+                <p id="pj-lesion" class="mensaje" role="status" hidden></p>
+
+                <h2 class="section-title titulo-seccion">Mi temporada</h2>
+                <div class="stat-kpi-grid">
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Partidos jugados</div>
+                        <div class="stat-kpi-value"><span id="pj-pj">0</span> <span class="kpi-sub" id="pj-pj-sub"></span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Minutos disputados</div>
+                        <div class="stat-kpi-value"><span id="pj-min">0'</span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Goles anotados</div>
+                        <div class="stat-kpi-value"><span id="pj-goles">0</span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Asistencias</div>
+                        <div class="stat-kpi-value"><span id="pj-asist">0</span></div>
+                    </div>
+                    <div class="stat-kpi-card">
+                        <div class="stat-kpi-label">Tarjetas</div>
+                        <div class="stat-kpi-value" id="pj-tarjetas"></div>
+                    </div>
+                </div>
+
+                <div class="admin-grid-2">
+                    <div>
+                        <h2 class="section-title titulo-seccion">Próximos partidos</h2>
+                        <div id="pj-proximos"><p class="texto-vacio">Cargando partidos…</p></div>
+                    </div>
+
+                    <!-- Solo el propio jugador ve sus datos físicos (lo hace cumplir el servidor) -->
+                    <div class="news-card" id="pj-fisico" hidden>
+                        <div>
+                            <div class="news-card-meta"><span>DATOS FÍSICOS</span><span>Solo los ves tú y tu entrenador</span></div>
+                            <h2 class="titulo-tarjeta">Mi ficha</h2>
+                            <p class="news-card-texto" id="pj-estatura"></p>
+                            <p class="news-card-texto" id="pj-peso"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer></footer>
+
+    <!-- ORDEN IMPORTANTE: cada script usa los anteriores -->
+    <script src="api.js"></script>
+    <script src="session.js"></script>
+    <script src="layout.js"></script>
+    <script src="datos-demo.js"></script>
+    <script src="panel-jugador.js"></script>
+</body>
+</html>

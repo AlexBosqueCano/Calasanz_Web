@@ -345,6 +345,7 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - Un entrenador solo puede crearla para partidos de su equipo (`403`); editar o borrar, solo las suyas. Coordinador y desarrollador, todas.
 
 **Solicitudes de acceso**
+- `mensaje` de 5 a 500 caracteres.
 - Una sola solicitud pendiente por usuario (`409`).
 - `JUGADOR`: exige `jugador_id` de un jugador activo sin usuario vinculado.
 - `ENTRENADOR`: exige `equipo_id` de un equipo propio sin entrenador asignado.

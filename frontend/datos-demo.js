@@ -141,6 +141,8 @@
         return {
             id: j.id, nombre: j.nombre, ap1: j.ap1, ap2: j.ap2, posicion: j.posicion, dorsal: j.dorsal,
             equipo: { id: 1, nombre: 'Juvenil A' },
+            // Solo los ve el propio jugador (en el servidor los filtra el permiso)
+            estatura: 1.76, peso: 68,
             estadisticas: {
                 partidos_jugados: j.partidos, titular: j.titular, suplente: j.partidos - j.titular,
                 minutos_totales: j.minutos, goles_totales: j.goles, asistencias_totales: j.asistencias,
