@@ -1,0 +1,37 @@
+"""Utilidades compartidas por auth.py y permisos.py."""
+import os
+
+import psycopg2
+from flask import jsonify
+
+
+def get_db_connection():
+    # TODO (M3): sustituir por la capa de acceso a datos común que haga Mateo.
+    return psycopg2.connect(
+        host=os.getenv("DB_HOST", "localhost"),
+        database=os.getenv("DB_NAME", "calasanz_db"),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASS", "postgres"),
+    )
+
+
+def error(codigo, mensaje, status, detalles=None):
+    """Respuesta de error en el formato del contrato de la API."""
+    cuerpo = {"codigo": codigo, "mensaje": mensaje}
+    if detalles:
+        cuerpo["detalles"] = detalles
+    return jsonify(error=cuerpo), status
+
+
+def usuario_a_dict(fila):
+    """Convierte (id, username, email, rol, activo) en el recurso Usuario."""
+    return {
+        "id": fila[0],
+        "username": fila[1],
+        "email": fila[2],
+        "rol": fila[3],
+        "activo": fila[4],
+        # TODO (M2): rellenar cuando existan los vínculos usuario<->jugador/equipo.
+        "jugador_id": None,
+        "equipo_id": None,
+    }
