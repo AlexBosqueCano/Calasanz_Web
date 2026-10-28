@@ -45,14 +45,18 @@ def sin_permiso():
 # E2: sesión
 # ----------------------------------------------------------------------------
 def cargar_usuario(user_id):
-    """Lee el usuario de la BD. Devuelve un dict o None si no existe."""
+    """Lee el usuario de la BD junto con sus vínculos de jugador o entrenador."""
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT id_usuario, username, email, rol, activo
-                FROM usuarios WHERE id_usuario = %s
+                SELECT u.id_usuario, u.username, u.email, u.rol, u.activo,
+                       j.id_jugador, e.id_equipo
+                FROM usuarios u
+                LEFT JOIN jugador j ON j.id_usuario = u.id_usuario AND j.activo = true
+                LEFT JOIN equipo e ON e.id_entrenador = u.id_usuario
+                WHERE u.id_usuario = %s
                 """,
                 (user_id,),
             )
@@ -60,7 +64,7 @@ def cargar_usuario(user_id):
     finally:
         conn.close()
     return usuario_a_dict(fila) if fila else None
-
+    
 
 def login_required(f):
     """Exige sesión iniciada. Deja el usuario en g.usuario."""
