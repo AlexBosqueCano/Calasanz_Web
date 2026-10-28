@@ -12,10 +12,18 @@
 (function () {
     'use strict';
 
+    // `el` crea elementos sin innerHTML; `U` agrupa utilidades de paneles (panel-util.js).
     const { el } = Api;
     const U = PanelUtil;
+    // Atajo para document.getElementById.
     const $ = (id) => document.getElementById(id);
 
+    /*
+     * Dibuja la tabla del histórico.
+     * @param {Array}   lesiones   lista de lesiones del servidor
+     * @param {boolean} verJugador true = mostrar la columna "Jugador" (entrenador/coordinación);
+     *                             false = el propio jugador, que solo ve las suyas
+     */
     function pintar(lesiones, verJugador) {
         const cuerpo = $('hl-tabla');
         cuerpo.textContent = '';
@@ -23,7 +31,9 @@
         if (!lesiones.length) { U.filaVacia(cuerpo, 'No hay lesiones registradas.', verJugador ? 4 : 3); return; }
         // Las más recientes primero
         lesiones.slice().sort((a, b) => b.fecha_inicio.localeCompare(a.fecha_inicio)).forEach(l => {
+            // Activa = sigue lesionado; si no, enseñamos la fecha real de alta cuando existe.
             const estado = l.activa ? 'Activa' : `Recuperado${l.fecha_alta ? ' el ' + Api.formatearFecha(l.fecha_alta) : ''}`;
+            // Las celdas se construyen en un array porque la primera (jugador) es opcional.
             const celdas = [];
             if (verJugador) celdas.push(el('td', { hijos: [el('strong', { texto: l.jugador.nombre_completo })] }));
             celdas.push(el('td', { texto: Api.formatearFecha(l.fecha_inicio) }));
@@ -33,6 +43,7 @@
         });
     }
 
+    // Pide el histórico del equipo elegido en el desplegable y lo pinta (con la columna de jugador).
     async function cargarEquipo() {
         try {
             const r = await Demo.obtener('/lesiones', { equipo: $('hl-equipo').value }, Demo.historicoLesiones);
@@ -42,6 +53,8 @@
         }
     }
 
+    // Decide qué histórico mostrar según el rol del usuario (reglas de visibilidad del contrato).
+    // Es solo comodidad de interfaz: el servidor aplica los mismos permisos.
     async function iniciar() {
         const usuario = Sesion.actual();
         try {
@@ -69,5 +82,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión y los permisos ya están comprobados.
     document.addEventListener('layout:listo', iniciar);
 })();
