@@ -74,6 +74,7 @@
     /* Fecha de hoy en formato AAAA-MM-DD (hora local). Un partido "ya jugado" tiene fecha <= hoy. */
     function hoy() {
         const d = new Date();
+        // Rellena con un cero a la izquierda: 5 -> '05' (para horas y fechas).
         const dos = (n) => String(n).padStart(2, '0');
         return `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`;
     }
@@ -419,6 +420,7 @@
     /* Un campo con su etiqueta visible pequeña (la etiqueta va asociada al control con for/id). */
     // Contador para generar ids únicos de campo (pe-ev-1, pe-ev-2...) y poder enlazar label con su control.
     let contadorCampos = 0;
+    // Crea una fila etiqueta+control enlazados con id/for, para que el formulario sea accesible.
     function campo(textoEtiqueta, control) {
         const id = 'pe-ev-' + (++contadorCampos);
         control.id = id;
@@ -495,6 +497,7 @@
     // Un minuto vacío se convierte en NaN a propósito: la validación posterior lo detecta como error.
     /* Lee los eventos de la pantalla con el formato del contrato (solo los campos que corresponden a cada tipo). */
     function leerEventos() {
+        // Convierte el texto de un campo a número; vacío -> null (el servidor lo interpreta como 'sin dato').
         const num = (v) => (v === '' ? null : Number(v));
         return filasEvento.map(f => {
             const base = { tipo: f.tipo.value, minuto: f.minuto.value === '' ? NaN : Number(f.minuto.value) };
@@ -593,6 +596,7 @@
         // El marcador enviado se calcula de los eventos, no se teclea: así siempre es coherente con el acta.
         const m = ActaUtil.marcador(eventos);
         const [rl, rv] = p.local.es_propio ? [m.propio, m.rival] : [m.rival, m.propio];
+        // Atajo: valor (sin espacios sobrantes) del campo con ese id.
         const v = (id) => $(id).value.trim();
         const asistentes = [v('pe-arb-as1'), v('pe-arb-as2')].filter(Boolean);
         // Cuerpo con el formato exacto de docs/API_CONTRATO.md. Los eventos solo llevan ids; los nombres los pone el servidor.

@@ -35,6 +35,7 @@
     function iniciar(config) {
         // Con el prefijo construimos los ids reales: id('form-lesion') -> 'pc-form-lesion'.
         const p = config.prefijo;
+        // Genera ids con el prefijo de la página (así dos paneles distintos no chocan): id('x') -> 'pc-x'.
         const id = (nombre) => `${p}-${nombre}`;
         // Estado local: lesiones activas del equipo, jugadores entre los que elegir y,
         // si estamos editando, la lesión concreta (null = estamos creando una nueva).

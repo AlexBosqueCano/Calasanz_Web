@@ -326,6 +326,7 @@
         fila.scrollLeft = boton.offsetLeft - (fila.clientWidth - boton.offsetWidth) / 2;
     }
 
+    // Activa una pestaña (aria-selected, clase 'active', panel visible) y opcionalmente le da el foco.
     function activarPestana(nombre, moverFoco) {
         document.querySelectorAll('.tab-btn').forEach(boton => {
             const esta = boton.dataset.target === nombre;
@@ -352,6 +353,7 @@
         if (!cargadas[nombre]) cargadores[nombre]();
     }
 
+    // Navegación por teclado entre pestañas: flechas, Inicio y Fin (patrón ARIA de tabs).
     function manejarTeclado(evento) {
         const nombres = Object.keys(cargadores);
         const actual = document.querySelector('.tab-btn.active').dataset.target;
