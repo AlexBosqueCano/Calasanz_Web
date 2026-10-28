@@ -35,4 +35,9 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Cargar la base de datos
+        run: |
+             for f in PostGres/web/*.sql; do
+               PGPASSWORD=postgres psql -h localhost -U postgres -d calasanz_db -f "$f"
+             done
       - run: pytest
