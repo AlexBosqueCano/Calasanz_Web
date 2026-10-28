@@ -24,14 +24,13 @@ def error(codigo, mensaje, status, detalles=None):
 
 
 def usuario_a_dict(fila):
-    """Convierte (id, username, email, rol, activo) en el recurso Usuario."""
+    """Convierte una fila de usuario en el recurso Usuario del contrato."""
     return {
         "id": fila[0],
         "username": fila[1],
         "email": fila[2],
         "rol": fila[3],
         "activo": fila[4],
-        # TODO (M2): rellenar cuando existan los vínculos usuario<->jugador/equipo.
-        "jugador_id": None,
-        "equipo_id": None,
+        "jugador_id": fila[5] if len(fila) > 5 else None,
+        "equipo_id": fila[6] if len(fila) > 6 else None,
     }
