@@ -79,6 +79,7 @@
     function iniciarSesionDemo(rol) { establecerRolDemo(rol); escribirDemo(CLAVE_SESION_DEMO, '1'); }
     // Cierra la sesión simulada de demostración (borra la marca).
     function cerrarSesionDemo() { escribirDemo(CLAVE_SESION_DEMO, null); }
+    // Usuario ficticio de la demostración: sirve para ver cada panel sin servidor.
     function usuarioDemo() {
         const rol = rolDemo();
         return { id: 0, username: 'demo', email: 'demo@ejemplo.com', rol, activo: true,
@@ -135,11 +136,15 @@
 
     // ---- Consultas rápidas (útiles para layout.js y el resto de páginas) ----
     function actual() { return usuario; }
+    // ¿Hay un usuario con sesión (real o simulada)?
     function estaIdentificado() { return usuario !== null; }
+    // ¿Estamos en modo demostración (el servidor no responde)?
     function enModoDemo() { return modoDemo; }
     /* true si el servidor no ha contestado (sin red, tiempo agotado, 502/503/504, HTML en vez de JSON). */
     function servidorNoResponde() { return modoDemo && servidorInalcanzable; }
+    // ¿El usuario actual tiene alguno de estos roles?
     function tieneRol(...roles) { return usuario !== null && roles.includes(usuario.rol); }
+    // Nombre legible del rol (p. ej. ENTRENADOR -> 'Entrenador').
     function etiquetaRol(rol) { return ETIQUETA_ROL[rol] || rol; }
     /* Devuelve la URL del panel del usuario actual, o null si no tiene. */
     function panelUrl() { return usuario ? PANEL_POR_ROL[usuario.rol] : null; }
