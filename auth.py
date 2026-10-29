@@ -2,6 +2,7 @@
 
 E1: registro de usuarios con hash de contraseña (argon2id).
 E2: login, logout, /yo, sesión segura y protección CSRF.
+E6: limitación de intentos en login y registro (ver seguridad.py).
 """
 import re
 import secrets
@@ -13,6 +14,14 @@ from psycopg2 import errors
 
 from comun import error, get_db_connection, usuario_a_dict
 from permisos import login_required
+from seguridad import (
+    clave_login,
+    clave_registro,
+    limite_login,
+    limite_registro,
+    limites_activos,
+    respuesta_429,
+)
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -96,6 +105,15 @@ def registro():
     if errores:
         return error("validacion", "Hay datos que no son válidos.", 422, errores)
 
+    # Límite: 5 registros por hora y por IP. Se cuentan los intentos con datos
+    # bien formados (201 y 409): los 422 no tocan la BD ni revelan nada.
+    activos = limites_activos()
+    if activos:
+        espera = limite_registro.segundos_de_espera(clave_registro())
+        if espera:
+            return respuesta_429(espera)
+        limite_registro.anotar(clave_registro())
+
     # Lo que se guarda es el hash, nunca la contraseña en claro.
     password_hash = ph.hash(datos["password"])
 
@@ -142,6 +160,15 @@ def login():
             {"campo": "password", "mensaje": "Obligatoria (máximo 128 caracteres)."},
         ])
 
+    # Si ya hay 5 fallos recientes para este usuario+IP, ni se mira la
+    # contraseña (así tampoco se puede seguir adivinándola).
+    activos = limites_activos()
+    clave = clave_login(username)
+    if activos:
+        espera = limite_login.segundos_de_espera(clave)
+        if espera:
+            return respuesta_429(espera)
+
     conn = get_db_connection()
     try:
         with conn.cursor() as cur:
@@ -166,7 +193,12 @@ def login():
 
     # Mismo mensaje en todos los fallos: no se revela si el usuario existe.
     if not password_correcta or not fila[4]:
+        if activos:
+            limite_login.anotar(clave)
         return error("no_autenticado", "Usuario o contraseña incorrectos.", 401)
+
+    if activos:
+        limite_login.reiniciar(clave)
 
     # clear() descarta cualquier sesión anterior (evita la "fijación de sesión").
     session.clear()
