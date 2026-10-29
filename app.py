@@ -5,6 +5,7 @@ from flask import Flask, jsonify
 
 from auth import bp as auth_bp
 from comun import get_db_connection, registrar_manejadores_errores
+from seguridad import init_seguridad
 
 app = Flask(__name__, static_folder="frontend", template_folder="frontend")
 
@@ -21,6 +22,7 @@ app.config.update(
 )
 
 registrar_manejadores_errores(app)
+init_seguridad(app)
 app.register_blueprint(auth_bp)
 
 # Registro condicional de blueprints de dominio a medida que se incorporan
@@ -44,4 +46,6 @@ def index():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # El depurador de Flask permite ejecutar código desde el navegador:
+    # solo se activa si se pide expresamente (FLASK_DEBUG=1), nunca por defecto.
+    app.run(debug=os.getenv("FLASK_DEBUG", "0") == "1", host="0.0.0.0", port=5000)
