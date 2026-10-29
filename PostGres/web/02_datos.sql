@@ -4,11 +4,11 @@
 
 -- 1. Usuarios iniciales (uno por rol; hash argon2id válido para 'calasanz1234')
 INSERT INTO usuarios (id_usuario, username, email, password_hash, rol, activo) VALUES
-(1, 'dev_admin', 'dev@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHQ$e4b7W6h8V7k2R9m1Q3p5L0n2J4v6X8z0B2d4F6h8J0k', 'DESARROLLADOR', true),
-(2, 'coord', 'coordinador@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHQ$e4b7W6h8V7k2R9m1Q3p5L0n2J4v6X8z0B2d4F6h8J0k', 'COORDINADOR', true),
-(3, 'mister_juv', 'mister.juvenil@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHQ$e4b7W6h8V7k2R9m1Q3p5L0n2J4v6X8z0B2d4F6h8J0k', 'ENTRENADOR', true),
-(4, 'david9', 'david.lopez@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHQ$e4b7W6h8V7k2R9m1Q3p5L0n2J4v6X8z0B2d4F6h8J0k', 'JUGADOR', true),
-(5, 'aficionado', 'aficionado@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$c2FsdHNhbHQ$e4b7W6h8V7k2R9m1Q3p5L0n2J4v6X8z0B2d4F6h8J0k', 'ESTANDAR', true);
+(1, 'dev_admin', 'dev@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$HZa1K5bd3h0bRhRA7lk+EA$YM4utjWONf4prBVM9/w7kv9JswbJq484ZXUm43djIuM', 'DESARROLLADOR', true),
+(2, 'coord', 'coordinador@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$+eBrlwgsRPq9dHhLdH3XrA$9rDqxnwA7FpCJb2xfpUJl2bxlhOcH5ilmft+DatQqTQ', 'COORDINADOR', true),
+(3, 'mister_juv', 'mister.juvenil@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$zHnA1ucm8NgAfSVAOSroVQ$4/HdCSg7Lw7YZDl0CWRd7GIQKjgqXFqwY8nKDG6+2QI', 'ENTRENADOR', true),
+(4, 'david9', 'david.lopez@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$8p5Cthmx7Uizzp9zFmnqqQ$L6FSfBd5xGEtN+43l+OgWn3eMfCw/YVsSBWebBkfrSU', 'JUGADOR', true),
+(5, 'aficionado', 'aficionado@calasanz.es', '$argon2id$v=19$m=65536,t=3,p=4$jj7yCcV3iMqNvg8GzKg8Lg$I4uxg2nAMWRZXKcD206xWkfMxaT29Dtg2tLfqqG6sg0', 'ESTANDAR', true);
 
 -- 2. Temporadas
 INSERT INTO temporada (id_temporada, año) VALUES
