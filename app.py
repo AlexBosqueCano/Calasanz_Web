@@ -6,7 +6,7 @@ from flask import Flask, jsonify
 from auth import bp as auth_bp
 from comun import get_db_connection, registrar_manejadores_errores
 
-app = Flask(__name__, static_folder="frontend", template_folder="frontend")
+app = Flask(__name__, static_folder="frontend", static_url_path="", template_folder="frontend")
 
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
