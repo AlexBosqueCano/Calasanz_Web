@@ -6,6 +6,7 @@ from flask import Flask, jsonify
 from auth import bp as auth_bp
 from comun import get_db_connection, registrar_manejadores_errores
 from seguridad import init_seguridad
+from solicitudes import bp as solicitudes_bp
 
 app = Flask(__name__, static_folder="frontend", static_url_path="", template_folder="frontend")
 
@@ -24,6 +25,7 @@ app.config.update(
 registrar_manejadores_errores(app)
 init_seguridad(app)
 app.register_blueprint(auth_bp)
+app.register_blueprint(solicitudes_bp)
 
 # Registro condicional de blueprints de dominio a medida que se incorporan
 for modulo in ("equipos", "jugadores", "partidos", "apuntes", "cronicas"):
