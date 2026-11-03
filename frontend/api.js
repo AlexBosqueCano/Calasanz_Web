@@ -51,17 +51,21 @@
 
     // --- Token CSRF (lo devuelven login y /auth/yo) ---
     let csrfToken = null;
+    // Guarda el token CSRF que envía el servidor; se adjuntará en POST/PUT/PATCH/DELETE.
     function setCsrfToken(token) { csrfToken = token || null; }
+    // Devuelve el token CSRF guardado (o null si aún no hay sesión).
     function getCsrfToken() { return csrfToken; }
 
     // --- Indicador de carga global (contador por si hay peticiones en paralelo) ---
     let pendientes = 0;
+    // Muestra u oculta el indicador de carga según haya peticiones en curso.
     function actualizarIndicador() {
         const el = document.getElementById('indicador-carga');
         if (el) el.hidden = pendientes === 0;
         document.body && document.body.classList.toggle('cargando', pendientes > 0);
     }
 
+    // Construye la URL final: base '/api' + ruta + parámetros de consulta (ignora los vacíos).
     function construirUrl(ruta, params) {
         const url = new URL(BASE + ruta, window.location.origin);
         if (params) {
@@ -277,6 +281,7 @@
         let panel = null;
         let lista = null;
 
+        // Pinta un aviso de error en pantalla (sin repetir mensajes y con un máximo de 5).
         function mostrar(texto) {
             if (mensajes.includes(texto) || mensajes.length >= 5) return;   // máx. 5 para no saturar
             mensajes.push(texto);

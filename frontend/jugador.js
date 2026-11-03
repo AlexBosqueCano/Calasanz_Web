@@ -16,6 +16,7 @@
 (function () {
     'use strict';
 
+    // `el` crea elementos sin innerHTML; `nombreCompleto` une nombre y apellidos.
     const { el, nombreCompleto } = Api;
 
     /* Escribe un número en una tarjeta KPI; el texto pequeño de debajo es opcional. */
@@ -27,7 +28,7 @@
 
     /* Rellena las 5 casillas (partidos, minutos, goles, asistencias y tarjetas) con las estadísticas (o ceros). */
     function pintarEstadisticas(s) {
-        s = s || {};
+        s = s || {};   // sin estadísticas (jugador que no ha jugado) → objeto vacío y todo a 0 gracias a `?? 0`
         pintarKpi('kpi-pj', s.partidos_jugados, 'kpi-pj-sub', s.titular !== undefined ? `(${s.titular} titular)` : '');
         pintarKpi('kpi-min', (s.minutos_totales ?? 0) + "'", 'kpi-min-sub', '');
         pintarKpi('kpi-goles', s.goles_totales, 'kpi-goles-sub', '');
@@ -62,6 +63,7 @@
         });
     }
 
+    // Lee el id de la URL, pide el jugador y sus estadísticas y rellena la ficha.
     async function iniciar() {
         const mensajes = document.getElementById('mensajes-jugador');
         const nombreEl = document.getElementById('jugador-nombre');
@@ -80,6 +82,7 @@
             nombreEl.textContent = nombreCompleto(j);
             document.title = `${nombreCompleto(j)} - CD. Calasanz Santander`;
 
+            // Subtítulo "POSICIÓN · DORSAL #N"; filter(Boolean) quita las partes que falten.
             const partes = [j.posicion, j.dorsal ? 'Dorsal #' + j.dorsal : null].filter(Boolean);
             document.getElementById('jugador-posicion-kicker').textContent = partes.join(' · ').toUpperCase();
             document.getElementById('jugador-equipo').textContent = j.equipo ? j.equipo.nombre + ' · C.D. Calasanz' : 'C.D. Calasanz';
@@ -105,5 +108,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();

@@ -8,7 +8,9 @@
 (function (global) {
     'use strict';
 
+    // `el` crea elementos del DOM con textContent (sin innerHTML).
     const { el } = Api;
+    // Atajo para document.getElementById.
     const $ = (id) => document.getElementById(id);
 
     /* Respuesta paginada ({ items }) o lista simple → siempre una lista. */
@@ -31,6 +33,7 @@
         zona.hidden = false;
         Api.anunciar(texto, tipo === 'error');
     }
+    /* Vacía y oculta una zona de mensajes. */
     function limpiar(idZona) { const z = $(idZona); z.textContent = ''; z.hidden = true; }
 
     /* Texto de error con los detalles de validación del servidor (422). */
@@ -41,13 +44,15 @@
 
     /* Sustituye las opciones de un <select>. opciones: [{ valor, texto }] */
     function rellenarSelect(select, opciones, seleccionado) {
-        select.textContent = '';
+        select.textContent = '';   // quita las opciones anteriores
+        // value siempre como texto: así select.value = String(id) encuentra la opción.
         opciones.forEach(o => select.appendChild(el('option', { texto: o.texto, atributos: { value: String(o.valor) } })));
         if (seleccionado !== undefined && seleccionado !== null) select.value = String(seleccionado);
     }
 
     /* Botón pequeño con aria-label (sin él, un lector de pantalla oiría "Editar, Editar, Editar…"). */
     function boton(texto, etiqueta, alPulsar, peligro) {
+        // type="button" evita que el botón envíe formularios por accidente.
         const b = el('button', { texto, clase: 'btn-outline btn-pequeno' + (peligro ? ' btn-peligro' : ''),
                                   atributos: { type: 'button', 'aria-label': etiqueta } });
         b.addEventListener('click', alPulsar);
@@ -59,5 +64,6 @@
         cuerpo.appendChild(el('tr', { hijos: [el('td', { texto, clase: 'celda-mensaje', atributos: { colspan: String(columnas) } })] }));
     }
 
+    // Se publica en window.PanelUtil para que lo usen todos los paneles.
     global.PanelUtil = { comoLista, avisoDemo, enviar, mensaje, limpiar, textoError, rellenarSelect, boton, filaVacia };
 })(window);

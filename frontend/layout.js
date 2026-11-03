@@ -34,10 +34,12 @@
     // ------------------------------------------------------------------
     const CLAVE_TEMA = 'calasanz_tema';
 
+    // Lee el tema elegido por el usuario (localStorage). Si el navegador lo bloquea, devuelve null.
     function leerTemaGuardado() {
         try { return localStorage.getItem(CLAVE_TEMA); } catch (e) { return null; }
     }
 
+    // Decide si toca tema oscuro: primero la preferencia guardada, si no la del sistema operativo.
     function esTemaOscuro() {
         const guardado = leerTemaGuardado();
         if (guardado) return guardado === 'dark';
@@ -165,6 +167,7 @@
         return o;
     }
 
+    // Construye el menú de cuenta (botón con la inicial + panel desplegable) con patrón accesible de disclosure.
     function construirMenuCuenta(usuario) {
         const inicial = (usuario.username || '?').charAt(0).toUpperCase();
         const boton = el('button', { clase: 'cuenta-boton', atributos: {
@@ -179,6 +182,7 @@
 
         // Cambiar tema (claro / oscuro): el botón dice a qué tema se pasa
         const botonTema = el('button', { clase: 'cuenta-opcion', atributos: { type: 'button' } });
+        // Actualiza el texto del botón de tema para que diga a qué tema se pasará al pulsarlo.
         const pintarTema = () => {
             const oscuro = document.documentElement.classList.contains('dark-mode');
             botonTema.textContent = oscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro';
@@ -208,6 +212,7 @@
         const panel = el('div', { clase: 'cuenta-panel', atributos: { id: 'cuenta-panel', hidden: '', role: 'group', 'aria-label': 'Opciones de la cuenta' }, hijos: hijosPanel });
         const caja = el('div', { clase: 'cuenta', hijos: [boton, panel] });
 
+        // Abre o cierra el panel del menú y sincroniza aria-expanded para lectores de pantalla.
         function abrir(abierto) {
             panel.hidden = !abierto;
             boton.setAttribute('aria-expanded', String(abierto));

@@ -16,7 +16,8 @@
 
     /* Marcador a partir de los eventos: { propio, rival } */
     function marcador(eventos) {
-        const lista = eventos || [];
+        const lista = eventos || [];   // `|| []` por si el acta aún no tiene eventos
+        // 'gol' = gol de nuestro equipo; 'gol_rival' = gol del contrario.
         return {
             propio: lista.filter(e => e.tipo === 'gol').length,
             rival: lista.filter(e => e.tipo === 'gol_rival').length
@@ -25,6 +26,7 @@
 
     /* Eventos ordenados por minuto (a igual minuto se respeta el orden en que se escribieron). */
     function ordenar(eventos) {
+        // Guardamos la posición original (i) para desempatar: así el orden es estable en todos los navegadores.
         return (eventos || []).map((e, i) => ({ e, i }))
             .sort((a, b) => (a.e.minuto - b.e.minuto) || (a.i - b.i))
             .map(x => x.e);
@@ -37,7 +39,10 @@
      *   { minutos, goles, asistencias, amarillas, rojas, golesRecibidos, entro }
      */
     function estadisticas(alineacion, eventos, duracion) {
+        // Duración total del partido; si no llega, se asume 90 minutos.
         const total = Number(duracion) || 90;
+        // res[jugador_id] = contadores del jugador. `entrada` es el minuto en que pisa el campo
+        // (0 si es titular, null si es suplente y aún no ha entrado); `salida` es el minuto en que se va.
         const res = {};
         alineacion.forEach(a => {
             res[a.jugador_id] = {
@@ -46,6 +51,7 @@
             };
         });
 
+        // Recorremos los eventos EN ORDEN de minuto para que entradas/salidas se apliquen cronológicamente.
         const ordenados = ordenar(eventos);
         ordenados.forEach(e => {
             if (e.tipo === 'gol' && res[e.jugador_id]) {
@@ -60,15 +66,18 @@
                     if (r.amarillas === 2) { r.rojas++; if (r.salida === null) r.salida = e.minuto; }
                 }
             } else if (e.tipo === 'sustitucion') {
+                // Sustitución: sale uno (fija su minuto de salida) y entra otro (fija su minuto de entrada).
                 if (res[e.sale_id] && res[e.sale_id].salida === null) res[e.sale_id].salida = e.minuto;
                 if (res[e.entra_id] && res[e.entra_id].entrada === null) res[e.entra_id].entrada = e.minuto;
             }
         });
 
+        // Segunda pasada: con entradas y salidas ya conocidas, calculamos minutos y goles recibidos.
         Object.values(res).forEach(r => {
             // Un suplente que no llega a entrar tiene 0 minutos
             r.entro = r.entrada !== null;
             const hasta = r.salida !== null ? r.salida : total;
+            // minutos = (salida o final del partido) − entrada, sin salirse de [0, duración].
             r.minutos = r.entro ? Math.max(0, Math.min(hasta, total) - r.entrada) : 0;
             r.golesRecibidos = 0;
             // Solo los porteros "reciben" goles: los rivales marcados mientras estaban en el campo
@@ -86,7 +95,7 @@
      * (vacía si todo está bien). No sustituye al servidor: es solo una ayuda antes de enviar.
      */
     function validar(alineacion, eventos, duracion) {
-        const errores = [];
+        const errores = [];   // aquí se acumulan los textos; vacío = acta correcta
         const ids = alineacion.map(a => a.jugador_id);
         if (new Set(ids).size !== ids.length) errores.push('Un jugador está repetido en la alineación.');
         if (alineacion.filter(a => a.estado === 'titular').length > 11) errores.push('Solo puede haber 11 titulares como máximo.');
@@ -97,7 +106,9 @@
         const amarillas = {}; const expulsado = {};
         alineacion.forEach(a => { enCampo[a.jugador_id] = a.estado === 'titular'; yaJugo[a.jugador_id] = a.estado === 'titular'; });
 
+        // Se simula el partido evento a evento, manteniendo quién está en el campo en cada momento.
         ordenar(eventos).forEach((e, n) => {
+            // `donde` identifica el evento en el mensaje de error ("Evento 3 (minuto 40)").
             const donde = `Evento ${n + 1} (minuto ${e.minuto})`;
             if (!Number.isInteger(e.minuto) || e.minuto < 0 || e.minuto > 120) { errores.push(`${donde}: el minuto debe estar entre 0 y 120.`); return; }
             if (e.minuto > limite + 15) errores.push(`${donde}: pasa mucho de la duración del partido (${limite}').`);
@@ -115,8 +126,10 @@
                     if (amarillas[e.jugador_id] > 2) errores.push(`${donde}: un jugador no puede tener más de 2 amarillas.`);
                     if (amarillas[e.jugador_id] === 2) expulsado[e.jugador_id] = true;
                 }
+                // Un expulsado (roja directa o 2.ª amarilla) abandona el campo y no puede volver.
                 if (expulsado[e.jugador_id]) enCampo[e.jugador_id] = false;
             } else if (e.tipo === 'sustitucion') {
+                // Reglas: sale alguien que está jugando; entra un suplente que aún no había jugado.
                 if (!enCampo[e.sale_id]) errores.push(`${donde}: el jugador que sale no estaba en el campo.`);
                 if (!(e.entra_id in enCampo) || yaJugo[e.entra_id]) errores.push(`${donde}: el jugador que entra debe ser un suplente que aún no haya jugado.`);
                 if (e.sale_id === e.entra_id) errores.push(`${donde}: entra y sale el mismo jugador.`);
@@ -131,9 +144,11 @@
 
     /* "Apellidos, Nombre" en mayúsculas, como en las actas oficiales. */
     function nombreActa(j) {
+        // filter(Boolean) descarta el 2.º apellido si no existe, para no dejar dobles espacios.
         const apellidos = [j.ap1, j.ap2].filter(Boolean).join(' ');
         return `${apellidos}, ${j.nombre}`.toUpperCase();
     }
 
+    // Se publica en window.ActaUtil: así lo usan acta.js y panel-entrenador.js sin módulos ES.
     global.ActaUtil = { marcador, ordenar, estadisticas, validar, nombreActa };
 })(window);

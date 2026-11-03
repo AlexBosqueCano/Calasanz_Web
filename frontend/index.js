@@ -53,10 +53,12 @@
         });
     }
 
+    // Pide los datos de la portada y rellena el próximo partido y las noticias.
     async function iniciar() {
         // La portada es pública en el diseño; si el servidor exige sesión (401), dejamos los textos de reserva
         try {
             const datos = await Demo.obtener('/inicio', null, Demo.inicio);
+            // Solo se enseña el primero de la lista (el más cercano); `|| []` evita errores si el campo no llega.
             pintarProximoPartido((datos.proximos_partidos || [])[0]);
             pintarNoticias(datos.ultimas_noticias || []);
         } catch (error) {
@@ -65,5 +67,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();

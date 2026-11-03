@@ -35,7 +35,8 @@
         { id: 6, nombre: 'Alevín A', categoria: { id: 4, nombre: 'Alevín' }, competicion: 'Primera Alevín', es_propio: true }
     ];
 
-    // Jugadores inventados (se reutilizan en todos los equipos de ejemplo)
+    // Jugadores inventados (se reutilizan en todos los equipos de ejemplo).
+    // `partidos/minutos/goles...` son totales de temporada; `titular` = partidos que empezó en el campo.
     const JUGADORES = [
         { id: 1, nombre: 'Hugo', ap1: 'Ferrer', ap2: 'Lasa', posicion: 'Portero', dorsal: 1,
           partidos: 8, minutos: 720, goles: 0, asistencias: 0, amarillas: 0, rojas: 0, titular: 8 },
@@ -56,10 +57,12 @@
     // ------------------------------------------------------------------
 
     /* GET /api/equipos?propios=true */
+    // (Devolvemos COPIAS con {...e}: si una página modifica el resultado, los datos base no cambian.)
     function equipos() { return EQUIPOS.map(e => ({ ...e })); }
 
     /* GET /api/equipos/{id} */
     function equipo(id) {
+        // String() a ambos lados: el id puede llegar como texto desde la URL o como número.
         const e = EQUIPOS.find(x => String(x.id) === String(id));
         if (!e) throw new Api.ApiError(404, 'no_encontrado', 'No se ha encontrado el equipo.');
         return { ...e };
@@ -196,6 +199,7 @@
             { id: 7, jornada: 8, fecha: '2026-10-25', estado: 'programado', lugar: null,
               local: { id: 15, nombre: 'Racing Cantabria B' }, visitante: { id: 11, nombre: 'Marina Norte C.F.' },
               resultado_local: null, resultado_visitante: null }
+        // Completamos cada partido con lo que añade el servidor real: de qué lado está nuestro club y su crónica.
         ]).map(p => ({
             ...p,
             // es_propio indica de qué lado está nuestro club (para el escudo y para saber qué alineación mostrar)
@@ -209,7 +213,9 @@
     function partido(id) {
         const p = partidosLiga().find(x => String(x.id) === String(id));
         if (!p) throw new Api.ApiError(404, 'no_encontrado', 'No se ha encontrado el partido.');
+        // Solo el partido 1 (propio y jugado) lleva acta de ejemplo; los demás no tienen (acta: null).
         if (String(p.id) !== '1') return { ...p, acta: null };
+        // Ayudante: entrada de la alineación de un jugador (los eventos solo llevan ids; los nombres van aquí).
         const al = (n, estado) => {
             const j = JUGADORES.find(x => x.id === n);
             return { jugador_id: j.id, estado, nombre: j.nombre, ap1: j.ap1, ap2: j.ap2, dorsal: j.dorsal, posicion: j.posicion };
@@ -219,6 +225,7 @@
                 arbitros: { principal: 'Belda Moro, Nico', asistentes: ['Canal Rego, Hugo', 'Durán Soto, Leo'] },
                 cuerpo_tecnico: { delegado_campo: 'Gil Prado, Sara', delegado_equipo: 'Lastra Vega, Tomás' },
                 alineacion: [al(1, 'titular'), al(2, 'titular'), al(3, 'titular'), al(4, 'titular'), al(6, 'titular'), al(5, 'suplente')],
+                // Eventos = fuente única de verdad: de ellos salen marcador, minutos, goles y tarjetas (ActaUtil).
                 eventos: [
                     { tipo: 'gol', minuto: 8, jugador_id: 4, asistente_id: 3 },
                     { tipo: 'gol_rival', minuto: 19, autor: 'Escudero Pinto, Mateo' },

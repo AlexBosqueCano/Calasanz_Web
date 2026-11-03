@@ -16,7 +16,13 @@
     // Nombre visible de cada tipo
     const ETIQUETA_TIPO = { noticia: 'NOTICIA', evento: 'EVENTO', cronica: 'CRÓNICA' };
 
+    /*
+     * Construye la tarjeta (<article>) de una noticia, evento o crónica.
+     * Solo se usa Api.el(): el título y el cuerpo se escriben con textContent, así que aunque
+     * alguien publicara etiquetas HTML se verían como texto y no se ejecutarían (evita XSS).
+     */
     function crearTarjeta(n) {
+        // Un evento se muestra con la fecha en que ocurre; el resto con la de publicación.
         const fecha = n.tipo === 'evento' && n.fecha_evento ? n.fecha_evento : n.publicada_en;
         const meta = el('div', { clase: 'news-card-meta', hijos: [
             el('span', { texto: ETIQUETA_TIPO[n.tipo] || 'NOTICIA' }),
@@ -28,12 +34,14 @@
 
         // "enlace" y "texto_enlace" no están en el contrato (solo existen en los datos de ejemplo):
         // los usamos únicamente si llegan, y solo para rutas internas del propio sitio
+        // La expresión regular solo admite letras, números y . / ? = & -: impide enlaces tipo javascript:...
         if (n.enlace && /^[\w\-./?=&]+$/.test(n.enlace)) {
             hijos.push(el('a', { clase: 'link-arrow', atributos: { href: n.enlace }, hijos: [
                 document.createTextNode((n.texto_enlace || 'Leer más') + ' '),
                 el('span', { texto: '→', atributos: { 'aria-hidden': 'true' } })
             ]}));
         }
+        // data-tipo permite filtrar las tarjetas después sin volver a pedir datos al servidor.
         return el('article', { clase: 'news-card', atributos: { 'data-tipo': n.tipo }, hijos });
     }
 
@@ -55,6 +63,7 @@
         }
     }
 
+    // Descarga noticias y crónicas, las pinta mezcladas y activa los botones de filtro.
     async function iniciar() {
         const lista = document.getElementById('lista-noticias');
         const contador = document.getElementById('contador-noticias');
@@ -86,6 +95,7 @@
                 Api.anunciar(contador.textContent);
             };
 
+            // Al pulsar un filtro: se marca como activo (visual + aria-pressed para lectores) y se aplica.
             botones.forEach(boton => boton.addEventListener('click', () => {
                 botones.forEach(b => {
                     b.classList.toggle('active', b === boton);
@@ -100,5 +110,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();
