@@ -3,6 +3,7 @@
 E1: registro de usuarios con hash de contraseña (argon2id).
 E2: login, logout, /yo, sesión segura y protección CSRF.
 E6: limitación de intentos en login y registro (ver seguridad.py).
+Cambio de contraseña del usuario autenticado (POST /api/auth/cambiar-password).
 """
 import re
 import secrets
@@ -15,8 +16,10 @@ from psycopg2 import errors
 from comun import error, get_db_connection, usuario_a_dict
 from permisos import login_required
 from seguridad import (
+    clave_cambio_password,
     clave_login,
     clave_registro,
+    limite_cambio_password,
     limite_login,
     limite_registro,
     limites_activos,
@@ -223,3 +226,110 @@ def logout():
 @login_required
 def yo():
     return jsonify(usuario=g.usuario, csrf_token=session["csrf_token"]), 200
+
+
+# ----------------------------------------------------------------------------
+# Cambio de contraseña
+# ----------------------------------------------------------------------------
+def validar_cambio_password(datos, username):
+    """Devuelve una lista de {campo, mensaje}. Vacía si todo es válido.
+
+    Las mismas reglas que el registro (10-128 caracteres, distinta del nombre
+    de usuario) más una: la nueva tiene que ser distinta de la actual.
+    La contraseña no se recorta (strip): los espacios forman parte de ella.
+    """
+    errores = []
+    actual = datos.get("password_actual")
+    nueva = datos.get("password_nueva")
+
+    if not isinstance(actual, str) or not actual or len(actual) > 128:
+        errores.append({
+            "campo": "password_actual",
+            "mensaje": "Obligatoria (máximo 128 caracteres).",
+        })
+
+    if not isinstance(nueva, str) or not 10 <= len(nueva) <= 128:
+        errores.append({
+            "campo": "password_nueva",
+            "mensaje": "Debe tener entre 10 y 128 caracteres.",
+        })
+    elif nueva.lower() == username.lower():
+        errores.append({
+            "campo": "password_nueva",
+            "mensaje": "No puede ser igual que el nombre de usuario.",
+        })
+    elif nueva == actual:
+        errores.append({
+            "campo": "password_nueva",
+            "mensaje": "Debe ser distinta de la contraseña actual.",
+        })
+
+    return errores
+
+
+@bp.route("/cambiar-password", methods=["POST"])
+@login_required
+def cambiar_password():
+    """204 · 400 · 403 (la actual no es correcta) · 422 · 429.
+
+    Decisiones (para el examen oral):
+      * Se exige la contraseña actual: una sesión robada o un ordenador
+        desatendido no bastan para quedarse con la cuenta.
+      * Solo los intentos con la actual INCORRECTA cuentan para el límite
+        (5 cada 15 min por usuario+IP). Los 422 no tocan la BD ni el hash.
+      * La sesión sigue abierta y NO se rota el token CSRF: la respuesta es
+        un 204 sin cuerpo y el frontend no recibiría el token nuevo.
+      * Limitación conocida: la sesión es una cookie firmada, sin estado en el
+        servidor, así que las sesiones abiertas en otros dispositivos siguen
+        siendo válidas hasta que caducan. Cerrarlas exigiría guardar en la BD
+        un «número de versión» de la contraseña y compararlo en cada petición.
+    """
+    datos = request.get_json(silent=True)
+    if not isinstance(datos, dict):
+        return error("json_invalido", "El cuerpo debe ser un JSON válido.", 400)
+
+    errores = validar_cambio_password(datos, g.usuario["username"])
+    if errores:
+        return error("validacion", "Hay datos que no son válidos.", 422, errores)
+
+    id_usuario = g.usuario["id"]
+    activos = limites_activos()
+    clave = clave_cambio_password(id_usuario)
+    if activos:
+        espera = limite_cambio_password.segundos_de_espera(clave)
+        if espera:
+            return respuesta_429(espera)
+
+    conn = get_db_connection()
+    try:
+        with conn, conn.cursor() as cur:
+            # FOR UPDATE: si llegan dos cambios a la vez, se hacen uno tras otro.
+            cur.execute(
+                "SELECT password_hash FROM usuarios WHERE id_usuario = %s FOR UPDATE",
+                (id_usuario,),
+            )
+            fila = cur.fetchone()
+
+            hash_actual = fila[0] if fila else DUMMY_HASH
+            try:
+                ph.verify(hash_actual, datos["password_actual"])
+                correcta = fila is not None
+            except (VerificationError, InvalidHashError):
+                correcta = False
+
+            if not correcta:
+                if activos:
+                    limite_cambio_password.anotar(clave)
+                return error("sin_permiso", "La contraseña actual no es correcta.", 403)
+
+            # Lo que se guarda es el hash, nunca la contraseña en claro.
+            cur.execute(
+                "UPDATE usuarios SET password_hash = %s WHERE id_usuario = %s",
+                (ph.hash(datos["password_nueva"]), id_usuario),
+            )
+    finally:
+        conn.close()
+
+    if activos:
+        limite_cambio_password.reiniciar(clave)
+    return "", 204
