@@ -306,7 +306,7 @@ Todas se aplican **en el servidor**, aunque el cliente ya las compruebe.
 - `username`: 3–30 caracteres, solo letras, números, `_`, `.` y `-`; único (sin distinguir mayúsculas).
 - `email`: formato válido, máximo 254, único.
 - `password`: 10–128 caracteres y distinta del `username`. Se guarda con hash (argon2id o bcrypt), nunca en claro.
-- Límites: 5 intentos fallidos de login por 15 min (por usuario+IP) y 5 registros por hora por IP → `429`.
+- Límites: 5 intentos fallidos de login por 15 min (por usuario+IP), 5 registros por hora por IP y 5 intentos de cambio de contraseña con la actual incorrecta por 15 min (por usuario+IP) → `429`.
 
 **Jugador**
 - `nombre` 1–50 y `ap1` 1–100 obligatorios; `ap2` opcional, máximo 100.

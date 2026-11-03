@@ -6,6 +6,9 @@
 Límites del contrato (docs/API_CONTRATO.md):
     * 5 intentos de login FALLIDOS cada 15 minutos, por usuario + IP.
     * 5 registros cada hora, por IP.
+    * 5 cambios de contraseña FALLIDOS (contraseña actual incorrecta) cada 15
+      minutos, por usuario + IP. Sin esto, quien robase una sesión abierta
+      podría adivinar la contraseña actual probando sin límite.
 
 Limitaciones conocidas (para explicarlas en el examen oral):
     * Los contadores viven en la memoria del proceso. Con un solo proceso de
@@ -80,6 +83,7 @@ class LimitadorIntentos:
 
 limite_login = LimitadorIntentos(maximo=5, ventana=15 * 60)
 limite_registro = LimitadorIntentos(maximo=5, ventana=60 * 60)
+limite_cambio_password = LimitadorIntentos(maximo=5, ventana=15 * 60)
 
 
 def limites_activos():
@@ -101,6 +105,12 @@ def clave_login(username):
 
 def clave_registro():
     return str(request.remote_addr)
+
+
+def clave_cambio_password(id_usuario):
+    """Por id de usuario (ya hay sesión) + IP. El prefijo evita que se mezcle
+    con las claves de login, que tienen el mismo formato «ip|texto»."""
+    return f"{request.remote_addr}|cambio|{id_usuario}"
 
 
 def respuesta_429(segundos):
