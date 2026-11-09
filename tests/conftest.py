@@ -1,11 +1,18 @@
 import os
+import re
 import secrets
 import sys
 from pathlib import Path
 
-os.environ.setdefault("SECRET_KEY", "clave-solo-para-tests")
+RAIZ = Path(__file__).resolve().parents[1]
+BD_DE_TEST = os.getenv("TEST_DB_NAME", "calasanz_test")
+if not re.fullmatch(r"[A-Za-z0-9_]+_test", BD_DE_TEST):
+    raise RuntimeError("TEST_DB_NAME debe terminar en _test para no tocar la BD de desarrollo")
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+os.environ.setdefault("SECRET_KEY", "clave-solo-para-tests")
+os.environ["DB_NAME"] = BD_DE_TEST
+
+sys.path.insert(0, str(RAIZ))
 
 import pytest
 
@@ -53,6 +60,41 @@ def _nuevo_cliente():
 
     flask_app.config["TESTING"] = True
     return ClienteAPI(flask_app.test_client())
+
+
+@pytest.fixture(scope="session", autouse=True)
+def bd_de_test():
+    import psycopg2
+
+    datos = dict(
+        host=os.getenv("DB_HOST", "localhost"),
+        port=int(os.getenv("DB_PORT", "5432")),
+        user=os.getenv("DB_USER", "postgres"),
+        password=os.getenv("DB_PASS", "postgres"),
+    )
+    try:
+        admin = psycopg2.connect(dbname="postgres", **datos)
+    except psycopg2.OperationalError as exc:
+        print(f"\nAviso: no hay PostgreSQL disponible, no se crea la BD de test ({exc})")
+        yield
+        return
+
+    admin.autocommit = True
+    try:
+        with admin.cursor() as cur:
+            cur.execute(f'DROP DATABASE IF EXISTS "{BD_DE_TEST}" WITH (FORCE)')
+            cur.execute(f'CREATE DATABASE "{BD_DE_TEST}"')
+    finally:
+        admin.close()
+
+    bd = psycopg2.connect(dbname=BD_DE_TEST, **datos)
+    try:
+        with bd, bd.cursor() as cur:
+            for script in sorted((RAIZ / "PostGres" / "web").glob("*.sql")):
+                cur.execute(script.read_text(encoding="utf-8"))
+    finally:
+        bd.close()
+    yield
 
 
 @pytest.fixture
