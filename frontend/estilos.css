@@ -1,6 +1,8 @@
 /* =========================================================
    1. VARIABLES DE DISEÑO FIGMA (CLARO Y OSCURO)
    ========================================================= */
+/* Variables del TEMA CLARO (por defecto). Todo el CSS usa var(--...) para que
+   cambiar de tema sea solo redefinir estas variables, sin tocar las reglas. */
 :root {
     --bg-main: #ffffff;
     --bg-soft: #f5f7f5;
@@ -21,6 +23,8 @@
     --transition: all 0.2s ease;
 }
 
+/* TEMA OSCURO: layout.js pone la clase 'dark-mode' en <html> y aquí se
+   redefinen las mismas variables con colores oscuros. */
 html.dark-mode, body.dark-mode {
     --bg-main: #0c140f;
     --bg-soft: #121f17;
@@ -35,12 +39,15 @@ html.dark-mode, body.dark-mode {
     --border-light: #233b2c;
 }
 
+/* Reset básico: box-sizing border-box hace que padding y borde cuenten
+   dentro del ancho declarado (evita desbordes inesperados). */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* Estilos base del <body>: tipografía, color de texto y fondo según el tema. */
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg-main);
@@ -52,11 +59,14 @@ body {
     -webkit-font-smoothing: antialiased;
 }
 
+/* Enlaces sin subrayado por defecto; heredan el color del contexto. */
 a {
     color: inherit;
     text-decoration: none;
 }
 
+/* Enlace 'Saltar al contenido' (accesibilidad): oculto fuera de pantalla
+   hasta que recibe el foco con el teclado (regla :focus siguiente). */
 .skip-link {
     position: absolute;
     left: -9999px;
@@ -71,6 +81,7 @@ a {
     z-index: 9999;
 }
 
+/* Contenedor centrado de ancho máximo; da los márgenes laterales de la web. */
 .container {
     width: 100%;
     max-width: 1180px;
@@ -81,6 +92,8 @@ a {
 /* =========================================================
    2. CABECERA Y NAVEGACIÓN (ESCRITORIO Y MÓVIL INDEPENDIENTES)
    ========================================================= */
+/* Cabecera fija arriba (sticky) con borde inferior; contiene logo, menú y
+   la zona de sesión. */
 .site-header {
     background-color: var(--bg-main);
     border-bottom: 1px solid var(--border-light);
@@ -89,6 +102,8 @@ a {
     z-index: 100;
 }
 
+/* Fila interna de la cabecera: logo a la izquierda, menú en el centro,
+   acciones a la derecha. */
 .header-inner {
     max-width: 1180px;
     margin: 0 auto;
@@ -133,6 +148,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     text-transform: uppercase;
 }
 
+/* Menú principal: lista horizontal sin viñetas. */
 .main-nav ul {
     list-style: none;
     display: flex;
@@ -140,6 +156,8 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     gap: 2.2rem;
 }
 
+/* Cada enlace del menú; la clase .active marca la página actual
+   (la pone layout.js según la URL). */
 .nav-item {
     font-size: 0.92rem;
     font-weight: 500;
@@ -158,6 +176,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     font-weight: 700;
 }
 
+/* Subrayado verde bajo el enlace activo, dibujado con un pseudo-elemento. */
 .nav-item.active::after {
     content: "";
     position: absolute;
@@ -169,6 +188,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     border-radius: 2px;
 }
 
+/* Zona derecha de la cabecera: enlaces de sesión o menú de cuenta. */
 .header-actions {
     display: flex;
     align-items: center;
@@ -200,6 +220,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 /* =========================================================
    3. ELEMENTOS EDITORIALES COMUNES (KICKERS, BOTONES, ETC.)
    ========================================================= */
+/* Etiqueta pequeña sobre los títulos (kicker) con una línea decorativa. */
 .kicker {
     display: inline-flex;
     align-items: center;
@@ -235,6 +256,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     margin-bottom: 1.75rem;
 }
 
+/* Botones principales: .btn-green (relleno) y .btn-outline (solo borde). */
 .btn-green {
     display: inline-flex;
     align-items: center;
@@ -274,6 +296,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     border-color: var(--green-primary);
 }
 
+/* Enlace con flecha ('Ver más'); al pasar el ratón la flecha se separa. */
 .link-arrow {
     display: inline-flex;
     align-items: center;
@@ -290,6 +313,8 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 /* =========================================================
    4. PORTADA (INDEX.HTML)
    ========================================================= */
+/* PORTADA (index.html): hero con título a la izquierda y tarjeta de
+   próximo partido a la derecha. */
 .hero-home {
     padding: 4rem 0 3.5rem;
 }
@@ -309,6 +334,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 }
 
 /* Tarjeta verde oscura de Próximo Partido */
+/* Tarjeta oscura del próximo partido en la portada. */
 .match-card-dark {
     background-color: var(--forest-dark);
     color: #ffffff;
@@ -386,6 +412,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 }
 
 /* Sección gris claro Actualidad */
+/* Franja de noticias de la portada y rejilla de tarjetas. */
 .section-news-band {
     background-color: var(--bg-soft);
     padding: 3.5rem 0;
@@ -410,6 +437,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     gap: 1.5rem;
 }
 
+/* Tarjeta de noticia/crónica: se reutiliza en portada, noticias y equipo. */
 .news-card {
     background-color: var(--surface);
     border: 1px solid var(--border-light);
@@ -445,6 +473,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 }
 
 /* Franja inferior "Nuestros colores, nuestros equipos" */
+/* Franja decorativa con los colores del club (rayas verdes y blancas). */
 .section-colors-strip {
     padding: 2.75rem 0;
 }
@@ -480,6 +509,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 /* =========================================================
    5. PÁGINA DE EQUIPOS (EQUIPOS.HTML)
    ========================================================= */
+/* PÁGINA EQUIPOS: cabecera con gráfico de barras decorativo (solo CSS). */
 .page-hero-equipos {
     padding: 3.5rem 0 2.5rem;
 }
@@ -510,6 +540,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     flex: 1;
 }
 
+/* Barra de filtros por categoría y contador de equipos. */
 .filter-bar {
     display: flex;
     justify-content: space-between;
@@ -519,12 +550,15 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     gap: 1rem;
 }
 
+/* Contenedor de las 'píldoras' de filtro; flex-wrap para que bajen de
+   línea en pantallas estrechas. */
 .filter-pills {
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
 }
 
+/* Píldora de filtro; .active (o :hover) la rellena de verde oscuro. */
 .filter-pill {
     background-color: var(--surface);
     color: var(--text-body);
@@ -547,12 +581,14 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     color: var(--text-muted);
 }
 
+/* Rejilla de tarjetas de equipo (auto-fill: se adapta al ancho disponible). */
 .teams-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
 }
 
+/* Tarjeta de equipo con escudo a la izquierda y datos a la derecha. */
 .team-card-figma {
     background-color: var(--surface);
     border: 1px solid var(--border-light);
@@ -631,6 +667,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
 /* =========================================================
    6. LOGIN Y REGISTRO (SPLIT LAYOUT DE FIGMA)
    ========================================================= */
+/* LOGIN Y REGISTRO: panel partido en póster (izquierda) y formulario. */
 .auth-section {
     padding: 2.5rem 0 4rem;
     flex: 1;
@@ -643,6 +680,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     align-items: center;
 }
 
+/* Póster verde con campo de fútbol (solo se muestra en escritorio). */
 .auth-poster {
     background-color: var(--forest-dark);
     color: #ffffff;
@@ -685,6 +723,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     z-index: 2;
 }
 
+/* Panel del formulario de acceso. */
 .auth-form-panel {
     max-width: 440px;
     width: 100%;
@@ -697,6 +736,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     margin: 0.35rem 0 0.5rem;
 }
 
+/* Grupo etiqueta + campo; la etiqueta siempre va encima del input. */
 .field-group {
     margin-bottom: 1.25rem;
 }
@@ -709,6 +749,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     margin-bottom: 0.45rem;
 }
 
+/* Input con icono a la izquierda (posición absoluta dentro del contenedor). */
 .input-with-icon {
     position: relative;
     display: flex;
@@ -724,6 +765,7 @@ html.dark-mode .brand-title { color: var(--green-primary); }
     pointer-events: none;
 }
 
+/* Estilo común de campos de texto, select y textarea. */
 .input-with-icon input,
 .clean-input,
 select,
@@ -742,6 +784,7 @@ textarea {
     padding-left: 1rem;
 }
 
+/* Resaltado al enfocar un campo (visible también con teclado). */
 .input-with-icon input:focus,
 .clean-input:focus,
 select:focus,
@@ -753,6 +796,7 @@ textarea:focus {
     box-shadow: 0 0 0 4px rgba(21, 122, 60, 0.25);
 }
 
+/* Botón del ojo para mostrar/ocultar contraseña, colocado sobre el input. */
 .btn-eye {
     position: absolute;
     right: 0.75rem;
@@ -764,6 +808,7 @@ textarea:focus {
     align-items: center;
 }
 
+/* Botón de envío a todo el ancho del formulario. */
 .btn-submit-full {
     width: 100%;
     margin-top: 0.5rem;
@@ -782,6 +827,7 @@ textarea:focus {
 }
 
 /* Banner inferior móvil en Login/Registro */
+/* Banner de marca que sustituye al póster en móvil. */
 .auth-mobile-banner {
     display: none;
     background-color: var(--bg-banner-mobile);
@@ -795,6 +841,8 @@ textarea:focus {
 /* =========================================================
    7. PÁGINA INTERNA DE EQUIPO, TABLAS Y PANELES
    ========================================================= */
+/* Barra de pestañas (tablas de la página de equipo y paneles); pestanas.js
+   le añade la lógica ARIA. */
 .tabs-nav {
     display: flex;
     gap: 0.5rem;
@@ -802,6 +850,7 @@ textarea:focus {
     flex-wrap: wrap;
 }
 
+/* TABLAS: estilo general de la tabla de datos. */
 .modern-table {
     width: 100%;
     border-collapse: collapse;
@@ -828,12 +877,14 @@ textarea:focus {
     letter-spacing: 0.05em;
 }
 
+/* Paneles de pestaña: solo se ve el que lleva la clase .active. */
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
 /* =========================================================
    8. PIE DE PÁGINA (FOOTER FIGMA)
    ========================================================= */
+/* PIE DE PÁGINA. */
 .site-footer {
     border-top: 1px solid var(--border-light);
     background-color: var(--bg-main);
@@ -871,6 +922,7 @@ textarea:focus {
 /* =========================================================
    9. ESTÉTICA MÓVIL INDEPENDIENTE (COMO EN LAS CAPTURAS)
    ========================================================= */
+/* RESPONSIVE (≤768px): menú compacto, rejillas a una columna, etc. */
 @media (max-width: 768px) {
     .container, .header-inner, .footer-inner {
         padding-left: 1.25rem;
@@ -1002,6 +1054,7 @@ textarea:focus {
 /* =========================================================
    10. ESTILOS DEL ACTA DEL PARTIDO (ESTRUCTURA 3 COLUMNAS RFCF)
    ========================================================= */
+/* ACTA DEL PARTIDO (acta.html): barra con competición, fecha y lugar. */
 .acta-meta-bar {
     background-color: var(--surface);
     border: 1px solid var(--border-light);
@@ -1028,6 +1081,7 @@ textarea:focus {
 }
 html.dark-mode .acta-competicion-badge { color: var(--green-primary); }
 
+/* Rejilla del acta: tres columnas en escritorio (ver @media ≤960px abajo). */
 .acta-grid {
     display: grid;
     grid-template-columns: 330px 1fr 1fr;
@@ -1044,6 +1098,7 @@ html.dark-mode .acta-competicion-badge { color: var(--green-primary); }
 }
 
 /* Marcador columna izquierda */
+/* Marcador grande con escudo local, resultado y escudo visitante. */
 .acta-scoreboard {
     display: flex;
     align-items: center;
@@ -1070,6 +1125,7 @@ html.dark-mode .acta-competicion-badge { color: var(--green-primary); }
     line-height: 1.2;
 }
 
+/* Escudo del rival: si no hay imagen se pinta un recuadro (placeholder). */
 .acta-score-team img, .rival-shield-placeholder {
     width: 48px;
     height: 48px;
@@ -1099,6 +1155,7 @@ html.dark-mode .acta-competicion-badge { color: var(--green-primary); }
 html.dark-mode .acta-score-numbers { color: #ffffff; }
 
 /* Bloques internos del acta */
+/* Bloques de contenido del acta (alineación, árbitros, eventos...). */
 .acta-block {
     margin-bottom: 1.5rem;
 }
@@ -1117,6 +1174,7 @@ html.dark-mode .acta-score-numbers { color: #ffffff; }
     border-bottom: 1px solid var(--border-light);
 }
 
+/* Cabecera de cada equipo dentro del acta. */
 .acta-team-header {
     font-size: 1.05rem;
     font-weight: 800;
@@ -1129,6 +1187,7 @@ html.dark-mode .acta-score-numbers { color: #ffffff; }
     gap: 0.5rem;
 }
 
+/* Filas de jugadores: dorsal, nombre y marcas (goles, tarjetas). */
 .acta-rows {
     display: flex;
     flex-direction: column;
@@ -1165,6 +1224,7 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
     color: var(--text-dark);
 }
 
+/* Insignia de gol junto al nombre del jugador. */
 .acta-goal-badge {
     background-color: var(--forest-dark);
     color: #ffffff;
@@ -1174,6 +1234,8 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
     border-radius: 4px;
 }
 
+/* Pareja de sustitución: línea 'Entra' y línea 'Sale'.
+   Colores con contraste AA tanto en claro como en oscuro (revisión B9). */
 .acta-sub-pair {
     background-color: var(--bg-soft);
     border-radius: 6px;
@@ -1195,6 +1257,7 @@ html.dark-mode .acta-dorsal { color: var(--green-primary); }
 html.dark-mode .sub-in { color: #4ade80; }
 html.dark-mode .sub-out { color: #f87171; }
 
+/* Tarjetas del árbitro/jugador: cuadrado amarillo y rojo. */
 .card-yellow {
     display: inline-block;
     width: 10px;
@@ -1215,6 +1278,7 @@ html.dark-mode .sub-out { color: #f87171; }
 /* =========================================================
    11. PERFIL DE JUGADOR Y PANEL ADMIN (FIGMA STYLE)
    ========================================================= */
+/* Tarjetas de estadísticas (KPI) del jugador y paneles. */
 .stat-kpi-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);   /* partidos, minutos, goles, asistencias y tarjetas */
@@ -1245,6 +1309,7 @@ html.dark-mode .sub-out { color: #f87171; }
     line-height: 1.1;
 }
 
+/* Rejilla de dos columnas de los paneles de administración. */
 .admin-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1.4fr;
@@ -1252,6 +1317,7 @@ html.dark-mode .sub-out { color: #f87171; }
     align-items: start;
 }
 
+/* Responsive ≤960px: las rejillas del acta y los paneles pasan a 1 columna. */
 @media (max-width: 960px) {
     .acta-grid {
         grid-template-columns: 1fr;
@@ -1272,12 +1338,16 @@ html.dark-mode .sub-out { color: #f87171; }
    12. SCROLL HORIZONTAL INTERNO EN TABLAS (MÓVIL RESPONSIVE)
    ========================================================= */
 /* Evita que cualquier elemento empuje la pantalla completa en móvil */
+/* Evita el desplazamiento horizontal de TODA la página; los elementos
+   anchos (tablas) se desplazan dentro de su propio contenedor. */
 html, body {
     max-width: 100%;
     overflow-x: hidden;
 }
 
 /* Contenedor que recorta la tabla y permite arrastrarla con el dedo */
+/* Contenedor con scroll horizontal propio para las tablas anchas.
+   Así en el móvil se puede arrastrar la tabla sin romper la página. */
 .table-responsive {
     position: relative;   /* contiene los textos .solo-lectores (position: absolute) de las celdas */
     width: 100%;
@@ -1314,9 +1384,11 @@ html, body {
    ========================================================= */
 
 /* Atributo hidden: debe ocultar SIEMPRE, aunque el elemento tenga display:flex o grid */
+/* El atributo hidden debe ganar siempre a cualquier display declarado. */
 [hidden] { display: none !important; }
 
 /* Foco visible en TODO lo que se puede pulsar o escribir (teclado y lector de pantalla) */
+/* ACCESIBILIDAD: anillo de foco visible al navegar con teclado. */
 a:focus-visible,
 button:focus-visible,
 select:focus-visible,
@@ -1333,6 +1405,7 @@ html.dark-mode [tabindex]:focus-visible { outline-color: #ffd24d; }
 main:focus { outline: none; }   /* el <main> solo se enfoca desde "Saltar al contenido" */
 
 /* Quien prefiere menos movimiento (ajuste del sistema operativo) no ve animaciones */
+/* Respeta a quien pide menos animaciones en su sistema operativo. */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation: none !important;
@@ -1342,15 +1415,19 @@ main:focus { outline: none; }   /* el <main> solo se enfoca desde "Saltar al con
 }
 
 /* Texto solo para lectores de pantalla (invisible, pero se lee en voz alta) */
+/* Texto solo para lectores de pantalla (invisible pero accesible). */
 .solo-lectores {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
     overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
 
 /* Hasta saber si hay permiso, una página protegida no enseña su contenido */
+/* Mientras se comprueba la sesión se oculta el <main> para no mostrar
+   contenido a quien aún no está identificado. */
 .comprobando-sesion main { visibility: hidden; }
 
 /* Cartel "Cargando…" que enseña api.js mientras hay peticiones en curso */
+/* Indicador de carga y cursor de espera. */
 .indicador-carga {
     position: fixed; right: 1rem; bottom: 1rem; z-index: 200;
     background: var(--surface); color: var(--text-dark); font-weight: 700; font-size: 0.9rem;
@@ -1360,6 +1437,7 @@ main:focus { outline: none; }   /* el <main> solo se enfoca desde "Saltar al con
 body.cargando { cursor: progress; }
 
 /* Avisos de api.js (Api.mostrarError) y de formularios */
+/* Mensajes de feedback (error, ok, aviso) con variantes para tema oscuro. */
 .mensaje, .feedback {
     padding: 0.8rem 1rem; border-radius: var(--radius-sm);
     border: 1px solid currentColor; margin-bottom: 1rem;
@@ -1374,6 +1452,7 @@ html.dark-mode .feedback-ok { background: #12301c; color: #a8e6b8; }
 html.dark-mode .feedback-aviso { background: #3a2e0a; color: #ffe08a; }
 
 /* Banner de aviso al principio de <main> (modo demostración, sin permiso…) */
+/* Banners de aviso (modo demostración, error del servidor). */
 .banner-aviso {
     margin: 0; padding: 0.7rem 1.25rem; text-align: center;
     font-size: 0.88rem; font-weight: 600;
@@ -1384,6 +1463,7 @@ html.dark-mode .banner-demo { background: #3a2e0a; color: #ffe08a; }
 html.dark-mode .banner-error { background: #3b1717; color: #ffb4ab; }
 
 /* Errores de campo (auth.js, panel-coordinador.js) */
+/* Mensajes de error bajo los campos; aria-invalid pinta el borde en rojo. */
 .error-campo { display: block; color: #b3261e; font-size: 0.85rem; font-weight: 700; margin-top: 0.35rem; }
 html.dark-mode .error-campo { color: #ffb4ab; }
 [aria-invalid="true"] { border-color: #b3261e !important; }
@@ -1391,6 +1471,8 @@ html.dark-mode .error-campo { color: #ffb4ab; }
 
 
 /* Estructura de páginas (sustituye a los antiguos style="...") */
+/* CLASES UTILITARIAS: sustituyen a los atributos style="" de los HTML
+   (norma del proyecto: nada de estilos en línea). */
 .main-flex { display: flex; flex-direction: column; flex: 1; }
 .titulo-hero { margin-bottom: 0.4rem; }
 .titulo-hero-pequeno { font-size: clamp(2rem, 4vw, 3rem); }
@@ -1432,12 +1514,14 @@ html.dark-mode .banner-titulo { color: var(--text-dark); }
 }
 
 /* Formularios del panel */
+/* Rejillas de 2-3 columnas usadas en formularios y actas. */
 .grid-2-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
 .grid-dorsal { display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; }
 .grid-acta-1 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1rem; }
 @media (max-width: 640px) {
     .grid-2-cols, .grid-dorsal, .grid-acta-1 { grid-template-columns: 1fr; }
 }
+/* Botones y filas de acciones de las tablas. */
 .fila-botones { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 .boton-ancho { flex: 1; }
 .btn-pequeno { padding: 0.4rem 0.75rem; font-size: 0.82rem; }
@@ -1447,12 +1531,14 @@ html.dark-mode .btn-peligro { color: #ffb4ab; }
 .celda-mensaje { text-align: center; color: var(--text-body); padding: 1.5rem 1rem; }
 
 /* Tablas y plantilla */
+/* Enlaces dentro de tablas y resalte de la fila del equipo propio. */
 .enlace-tabla, .enlace-subrayado { color: var(--green-primary); font-weight: 700; text-decoration: underline; }
 .fila-propia { font-weight: 800; background: var(--bg-soft); }
 .dorsal-num { font-size: 1.25rem; color: var(--forest-dark); }
 html.dark-mode .dorsal-num { color: var(--text-dark); }
 
 /* Aviso de errores en pantalla (lo crea api.js cuando algo falla; sirve para depurar en móvil) */
+/* Aviso con lista de errores de validación (formulario del acta). */
 .aviso-errores {
     position: fixed; left: 0.75rem; right: 0.75rem; bottom: 0.75rem; z-index: 300;
     max-height: 50vh; overflow-y: auto;
@@ -1468,6 +1554,7 @@ html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-colo
  * obligar a deslizar. Sin esto, el dato clave ("Vuelta estimada") quedaba fuera de la pantalla.
  * Las tablas anchas (estadísticas, clasificación) siguen deslizándose como antes.
  */
+/* Las tablas compactas no fuerzan ancho mínimo (caben en el móvil). */
 .table-responsive .modern-table.tabla-compacta { min-width: 0; }
 @media (max-width: 768px) {
     .tabla-compacta th,
@@ -1476,6 +1563,7 @@ html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-colo
 
 /* Pestañas del equipo (7): en el móvil van en UNA sola fila que se desliza con el dedo,
    en vez de apilarse en 3 filas. Las pestañas no se encogen ni parten el texto. */
+/* Ajustes móviles de pestañas: se desplazan en horizontal. */
 @media (max-width: 768px) {
     .tabs-nav {
         position: relative;              /* equipo.js calcula la posición de cada pestaña respecto a esta fila */
@@ -1488,6 +1576,7 @@ html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-colo
 }
 
 /* Contacto: bloque de alternativa si no se abre el correo */
+/* Contacto: alternativa si no se abre el programa de correo (mailto:). */
 .contacto-alternativa {
     display: flex; flex-direction: column; gap: 0.75rem;
     margin-bottom: 1rem; padding: 1rem;
@@ -1501,6 +1590,7 @@ html.dark-mode .aviso-errores { background: #3b1717; color: #ffb4ab; border-colo
  * Las crea Api.tarjeta() en api.js. El rectángulo es solo decorativo: el número y el texto
  * (visible o para lector de pantalla) dicen lo mismo, así no depende solo del color.
  */
+/* Resumen de tarjetas (amarillas/rojas) en las listas de jugadores. */
 .tarjetas-resumen { display: inline-flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
 /* position: relative es IMPORTANTE: el texto .solo-lectores de dentro es position: absolute y, sin un
    contenedor de referencia, se escapa de la tabla deslizable y ensancha toda la página en el móvil. */
@@ -1519,6 +1609,7 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 .tarjeta-numero { font-weight: 800; color: var(--text-dark); }
 
 /* Acta */
+/* Textos auxiliares y estadio del acta. */
 .acta-etiqueta { font-size: 0.72rem; color: var(--text-muted); display: block; }
 .acta-block-centrado { text-align: center; padding-top: 0.5rem; }
 .acta-titulo-izq { text-align: left; }
@@ -1529,24 +1620,32 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 .enlace-volver-auth { display: flex; width: fit-content; }
 
 /* ===== Acta con dos columnas (marcador + nuestro equipo): del rival no se guarda alineación ===== */
+/* Acta en el panel del entrenador: columna de 330px + resto. */
 .acta-grid-2 { grid-template-columns: 330px 1fr; }
 @media (max-width: 960px) { .acta-grid-2 { grid-template-columns: 1fr; } }
 .acta-goal-badge { white-space: nowrap; }
 
 /* ===== Panel del entrenador ===== */
+/* PANEL DEL ENTRENADOR (prefijo pe-): selector de equipo, marcador y
+   editor de eventos del acta. */
 .pe-selector-equipo { max-width: 420px; margin-bottom: 1rem; }
 .boton-pequeno { padding: 0.35rem 0.75rem; font-size: 0.8rem; min-height: 36px; }
 .pe-marcador { font-size: 1.4rem; font-weight: 800; margin: 0.5rem 0 1rem; }
 .pe-resultado { margin-top: 1rem; }
 /* Cada evento del acta: una fila de campos que se parte en varias líneas en pantallas estrechas */
+/* Fila de un evento (gol, tarjeta, cambio): los campos bajan de línea
+   si no caben. */
 .pe-evento { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: flex-end; padding: 0.75rem; margin-bottom: 0.5rem; background: var(--bg-soft); border-radius: 8px; border-left: 3px solid var(--green-primary); }
 .pe-evento-campo { margin: 0; flex: 1 1 130px; min-width: 110px; }
 .pe-evento-campo[hidden] { display: none; }
 @media (max-width: 600px) { .pe-evento-campo { flex: 1 1 100%; } }
+/* Las crónicas conservan los saltos de línea que escribió el entrenador. */
 .news-card[data-tipo="cronica"] .news-card-texto { white-space: pre-line; }
 .tabla-compacta select { min-width: 7.5rem; padding: 0.3rem 0.5rem; }
 
 /* ===== Menú de la cuenta (inicial del usuario, arriba a la derecha) ===== */
+/* MENÚ DE CUENTA (círculo con la inicial arriba a la derecha):
+   .cuenta es el contenedor, .cuenta-panel el desplegable. */
 .cuenta { position: relative; }
 .cuenta-boton {
     width: 40px; height: 40px; border-radius: 50%; border: 2px solid transparent;
@@ -1562,23 +1661,29 @@ html.dark-mode .tarjeta-futbol { border-color: rgba(255, 255, 255, 0.45); }
 }
 .cuenta-cabecera { display: flex; flex-direction: column; padding: 0.5rem 1rem 0.75rem; border-bottom: 1px solid var(--border-light); }
 .cuenta-cabecera span { font-size: 0.8rem; color: var(--text-muted); }
+/* Lista de opciones del menú de cuenta. */
 .cuenta-lista { list-style: none; margin: 0; padding: 0.25rem 0; }
 .cuenta-opcion {
     display: block; width: 100%; text-align: left; box-sizing: border-box; padding: 0.7rem 1rem; min-height: 44px;
     background: none; border: none; font: inherit; font-size: 0.92rem; font-weight: 600; color: var(--text-body); cursor: pointer;
 }
 .cuenta-opcion:hover { background: var(--bg-soft); color: var(--green-primary); }
+/* Opción 'Cerrar sesión' en rojo, separada por una línea. */
 .cuenta-salir { color: #b3261e; border-top: 1px solid var(--border-light); }
 html.dark-mode .cuenta-salir { color: #ffb4ab; }
 
 /* Los hijos de una rejilla no pueden ser más anchos que su columna: sin esto, una tabla ancha dentro de un
    <div> ensanchaba la columna y la página se cortaba por la derecha sin poder deslizarla (móvil). */
+/* IMPORTANTE (móvil): los hijos de una rejilla tienen min-width:auto y una
+   tabla ancha ensanchaba la columna, cortando la página. Con min-width:0
+   el hijo puede encogerse y la tabla se desplaza dentro de su contenedor. */
 .admin-grid-2 > *, .acta-grid > * { min-width: 0; }
 
 
 /* =========================================================
    B9. Tamaño táctil mínimo (≈44px, WCAG 2.5.5) en controles pequeños
    ========================================================= */
+/* Tamaño táctil mínimo de ≈44px en controles pequeños (revisión B9, WCAG 2.5.5). */
 .filter-pill, .tabs-nav .tab-btn, .boton-pequeno, .btn-pequeno { min-height: 44px; }
 .link-arrow { min-height: 44px; }
 .btn-eye { min-width: 44px; min-height: 44px; justify-content: center; right: 0; }

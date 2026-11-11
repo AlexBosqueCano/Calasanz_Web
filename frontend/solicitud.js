@@ -17,14 +17,18 @@
 (function () {
     'use strict';
 
+    // Atajos a api.js: `el` construye elementos del DOM de forma segura.
     const { el, nombreCompleto } = Api;
+    // Utilidades comunes de los paneles (mensajes, selects, envío con modo demo...).
     const U = PanelUtil;
     const $ = (id) => document.getElementById(id);
 
+    // Estado de la página: equipos del club, plantilla del equipo elegido y mis solicitudes anteriores.
     let equipos = [];
     let plantilla = [];
     let mias = [];
 
+    // Traducción del estado interno (el servidor usa minúsculas) a texto para el usuario.
     const ESTADO_TEXTO = { pendiente: 'Pendiente', aprobada: 'Aprobada', rechazada: 'Rechazada' };
 
     /* El selector de jugador solo tiene sentido si se pide ser jugador. */
@@ -32,9 +36,11 @@
         $('sol-grupo-jugador').hidden = $('sol-rol').value !== 'JUGADOR';
     }
 
+    // Carga los jugadores del equipo elegido para poder escoger la ficha. Solo si se pide ser jugador.
     async function cargarPlantilla() {
         if ($('sol-rol').value !== 'JUGADOR') return;
         try {
+            // Demo.obtener: API real o, si no responde, datos de ejemplo.
             plantilla = U.comoLista(await Demo.obtener(`/equipos/${$('sol-equipo').value}/plantilla`, null, Demo.plantilla));
         } catch (error) {
             plantilla = [];
@@ -50,11 +56,13 @@
         return vinculo ? `${rol}: ${vinculo}` : rol;
     }
 
+    // Dibuja el historial de solicitudes del usuario y decide si se puede enviar otra.
     function pintarMias() {
         const caja = $('sol-lista');
         caja.textContent = '';
         if (!mias.length) { caja.appendChild(el('p', { texto: 'Todavía no has enviado ninguna solicitud.', clase: 'texto-vacio' })); return; }
         mias.forEach(s => {
+            // Estructura de cada tarjeta: estado + fecha, qué se pidió y el mensaje enviado.
             const hijos = [
                 el('div', { clase: 'news-card-meta', hijos: [el('span', { texto: (ESTADO_TEXTO[s.estado] || s.estado).toUpperCase() }), el('span', { texto: Api.formatearFecha(s.creada_en) })] }),
                 el('h3', { texto: textoSolicitud(s) }),
@@ -65,6 +73,7 @@
             caja.appendChild(el('article', { clase: 'news-card', hijos }));
         });
 
+        // (Regla del servidor: una sola pendiente por usuario; aquí ocultamos el formulario para no confundir.)
         // Con una solicitud pendiente no se puede enviar otra
         const pendiente = mias.some(s => s.estado === 'pendiente');
         $('sol-form').hidden = pendiente;
@@ -76,13 +85,17 @@
         }
     }
 
+    // Valida y envía la solicitud de acceso (POST /api/solicitudes).
     async function enviarSolicitud(evento) {
+        // Evitamos la recarga de página del envío normal de formularios.
         evento.preventDefault();
         U.limpiar('sol-feedback');
         const rol = $('sol-rol').value;
         const mensajeTxt = $('sol-mensaje').value.trim();
+        // Longitud del mensaje según el contrato de la API (5–500 caracteres).
         if (mensajeTxt.length < 5 || mensajeTxt.length > 500) return U.mensaje('sol-feedback', 'El mensaje debe tener entre 5 y 500 caracteres.', 'error');
 
+        // Cuerpo de la petición: según el rol pedimos una ficha de jugador o un equipo.
         const cuerpo = { rol_solicitado: rol, mensaje: mensajeTxt };
         let jugador = null, equipo = null;
         if (rol === 'JUGADOR') {
@@ -98,6 +111,7 @@
         const boton = $('sol-form').querySelector('button[type="submit"]');
         boton.disabled = true;   // evita envíos duplicados
         try {
+            // En demo no hay servidor: `creada` es null y montamos la solicitud en memoria para enseñarla.
             const creada = await U.enviar('post', '/solicitudes', cuerpo);
             mias.unshift(creada || { id: Date.now(), rol_solicitado: rol, estado: 'pendiente', mensaje: mensajeTxt, creada_en: new Date().toISOString(),
                 jugador: jugador ? { id: jugador.id, nombre_completo: nombreCompleto(jugador) } : null,
@@ -113,6 +127,7 @@
         }
     }
 
+    // Arranque: comprueba que el usuario puede solicitar y carga equipos y solicitudes anteriores.
     async function iniciar() {
         const usuario = Sesion.actual();
         // Solo los usuarios ESTANDAR (o el modo demostración, sin usuario) pueden solicitar
@@ -125,12 +140,14 @@
             return;
         }
 
+        // Eventos del formulario (sin onclick en el HTML).
         $('sol-form').addEventListener('submit', enviarSolicitud);
         $('sol-rol').addEventListener('change', () => { ajustarRol(); cargarPlantilla(); });
         $('sol-equipo').addEventListener('change', cargarPlantilla);
         ajustarRol();
 
         try {
+            // Solo los equipos del club (propios=true), no los rivales.
             equipos = U.comoLista(await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos));
             U.rellenarSelect($('sol-equipo'), equipos.map(e => ({ valor: e.id, texto: e.nombre })));
             await cargarPlantilla();
@@ -141,5 +158,6 @@
         }
     }
 
+    // layout.js avisa con este evento cuando la sesión ya está comprobada.
     document.addEventListener('layout:listo', iniciar);
 })();

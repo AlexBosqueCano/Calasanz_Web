@@ -21,21 +21,25 @@
 (function () {
     'use strict';
 
+    // Atajos a api.js: `el` construye elementos del DOM sin innerHTML; `nombreCompleto` une nombre y apellidos.
     const { el, nombreCompleto } = Api;
+    // Atajo para document.getElementById.
     const $ = (id) => document.getElementById(id);
 
     // ------------------------------------------------------------------
     // Estado
     // ------------------------------------------------------------------
-    let equipos = [];
-    let solicitudes = [];
+    // Todo el estado vive en variables del módulo (no hay frameworks): cada función lee/modifica estas
+    // variables y luego vuelve a pintar la tabla correspondiente.
+    let equipos = [];            // equipos propios del club (para los desplegables)
+    let solicitudes = [];        // solicitudes de acceso pendientes
     let jugadores = [];          // plantilla del equipo elegido en la pestaña Jugadores
-    let jugadorEnEdicion = null;
+    let jugadorEnEdicion = null; // jugador que se está editando; null = el formulario crea uno nuevo
     let noticias = [];
-    let noticiaEnEdicion = null;
+    let noticiaEnEdicion = null; // igual que arriba, pero para noticias/eventos
     let lesiones = null;         // pestaña Lesiones (lesiones-ui.js)
-    let solicitudARechazar = null;
-    let pestanas = null;
+    let solicitudARechazar = null; // solicitud a la que se está escribiendo el motivo de rechazo
+    let pestanas = null;         // controlador de pestañas (pestanas.js)
 
     // ------------------------------------------------------------------
     // Utilidades (compartidas con los demás paneles: panel-util.js)
@@ -45,8 +49,10 @@
     // ==================================================================
     // PESTAÑA 1: SOLICITUDES
     // ==================================================================
+    // Traduce el rol que pide el usuario (código del servidor) a texto legible.
     const ROL_TEXTO = { JUGADOR: 'Jugador', ENTRENADOR: 'Entrenador' };
 
+    // Pide las solicitudes pendientes y las pinta. Si falla, muestra el error arriba del panel.
     async function cargarSolicitudes() {
         try {
             const r = await Demo.obtener('/solicitudes', { estado: 'pendiente' }, Demo.solicitudes);
@@ -66,11 +72,13 @@
         return vinculo ? `${rol}: ${vinculo}` : rol;
     }
 
+    // Tabla de solicitudes pendientes con botones Aprobar / Rechazar por fila.
     function pintarSolicitudes() {
         const cuerpo = $('pc-tabla-solicitudes');
         cuerpo.textContent = '';
         if (!solicitudes.length) { filaVacia(cuerpo, 'No hay solicitudes pendientes.', 5); return; }
         solicitudes.forEach(s => {
+            // Si el servidor no manda el objeto usuario, caemos al id para que la fila nunca quede vacía.
             const usuario = s.usuario ? s.usuario.username : `Usuario n.º ${s.usuario_id}`;
             cuerpo.appendChild(el('tr', { hijos: [
                 el('td', { hijos: [el('strong', { texto: usuario })] }),
@@ -85,6 +93,8 @@
         });
     }
 
+    // Envía la decisión (PATCH) y quita la solicitud de la lista si ha ido bien.
+    // s = solicitud; cuerpo = { estado, comentario? }; textoOk = mensaje de éxito para el usuario.
     async function resolver(s, cuerpo, textoOk) {
         try {
             await enviar('patch', `/solicitudes/${s.id}`, cuerpo);
@@ -98,11 +108,13 @@
         }
     }
 
+    // Aprobar cambia el rol del usuario y lo vincula a su ficha o equipo, por eso pedimos confirmación.
     async function aprobar(s, usuario) {
         if (!window.confirm(`¿Aprobar la solicitud de ${usuario} (${textoSolicitud(s)})? Se le cambiará el rol.`)) return;
         await resolver(s, { estado: 'aprobada' }, `Solicitud de ${usuario} aprobada.`);
     }
 
+    // Rechazar exige un motivo: abrimos un mini formulario y guardamos qué solicitud se rechaza.
     function abrirRechazo(s, usuario) {
         solicitudARechazar = s;
         $('pc-rechazo-titulo').textContent = `Rechazar la solicitud de ${usuario}`;
@@ -111,6 +123,7 @@
         $('pc-rechazo-motivo').focus();
     }
 
+    // Envía el rechazo con el motivo escrito por coordinación.
     async function rechazar(evento) {
         evento.preventDefault();
         const motivo = $('pc-rechazo-motivo').value.trim();
@@ -124,10 +137,12 @@
     // ==================================================================
     // PESTAÑA 2: JUGADORES
     // ==================================================================
+    // Tabla de la plantilla del equipo elegido, ordenada por dorsal (los que no tienen, al final).
     function pintarJugadores() {
         const cuerpo = $('pc-tabla-jugadores');
         cuerpo.textContent = '';
         if (!jugadores.length) { filaVacia(cuerpo, 'Este equipo no tiene jugadores todavía.', 4); return; }
+        // slice() copia la lista para ordenar sin alterar el orden original; `?? 999` manda a los sin dorsal al final.
         jugadores.slice().sort((a, b) => (a.dorsal ?? 999) - (b.dorsal ?? 999)).forEach(j => {
             const nombre = nombreCompleto(j);
             cuerpo.appendChild(el('tr', { hijos: [
@@ -142,6 +157,7 @@
         });
     }
 
+    // Carga la plantilla del equipo seleccionado en el desplegable de la pestaña Jugadores.
     async function cargarJugadores() {
         try {
             jugadores = comoLista(await Demo.obtener(`/equipos/${$('pc-j-equipo').value}/plantilla`, null, Demo.plantilla));
@@ -152,6 +168,7 @@
         pintarJugadores();
     }
 
+    // Pasa el formulario a modo edición y lo rellena con los datos del jugador.
     function empezarEdicionJugador(j) {
         jugadorEnEdicion = j;
         $('pc-j-nombre').value = j.nombre || '';
@@ -166,6 +183,7 @@
         $('pc-j-nombre').focus();
     }
 
+    // Vuelve al modo "alta nueva" y vacía el formulario.
     function terminarEdicionJugador() {
         jugadorEnEdicion = null;
         $('pc-form-jugador').reset();
@@ -173,6 +191,7 @@
         $('pc-cancelar-jugador').hidden = true;
     }
 
+    // Es una baja lógica: el servidor no borra al jugador, así se conservan sus estadísticas.
     async function eliminarJugador(j) {
         // Acción destructiva: SIEMPRE confirmar
         if (!window.confirm(`¿Seguro que quieres dar de baja a ${nombreCompleto(j)}? Se conservarán sus estadísticas.`)) return;
@@ -186,12 +205,15 @@
         }
     }
 
+    // Crea o edita un jugador. Primero validación HTML5, después reglas propias.
     async function guardarJugador(evento) {
         evento.preventDefault();
         limpiar('pc-feedback-jugador');
+        // checkValidity/reportValidity usan los atributos required/min/max del HTML y muestran el aviso nativo.
         const form = $('pc-form-jugador');
         if (!form.checkValidity()) { form.reportValidity(); return; }
 
+        // Cuerpo de la petición. Los campos opcionales (2.º apellido, estatura, peso) solo se envían si se rellenan.
         const datos = {
             nombre: $('pc-j-nombre').value.trim(), ap1: $('pc-j-ap1').value.trim(),
             posicion: $('pc-j-posicion').value, dorsal: parseInt($('pc-j-dorsal').value, 10),
@@ -211,6 +233,7 @@
         }
 
         const botonEnviar = form.querySelector('button[type="submit"]');
+        // (Con `finally` lo reactivamos pase lo que pase.)
         botonEnviar.disabled = true;   // evita envíos duplicados
         try {
             if (jugadorEnEdicion) {
@@ -233,6 +256,7 @@
     // ==================================================================
     // PESTAÑA 3: NOTICIAS Y EVENTOS
     // ==================================================================
+    // Pide todas las publicaciones y pinta la tabla de la pestaña 3.
     async function cargarNoticias() {
         try {
             noticias = comoLista(await Demo.obtener('/noticias', null, Demo.noticias));
@@ -242,6 +266,7 @@
         }
     }
 
+    // Tabla de publicaciones con su tipo, fecha y botones Editar / Eliminar.
     function pintarNoticias() {
         const cuerpo = $('pc-tabla-noticias');
         cuerpo.textContent = '';
@@ -266,6 +291,7 @@
         $('pc-n-fecha').required = esEvento;
     }
 
+    // Carga la publicación elegida en el formulario para editarla.
     function empezarEdicionNoticia(n) {
         noticiaEnEdicion = n;
         $('pc-n-tipo').value = n.tipo || 'noticia';
@@ -278,6 +304,7 @@
         $('pc-n-titulo').focus();
     }
 
+    // Vuelve al modo "nueva publicación".
     function terminarEdicionNoticia() {
         noticiaEnEdicion = null;
         $('pc-form-noticia').reset();
@@ -286,6 +313,7 @@
         $('pc-cancelar-noticia').hidden = true;
     }
 
+    // Crea o edita una noticia o evento. Los límites coinciden con docs/API_CONTRATO.md.
     async function guardarNoticia(evento) {
         evento.preventDefault();
         limpiar('pc-feedback-noticia');
@@ -297,10 +325,12 @@
         if (cuerpoTxt.length < 1 || cuerpoTxt.length > 10000) return mensaje('pc-feedback-noticia', 'El texto debe tener entre 1 y 10 000 caracteres.', 'error');
         if (tipo === 'evento' && !fecha) return mensaje('pc-feedback-noticia', 'Un evento necesita fecha.', 'error');
 
+        // Solo los eventos llevan fecha_evento.
         const datos = { titulo, cuerpo: cuerpoTxt, tipo };
         if (tipo === 'evento') datos.fecha_evento = fecha;
         try {
             if (noticiaEnEdicion) {
+                // PATCH: el servidor devuelve la noticia actualizada; en demo (null) usamos lo que escribió el usuario.
                 const nueva = await enviar('patch', `/noticias/${noticiaEnEdicion.id}`, datos);
                 Object.assign(noticiaEnEdicion, nueva || datos);
                 if (tipo !== 'evento') noticiaEnEdicion.fecha_evento = null;
@@ -316,6 +346,7 @@
         }
     }
 
+    // Borrado definitivo: confirmación obligatoria.
     async function eliminarNoticia(n) {
         if (!window.confirm(`¿Seguro que quieres eliminar "${n.titulo}"?`)) return;
         try {
@@ -332,11 +363,14 @@
     // ==================================================================
     // Arranque (cuando layout.js ya comprobó la sesión y los permisos)
     // ==================================================================
+    // Prepara pestañas, eventos de formularios y carga inicial de datos.
     async function iniciar() {
+        // Pestañas accesibles (pestanas.js): teclado con flechas y enlaces directos con #hash.
         pestanas = Pestanas.iniciar({ botones: '.pc-tab', paneles: ['pc-solicitudes', 'pc-jugadores', 'pc-noticias', 'pc-lesiones'],
             porHash: { '#solicitudes': 'pc-solicitudes', '#jugadores': 'pc-jugadores', '#noticias': 'pc-noticias', '#lesiones': 'pc-lesiones' },
             inicial: 'pc-solicitudes' });
 
+        // Eventos de los formularios y botones (sin onclick en el HTML).
         $('pc-form-rechazo').addEventListener('submit', rechazar);
         $('pc-cancelar-rechazo').addEventListener('click', () => { $('pc-form-rechazo').hidden = true; solicitudARechazar = null; });
         $('pc-form-jugador').addEventListener('submit', guardarJugador);
@@ -352,6 +386,7 @@
 
         try {
             equipos = comoLista(await Demo.obtener('/equipos', { propios: 'true' }, Demo.equipos));
+            // Mismas opciones de equipo para los selectores de Jugadores y Lesiones.
             const opciones = equipos.map(e => ({ valor: e.id, texto: e.nombre }));
             rellenarSelect($('pc-j-equipo'), opciones);
             rellenarSelect($('pc-l-equipo'), opciones);
@@ -362,5 +397,6 @@
         await Promise.all([cargarSolicitudes(), cargarJugadores(), cargarNoticias(), lesiones.cargar()]);
     }
 
+    // layout.js avisa con este evento cuando la sesión y los permisos ya están comprobados.
     document.addEventListener('layout:listo', iniciar);
 })();
